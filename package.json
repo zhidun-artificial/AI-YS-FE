@@ -1,0 +1,39 @@
+{
+  "private": true,
+  "author": "",
+  "scripts": {
+    "build": "max build",
+    "dev": "max dev",
+    "format": "prettier --cache --write .",
+    "postinstall": "max setup",
+    "prepare": "husky",
+    "setup": "max setup",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@ant-design/pro-components": "^2.8.6",
+    "@ant-design/x": "^1.0.5",
+    "@types/lodash": "^4.17.15",
+    "@umijs/max": "^4.4.5",
+    "antd": "^5.24.1",
+    "antd-style": "^3.7.1",
+    "lodash": "^4.17.21",
+    "markdown-it": "^14.1.0",
+    "react-pdf": "^9.2.1",
+    "react-use": "^17.6.0"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "copy-webpack-plugin": "^12.0.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.1",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-packagejson": "^2.5.8",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  }
+}
