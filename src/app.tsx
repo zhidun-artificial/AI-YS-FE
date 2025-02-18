@@ -5,6 +5,7 @@ import { AxiosError, history, matchRoutes, RuntimeConfig } from 'umi';
 import './app.css';
 import { ApiResponse } from './services/http';
 import { getPermissions, RoleDetail } from './services/user/role';
+import { STORE_KEY_TOKEN, STORE_KEY_USER_ROLE } from './constants';
 
 const isAxiosError = (error: any): error is AxiosError => {
   return error.isAxiosError;
@@ -16,10 +17,10 @@ document.title = 'AI知识服务系统';
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 export async function getInitialState(): Promise<
   | {
-      name: string;
-      auth?: RoleDetail;
-      [x: string]: any;
-    }
+    name: string;
+    auth?: RoleDetail;
+    [x: string]: any;
+  }
   | undefined
 > {
   const pageAccess = {
@@ -36,7 +37,7 @@ export async function getInitialState(): Promise<
     canAccessSystem: false,
     canAccessNew: false,
   };
-  const roleId = localStorage.getItem('zd_user_role');
+  const roleId = localStorage.getItem(STORE_KEY_USER_ROLE);
   if (!roleId) {
     return {
       name: 'AI知识服务系统',
@@ -78,7 +79,7 @@ export async function getInitialState(): Promise<
 export const request: RequestConfig = {
   requestInterceptors: [
     (url, options) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem(STORE_KEY_TOKEN);
       const headers = {
         // Authorization: `Bearer ${token}`,
         Auth: token || '',
@@ -87,20 +88,6 @@ export const request: RequestConfig = {
         url,
         options: { ...options, headers },
       };
-      // if (token || history.location.pathname === '/login') {
-      //   const headers = {
-      //     // Authorization: `Bearer ${token}`,
-      //     Auth: token || '',
-      //   };
-      //   return {
-      //     url,
-      //     options: { ...options, headers },
-      //   };
-      // } else {
-      //   message.error('用户登录过期，请先登录');
-      //   history.push('/login');
-      //   return { url, options };
-      // }
     },
   ],
   responseInterceptors: [
@@ -108,7 +95,7 @@ export const request: RequestConfig = {
     [
       (response) => {
         if (response.headers.auth) {
-          localStorage.setItem('token', response.headers.auth);
+          localStorage.setItem(STORE_KEY_TOKEN, response.headers.auth);
         }
         return response;
       },
@@ -118,12 +105,12 @@ export const request: RequestConfig = {
             history.location.pathname !== '/login' &&
             error.response?.status === 403
           ) {
+            localStorage.clear(); // 清除token等信息
             message.error('用户登录过期，请先登录');
             history.push('/login');
           } else {
             message.error((error.response?.data as ApiResponse<unknown>)?.msg);
           }
-          localStorage.clear(); // 清除token等信息
         }
         return Promise.reject(error);
       },
@@ -157,7 +144,7 @@ export const onRouteChange: RuntimeConfig['onRouteChange'] = ({
 }) => {
   const route = matchRoutes(clientRoutes, location.pathname)?.pop()?.route;
   if (route?.path === '/login') return;
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(STORE_KEY_TOKEN);
   if (!token) {
     if (route?.path === '/') {
       history.push('/login');

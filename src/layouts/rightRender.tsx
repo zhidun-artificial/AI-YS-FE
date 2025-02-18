@@ -94,7 +94,7 @@ export function getRightRenderContent(opts: {
   }
 
   return (
-    <div className="umi-plugin-layout-right anticon">
+    <div className="umi-plugin-layout-right action">
       {opts.runtimeConfig.logout ? (
         <Dropdown
           {...dropdownProps}

@@ -1,4 +1,4 @@
-import { API_URL } from '@/constants';
+import { API_URL, STORE_KEY_TOKEN } from '@/constants';
 import { history, request } from '@umijs/max';
 import { message } from 'antd';
 import { ExpireError } from './error';
@@ -100,7 +100,7 @@ export async function httpStream<T = Record<string, unknown>>(
   url: string,
   data: T,
 ): Promise<ReadableStream<Uint8Array<ArrayBufferLike>> | Error> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(STORE_KEY_TOKEN);
 
   const response = await fetch(`${API_URL}${url}`, {
     method: 'POST',
@@ -120,6 +120,10 @@ export async function httpStream<T = Record<string, unknown>>(
 
   if (!isResponseOK(response.status)) {
     return new Error(response.statusText);
+  }
+
+  if (response.headers.has('auth')) {
+    localStorage.setItem(STORE_KEY_TOKEN, response.headers.get('auth') as string);
   }
 
   if (!response.body) {

@@ -1,7 +1,7 @@
 import EmptyFile from '@/assets/images/empty-file.png';
 import PdfPng from '@/assets/images/pdf.png';
 import WordPng from '@/assets/images/word.png';
-import { API_ID, API_URL } from '@/constants';
+import { API_ID, API_URL, STORE_KEY_TOKEN } from '@/constants';
 import type { UploadProps } from 'antd';
 import { Empty, List, message, Typography, Upload } from 'antd';
 import React from 'react';
@@ -9,7 +9,7 @@ import FileCard from '../FileCard';
 import type { FileType } from './type';
 
 const { Dragger } = Upload;
-const token: string = localStorage.getItem('token') || API_ID;
+const token: string = localStorage.getItem(STORE_KEY_TOKEN) || API_ID;
 
 const LocalFile: React.FC<{
   files: FileType[];

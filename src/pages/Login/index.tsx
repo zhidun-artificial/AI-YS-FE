@@ -1,6 +1,6 @@
 import bigBg from '@/assets/images/big-ai.png';
 import logoIcon from '@/assets/images/logo.png';
-import { STORE_USER_ID, STORE_USER_NAME, STORE_USER_ROLE } from '@/constants';
+import { STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from '@/constants';
 import { login } from '@/services/auth/login';
 import { getPermissions } from '@/services/user/role';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
@@ -20,10 +20,10 @@ export default function Page() {
     }
     if (res.code === 0) {
       // 保存token和用户信息
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem(STORE_USER_ID, `${res.data.info.id}`);
-      localStorage.setItem(STORE_USER_NAME, `${res.data.info.name}`);
-      localStorage.setItem(STORE_USER_ROLE, `${res.data.info.roleId}`);
+      localStorage.setItem(STORE_KEY_TOKEN, res.data.token);
+      localStorage.setItem(STORE_KEY_USER_ID, `${res.data.info.id}`);
+      localStorage.setItem(STORE_KEY_USER_NAME, `${res.data.info.name}`);
+      localStorage.setItem(STORE_KEY_USER_ROLE, `${res.data.info.roleId}`);
       setUser(res.data.info);
       console.log('login success');
       const authRes = await getPermissions(res.data.info.roleId);

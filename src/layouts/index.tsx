@@ -32,6 +32,7 @@ import { Avatar, Button, Drawer, Dropdown, MenuProps } from 'antd';
 import { ItemType } from 'antd/es/menu/interface';
 import { useEffect, useState } from 'react';
 import './Layout.css';
+import { STORE_KEY_USER_NAME } from '@/constants';
 
 const IconMap: {
   [key: string]: { icon: JSX.Element; iconSelect: JSX.Element };
@@ -176,9 +177,8 @@ export default () => {
     <div className="flex bg-[url('@/assets/images/bg.png')] bg-[length:100%_100%]">
       <div
         id="sideMenu"
-        className={`${
-          collapsed ? 'w-[80px] px-[7px]' : 'w-[260px] px-4'
-        } side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50`}
+        className={`${collapsed ? 'w-[80px] px-[7px]' : 'w-[260px] px-4'
+          } side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50`}
       >
         <div
           className="h-[60px] w-[22px] bg-white rounded-xl absolute -right-[30px] top-1/2 flex justify-center items-center hover:cursor-pointer z-50"
@@ -232,21 +232,19 @@ export default () => {
                 >
                   <li
                     key={item.name}
-                    className={`${specialMatch ? 'bg-[#F3F4F7]' : ''} ${
-                      collapsed
-                        ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
-                        : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
-                    } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
+                    className={`${specialMatch ? 'bg-[#F3F4F7]' : ''} ${collapsed
+                      ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
+                      : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
+                      } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
                   >
                     {specialMatch
                       ? IconMap[item.name ?? '']?.iconSelect
                       : IconMap[item.name ?? '']?.icon}
                     <span
-                      className={`${
-                        specialMatch
-                          ? 'text-[#000614] font-medium'
-                          : 'text-[#586A92] font-normal'
-                      } text-lg}`}
+                      className={`${specialMatch
+                        ? 'text-[#000614] font-medium'
+                        : 'text-[#586A92] font-normal'
+                        } text-lg}`}
                     >
                       {item.name}
                     </span>
@@ -257,22 +255,20 @@ export default () => {
             return (
               <li
                 key={item.name}
-                className={`${matched ? 'bg-[#F3F4F7]' : ''} ${
-                  collapsed
-                    ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
-                    : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
-                } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
+                className={`${matched ? 'bg-[#F3F4F7]' : ''} ${collapsed
+                  ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
+                  : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
+                  } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
                 onClick={() => onClickMenuItem(item)}
               >
                 {matched
                   ? IconMap[item.name ?? '']?.iconSelect
                   : IconMap[item.name ?? '']?.icon}
                 <span
-                  className={`${
-                    matched
-                      ? 'text-[#000614] font-medium'
-                      : 'text-[#586A92] font-normal'
-                  } text-lg}`}
+                  className={`${matched
+                    ? 'text-[#000614] font-medium'
+                    : 'text-[#586A92] font-normal'
+                    } text-lg}`}
                 >
                   {item.name}
                 </span>
@@ -280,11 +276,10 @@ export default () => {
             );
           })}
           <li
-            className={`${
-              collapsed
-                ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
-                : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
-            } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
+            className={`${collapsed
+              ? 'flex-col leading-4 h-[82px] gap-3 bg-transparent justify-center'
+              : 'flex-row leading-[56px] pl-4 h-[56px] gap-4'
+              } hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
             onClick={() => {
               setShowConversations(!showConversations);
               setSearchTime(Date.now());
@@ -294,11 +289,10 @@ export default () => {
               ? IconMap['历史会话']?.iconSelect
               : IconMap['历史会话']?.icon}
             <span
-              className={`${
-                showConversations
-                  ? 'text-[#000614] font-medium'
-                  : 'text-[#586A92] font-normal'
-              } text-lg}`}
+              className={`${showConversations
+                ? 'text-[#000614] font-medium'
+                : 'text-[#586A92] font-normal'
+                } text-lg}`}
             >
               历史会话
             </span>
@@ -306,19 +300,16 @@ export default () => {
         </ul>
         <Dropdown menu={{ items }}>
           <div
-            className={`${
-              collapsed ? 'flex-col gap-2' : 'flex-row items-center gap-5'
-            } flex p-4 hover:cursor-pointer fixed bottom-0`}
+            className={`${collapsed ? 'flex-col gap-2' : 'flex-row items-center gap-5'
+              } flex p-4 hover:cursor-pointer fixed bottom-0`}
           >
             <Avatar size={40} icon={<UserOutlined />}></Avatar>
             <span
-              className={`${
-                collapsed ? 'w-[66px] text-center overflow-hidden -ml-4' : ''
-              }`}
+              className={`${collapsed ? 'w-[66px] text-center overflow-hidden -ml-4' : ''
+                }`}
             >
-              {localStorage.getItem('zd_user_name')}
+              {localStorage.getItem(STORE_KEY_USER_NAME)}
             </span>
-            {/* {!collapsed && <span>{localStorage.getItem('zd_user_name')}</span>} */}
           </div>
         </Dropdown>
       </div>

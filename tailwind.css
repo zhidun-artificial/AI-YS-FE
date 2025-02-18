@@ -1,17 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  @font-face {
-    font-family: Alibaba;
-    src: url('@/assets/fonts/AlibabaPuHuiTi-3-55-RegularL3.ttf')
-      format('truetype');
-  }
-}
-
-@layer utilities {
-  .font-alibaba {
-    font-family: Alibaba, sans-serif;
-  }
-}
