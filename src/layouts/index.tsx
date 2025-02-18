@@ -332,7 +332,7 @@ export default () => {
             onSelectConversation={onSelectConversation}
           ></ConversationHistory>
         </Drawer>
-        {canAccessCurrentPage && <Outlet />}
+        {<Outlet />}
       </div>
     </div>
   );

@@ -24,7 +24,6 @@ const routes: routeType = [
     name: '会话',
     path: '/home',
     component: '@/pages/Home/index.tsx',
-    access: 'canAccessHome',
     menu: {
       category: 'function',
       sort: 1
@@ -34,7 +33,6 @@ const routes: routeType = [
     name: '对话',
     path: '/chat/:id',
     component: '@/pages/Chat/$id.tsx',
-    access: 'canAccessChat',
     menu: {
       category: 'function',
       hidden: true,
@@ -44,7 +42,6 @@ const routes: routeType = [
     name: '新建对话',
     path: '/new/:id',
     component: '@/pages/New/$id.tsx',
-    access: 'canAccessNew',
     menu: {
       category: 'function',
       hidden: true,
@@ -54,7 +51,6 @@ const routes: routeType = [
     name: '知识库',
     path: '/knowledge',
     component: '@/pages/Knowledge',
-    access: 'canAccessDocument',
     menu: {
       category: 'function',
       sort: 4
@@ -76,25 +72,21 @@ const routes: routeType = [
       category: 'system',
       sort: 2
     },
-    access: 'canAccessSetting',
     routes: [
       {
         name: '系统设置',
         path: '/management/system',
         component: '@/pages/Management/System.tsx',
-        access: 'canAccessSensitive',
       },
       {
         name: '模型管理',
         path: '/management/models',
         component: '@/pages/Management/Models.tsx',
-        access: 'canAccessSensitive',
       },
       {
         name: '屏蔽词管理',
         path: '/management/sensitive',
         component: '@/pages/Management/Sensitive.tsx',
-        access: 'canAccessSensitive',
       }
     ],
   },
