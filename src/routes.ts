@@ -6,7 +6,7 @@ type routeType = ReturnType<typeof defineConfig>['routes'];
 const routes: routeType = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/home',
   },
   {
     name: '登录',

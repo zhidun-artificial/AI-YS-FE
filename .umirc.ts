@@ -28,7 +28,13 @@ export default defineConfig({
     ]);
   },
   favicons: ['favicon.ico'],
-  antd: {},
+  antd: {
+    theme: {
+      token: {
+        colorPrimary: '#4F46E5'
+      }
+    },
+  },
   access: {},
   model: {},
   initialState: {},
