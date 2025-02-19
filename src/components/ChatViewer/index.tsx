@@ -2,7 +2,6 @@ import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
 import {
   Attachments,
   Bubble,
-  Prompts,
   Sender,
   useXAgent,
   useXChat,
@@ -28,7 +27,8 @@ import ChatAttachments, {
   ChatAttachmentsRef,
 } from '../ChatAttachments';
 import Guide from './Guide';
-import PromptsPreset from './PromptsPreset';
+import ModelSelect from './ModelSelect';
+import KnowledgeSelect from './KnowledgeSelect';
 
 const md = markdownIt({ html: true, breaks: true });
 
@@ -313,10 +313,10 @@ const ChatViewer: React.ForwardRefRenderFunction<
     setNewQueryCount(newQueryCount + 1);
   };
 
-  const onPromptsItemClick: GetProp<typeof Prompts, 'onItemClick'> = (info) => {
-    const prompt = (info.data as unknown as { prompt: string }).prompt;
-    onSubmit(prompt);
-  };
+  // const onPromptsItemClick: GetProp<typeof Prompts, 'onItemClick'> = (info) => {
+  //   const prompt = (info.data as unknown as { prompt: string }).prompt;
+  //   onSubmit(prompt);
+  // };
 
   const items: GetProp<typeof Bubble.List, 'items'> = messages.map(
     ({ id, message, status }) => ({
@@ -368,7 +368,12 @@ const ChatViewer: React.ForwardRefRenderFunction<
           <Bubble.List items={items} roles={roles} className="flex-1" />
         )}
         {/* 🌟 提示词 */}
-        <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset>
+        {/* <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset> */}
+        {/* 参数选择 */}
+        <div className='flex gap-4'>
+          <ModelSelect style={{ width: 200 }}></ModelSelect>
+          <KnowledgeSelect style={{ width: 200 }}></KnowledgeSelect>
+        </div>
         {/* 🌟 输入框 */}
         <Sender
           value={content}
