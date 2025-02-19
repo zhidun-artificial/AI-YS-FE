@@ -10,25 +10,30 @@ import {
 } from '@ant-design/x';
 import React, {
   forwardRef,
+  useContext,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react';
 
-import { Avatar, Badge, Button, Typography, type GetProp } from 'antd';
+import { Avatar, Button, Flex, Typography, type GetProp } from 'antd';
 import markdownIt from 'markdown-it';
 import { convertMessage, MessageData } from './adapter';
 
 import botImg from '@/assets/images/bot.svg';
 import { getHistoryMessages } from '@/services/chat/getHistoryMessages';
-import ChatAttachments, {
-  ChatAttachmentsProps,
-  ChatAttachmentsRef,
-} from '../ChatAttachments';
+// import ChatAttachments, {
+//   ChatAttachmentsProps,
+//   ChatAttachmentsRef,
+// } from '../ChatAttachments';
 import Guide from './Guide';
 import ModelSelect from './ModelSelect';
 import KnowledgeSelect from './KnowledgeSelect';
+import { ConfigContext } from 'antd/es/config-provider';
+import { CopyFilled, DeleteFilled } from '@ant-design/icons';
+import { ReactComponent as SendSvg } from '@/icons/send.svg';
+import { ReactComponent as RobotSvg } from '@/icons/robot.svg';
 
 const md = markdownIt({ html: true, breaks: true });
 
@@ -65,8 +70,10 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const slashWithFiles = useRef<boolean>(withDocFiles.length > 0);
   const [newQueryCount, setNewQueryCount] = useState(0);
   const [content, setContent] = useState('');
-  const [hasAttachment, setHasAttachment] = useState(false);
-  const attachmentRef = useRef<ChatAttachmentsRef>(null);
+  // const [hasAttachment, setHasAttachment] = useState(false);
+  // const attachmentRef = useRef<ChatAttachmentsRef>(null);
+
+  const { theme } = useContext(ConfigContext);
 
   //  =================== Roles ====================
 
@@ -107,16 +114,26 @@ const ChatViewer: React.ForwardRefRenderFunction<
     );
   };
 
+  const renderQuery: BubbleProps['messageRender'] = (content) => (
+    <Flex vertical className='min-w-24 group'>
+      <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
+      <Flex className='h-14 justify-end items-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300' style={{ height: 56, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+        <span className='cursor-pointer' title='复制'><CopyFilled /></span>
+        <span className='cursor-pointer' title='删除'><DeleteFilled /></span>
+      </Flex>
+    </Flex>
+  )
+
   const roles: GetProp<typeof Bubble.List, 'roles'> = {
     answer: {
-      avatar: <Avatar size={44} src={botImg}></Avatar>,
+      avatar: <Avatar size={32} style={{ background: theme?.token?.colorPrimary }} icon={<RobotSvg width={18} height={18} />}></Avatar>,
       placement: 'start',
       typing: false,
       classNames: {},
       styles: {
         content: {
           borderRadius: 8,
-          background: 'white',
+          background: '#F3F4F6',
         },
       },
       messageRender: renderMarkdown,
@@ -129,10 +146,12 @@ const ChatViewer: React.ForwardRefRenderFunction<
       styles: {
         content: {
           color: 'white',
-          background: 'linear-gradient( 180deg, #4C53E6 0%, #477FFF 100%)',
+          background: theme?.token?.colorPrimary,
           borderRadius: 8,
+          paddingBottom: 4
         },
       },
+      messageRender: renderQuery
     },
     files: {
       avatar: <Avatar size={44} src={botImg}></Avatar>,
@@ -263,13 +282,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
     if (conversationId) updateMessages();
   }, [conversationId]);
 
-  const onAttachmentChange: ChatAttachmentsProps['onConfirm'] = (
-    selectFiles,
-  ) => {
-    tempFiles.current = [...selectFiles.tmpFiles];
-    docFiles.current = [...selectFiles.docFiles];
-    setHasAttachment(tempFiles.current.length + docFiles.current.length > 0);
-  };
+  // const onAttachmentChange: ChatAttachmentsProps['onConfirm'] = (
+  //   selectFiles,
+  // ) => {
+  //   tempFiles.current = [...selectFiles.tmpFiles];
+  //   docFiles.current = [...selectFiles.docFiles];
+  //   setHasAttachment(tempFiles.current.length + docFiles.current.length > 0);
+  // };
 
   // ==================== Event ====================
 
@@ -328,26 +347,26 @@ const ChatViewer: React.ForwardRefRenderFunction<
     }),
   );
 
-  const attachmentsNode = (
-    <Badge dot={hasAttachment}>
-      <ChatAttachments
-        ref={attachmentRef}
-        onConfirm={onAttachmentChange}
-      ></ChatAttachments>
-    </Badge>
-  );
+  // const attachmentsNode = (
+  //   <Badge dot={hasAttachment}>
+  //     <ChatAttachments
+  //       ref={attachmentRef}
+  //       onConfirm={onAttachmentChange}
+  //     ></ChatAttachments>
+  //   </Badge>
+  // );
 
   // 选择引导功能
-  const onSelectFunc = (key: string) => {
-    if (key === '2') {
-      attachmentRef.current?.open();
-    } else if (key === '3') {
-      attachmentRef.current?.open({
-        maxCount: 1,
-        tip: '翻译仅支持选择一个文件',
-      });
-    }
-  };
+  // const onSelectFunc = (key: string) => {
+  //   if (key === '2') {
+  //     attachmentRef.current?.open();
+  //   } else if (key === '3') {
+  //     attachmentRef.current?.open({
+  //       maxCount: 1,
+  //       tip: '翻译仅支持选择一个文件',
+  //     });
+  //   }
+  // };
 
   // =================== expose methods ====================
   useImperativeHandle(ref, () => ({
@@ -362,7 +381,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     <div className={`w-full h-screen`}>
       <div className="h-full w-full max-w-[1200px] m-auto flex flex-col gap-4 py-4">
         {!chatInfo.conversationId && items.length === 0 ? (
-          <Guide onSelect={onSelectFunc} />
+          <Guide />
         ) : (
           // 🌟 消息列表
           <Bubble.List items={items} roles={roles} className="flex-1" />
@@ -379,10 +398,20 @@ const ChatViewer: React.ForwardRefRenderFunction<
           value={content}
           onSubmit={onSubmit}
           onChange={setContent}
+          placeholder='请输入您的问题，让我来协助您...'
           // 开始对话之后，则无法进行附件上传
-          prefix={messages.length > 0 ? null : attachmentsNode}
+          // prefix={messages.length > 0 ? null : attachmentsNode}
           loading={agent.isRequesting()}
-          className="bg-white"
+          className="bg-[#F9FAFB] rounded"
+          actions={() => {
+            return (
+              <Button type="primary"
+                icon={<SendSvg style={{ width: 14, height: 14, color: '#FFF' }} />}
+                disabled={agent.isRequesting()}
+                loading={agent.isRequesting()}
+                onClick={() => onSubmit(content)}>发送</Button>
+            )
+          }}
         />
       </div>
     </div>

@@ -53,7 +53,7 @@ export default () => {
   };
 
   return (
-    <div className="flex bg-[url('@/assets/images/bg.png')] bg-[length:100%_100%]">
+    <div className="flex">
       <div
         id="sideMenu"
         className="w-[255px] p-4 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50"
@@ -89,11 +89,10 @@ export default () => {
                       onClick={() => onClickMenuItem(item)}
                     >
                       <span
-                        className={`${
-                          matched
-                            ? 'text-[#000614] font-medium'
-                            : 'text-[#586A92] font-normal'
-                        } text-lg}`}
+                        className={`${matched
+                          ? 'text-[#000614] font-medium'
+                          : 'text-[#586A92] font-normal'
+                          } text-lg}`}
                       >
                         {item.name}
                       </span>
