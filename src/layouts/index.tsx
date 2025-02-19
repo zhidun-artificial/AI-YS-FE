@@ -1,7 +1,7 @@
 // import { useAccessMarkedRoutes } from '@@/plugin-access';
 import routes from '@/routes';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { matchPath, useLocation, useNavigate } from '@umijs/max';
+import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { Button } from 'antd';
 import './Layout.css';
 
@@ -55,11 +55,10 @@ export default () => {
                 onClick={() => onClickMenuItem(item)}
               >
                 <span
-                  className={`${
-                    matched
-                      ? 'text-[#000614] font-medium'
-                      : 'text-[#586A92] font-normal'
-                  } text-lg}`}
+                  className={`${matched
+                    ? 'text-[#000614] font-medium'
+                    : 'text-[#586A92] font-normal'
+                    } text-lg}`}
                 >
                   {item.name}
                 </span>
@@ -67,6 +66,9 @@ export default () => {
             );
           })}
         </ul>
+      </div>
+      <div className="flex-1 h-[100vh] overflow-auto px-4">
+        <Outlet></Outlet>
       </div>
     </div>
   );

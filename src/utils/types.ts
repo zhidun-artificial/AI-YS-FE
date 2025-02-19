@@ -1,0 +1,1 @@
+export type PropsWithStyle<P> = P & { style?: React.CSSProperties, classnames?: string };
