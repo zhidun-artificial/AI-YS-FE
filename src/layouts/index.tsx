@@ -73,10 +73,10 @@ export default () => {
           const categoryName = menu.categoryName;
           return (
             <>
-              <span className="text-[#586A92] text-lg font-medium mb-4">
+              <div className="text-[#6B7280] text-xs leading-4 font-medium mb-4 pl-4">
                 {categoryName}
-              </span>
-              <ul key={index} className="flex flex-col items-center gap-5">
+              </div>
+              <ul key={index} className="flex flex-col items-center">
                 {menu.items.map((item: IBestAFSRoute) => {
                   const matched = matchPath(
                     { path: item.path || '/' },
@@ -85,7 +85,7 @@ export default () => {
                   return (
                     <li
                       key={item.name}
-                      className={`${matched ? 'bg-[#F3F4F7]' : ''} ${'flex-row leading-[56px] pl-4 h-[56px] gap-4'} hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
+                      className={`${matched ? 'bg-[#F3F4F6]' : 'hover:bg-[#F3F4F6]'} ${'flex-row leading-[40px] pl-4 h-[40px]'} hover:cursor-pointer w-full rounded flex items-center `}
                       onClick={() => onClickMenuItem(item)}
                     >
                       <span
