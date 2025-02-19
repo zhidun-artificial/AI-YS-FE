@@ -1,0 +1,32 @@
+# caddy配置，用来模拟生产环境进行测试
+{
+	auto_https disable_redirects
+}
+
+# 配置代理目标地址
+(reverse_proxy) {
+	reverse_proxy 113.108.105.54:56800
+}
+
+# 配置ws代理
+(reverse_ws) {
+	@websockets {
+		header Connection *Upgrade*
+		header Upgrade websocket
+	}
+
+	reverse_proxy @websockets 113.108.105.54:56800
+}
+
+http://127.0.0.1 {
+	# 将本地目录地址作为根路径
+	root * dist
+	file_server
+
+	# import reverse_ws
+
+	# 代理指定路径
+	route /knowledge/api/* {
+		import reverse_proxy
+	}
+}
