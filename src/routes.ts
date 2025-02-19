@@ -1,7 +1,6 @@
-import type { defineConfig } from "@umijs/max";
+import type { defineConfig } from '@umijs/max';
 
 type routeType = ReturnType<typeof defineConfig>['routes'];
-
 
 const routes: routeType = [
   {
@@ -26,8 +25,9 @@ const routes: routeType = [
     component: '@/pages/Home/index.tsx',
     menu: {
       category: 'function',
-      sort: 1
-    }
+      categoryName: '功能',
+      sort: 1,
+    },
   },
   {
     name: '对话',
@@ -35,8 +35,9 @@ const routes: routeType = [
     component: '@/pages/Chat/$id.tsx',
     menu: {
       category: 'function',
+      categoryName: '功能',
       hidden: true,
-    }
+    },
   },
   {
     name: '新建对话',
@@ -44,8 +45,9 @@ const routes: routeType = [
     component: '@/pages/New/$id.tsx',
     menu: {
       category: 'function',
+      categoryName: '功能',
       hidden: true,
-    }
+    },
   },
   {
     name: '知识库',
@@ -53,8 +55,9 @@ const routes: routeType = [
     component: '@/pages/Knowledge',
     menu: {
       category: 'function',
-      sort: 4
-    }
+      categoryName: '功能',
+      sort: 4,
+    },
   },
   {
     name: '搜索',
@@ -62,15 +65,17 @@ const routes: routeType = [
     component: '@/pages/Search',
     menu: {
       category: 'system',
-      sort: 1
-    }
+      categoryName: '系统',
+      sort: 1,
+    },
   },
   {
     name: '管理',
     path: '/management',
     menu: {
       category: 'system',
-      sort: 2
+      categoryName: '系统',
+      sort: 2,
     },
     routes: [
       {
@@ -87,7 +92,7 @@ const routes: routeType = [
         name: '屏蔽词管理',
         path: '/management/sensitive',
         component: '@/pages/Management/Sensitive.tsx',
-      }
+      },
     ],
   },
   {
@@ -96,9 +101,10 @@ const routes: routeType = [
     component: '@/pages/Team',
     menu: {
       category: 'system',
-      sort: 1
-    }
+      categoryName: '系统',
+      sort: 1,
+    },
   },
-]
+];
 
-export default routes
+export default routes;

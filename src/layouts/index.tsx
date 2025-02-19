@@ -10,12 +10,37 @@ interface IBestAFSRoute {
   name?: string;
   menu?: {
     category: string;
+    categoryName: string;
     sort: number;
+    hidden?: boolean;
   };
 }
 
-console.log('routes', routes);
-const menus = (routes as IBestAFSRoute[]).filter((item) => item.menu);
+const menuList = (routes as IBestAFSRoute[]).filter(
+  (item) => item.menu && !item.menu.hidden,
+);
+
+// 按照 menu 中的 category 分组
+const menus = menuList.reduce(
+  (
+    prev: { [key: string]: { categoryName: string; items: IBestAFSRoute[] } },
+    curr,
+  ) => {
+    const { category, categoryName = '' } = curr.menu || {};
+    if (!category) return prev;
+    if (!prev[category]) {
+      prev[category] = {
+        categoryName,
+        items: [],
+      };
+    }
+    prev[category].items.push(curr);
+    return prev;
+  },
+  {},
+);
+
+console.log('menus', menus);
 
 export default () => {
   const navigate = useNavigate();
@@ -45,28 +70,42 @@ export default () => {
         >
           {'创建新对话'}
         </Button>
-        <ul className="flex flex-col items-center gap-5">
-          {menus.map((item: any) => {
-            const matched = matchPath({ path: item.path || '/' }, pathname);
-            return (
-              <li
-                key={item.name}
-                className={`${matched ? 'bg-[#F3F4F7]' : ''} ${'flex-row leading-[56px] pl-4 h-[56px] gap-4'} hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
-                onClick={() => onClickMenuItem(item)}
-              >
-                <span
-                  className={`${
-                    matched
-                      ? 'text-[#000614] font-medium'
-                      : 'text-[#586A92] font-normal'
-                  } text-lg}`}
-                >
-                  {item.name}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+
+        {Object.values(menus).map((menu: any, index: number) => {
+          const categoryName = menu.categoryName;
+          return (
+            <>
+              <span className="text-[#586A92] text-lg font-medium mb-4">
+                {categoryName}
+              </span>
+              <ul key={index} className="flex flex-col items-center gap-5">
+                {menu.items.map((item: IBestAFSRoute) => {
+                  const matched = matchPath(
+                    { path: item.path || '/' },
+                    pathname,
+                  );
+                  return (
+                    <li
+                      key={item.name}
+                      className={`${matched ? 'bg-[#F3F4F7]' : ''} ${'flex-row leading-[56px] pl-4 h-[56px] gap-4'} hover:cursor-pointer w-full rounded-xl flex items-center hover:bg-[#F3F4F7]`}
+                      onClick={() => onClickMenuItem(item)}
+                    >
+                      <span
+                        className={`${
+                          matched
+                            ? 'text-[#000614] font-medium'
+                            : 'text-[#586A92] font-normal'
+                        } text-lg}`}
+                      >
+                        {item.name}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          );
+        })}
       </div>
     </div>
   );
