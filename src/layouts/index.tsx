@@ -6,11 +6,13 @@ import {
   RightOutlined,
 } from '@ant-design/icons';
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
-import { Button } from 'antd';
+import { Avatar, Button, Layout } from 'antd';
 import { useEffect, useState } from 'react';
-import { Icon } from 'umi';
+import { Icon, useRouteProps } from 'umi';
 import './Layout.css';
 import SubMenu from './SubMenu';
+
+const { Header } = Layout;
 
 interface RouteItem {
   path?: string;
@@ -54,9 +56,13 @@ const menus: { [key: string]: { categoryName: string; items: RouteItem[] } } =
 export default () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const routeProps = useRouteProps();
   const [routeObject, setRouteObject] = useState<{
     [key: string]: { categoryName: string; items: RouteItem[] };
   }>(menus);
+  const [url] = useState<string>(
+    'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  );
 
   // 点击助理或者历史会话
   const onClickSubMenu = (e: any) => {
@@ -129,7 +135,7 @@ export default () => {
     }
   };
 
-  console.log('routeObject', routeObject);
+  console.log('routeProps', routeProps);
   return (
     <div className="flex">
       <div
@@ -207,7 +213,18 @@ export default () => {
           );
         })}
       </div>
-      <div className="flex-1 h-[100vh] overflow-auto px-4">
+      <div className="flex-1 h-[100vh] overflow-auto">
+        <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
+          <div>
+            <h1 className="text-[#1F2937] text-lg font-medium">
+              {routeProps.name}
+            </h1>
+          </div>
+          <div>
+            <Avatar src={url} className="mr-3" />
+            <span>张信服</span>
+          </div>
+        </Header>
         <Outlet></Outlet>
       </div>
     </div>
