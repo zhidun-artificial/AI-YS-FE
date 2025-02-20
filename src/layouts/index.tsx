@@ -8,7 +8,7 @@ import {
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { Avatar, Button, Layout } from 'antd';
 import { useEffect, useState } from 'react';
-import { Icon, useRouteProps } from 'umi';
+import { Icon, Link, useRouteProps } from 'umi';
 import './Layout.css';
 import SubMenu from './SubMenu';
 
@@ -215,10 +215,19 @@ export default () => {
       </div>
       <div className="flex-1 h-[100vh] overflow-auto">
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
-          <div>
+          <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
               {routeProps.name}
             </h1>
+            <ul className="flex">
+              {routeProps.children?.map((item: any) => (
+                <li key={item.path}>
+                  <Link to={item.path} className="mx-5">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
           <div>
             <Avatar src={url} className="mr-3" />
