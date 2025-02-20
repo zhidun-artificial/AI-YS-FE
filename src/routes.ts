@@ -62,14 +62,14 @@ const routes: routeType = [
     },
   },
   {
-    name: '搜索',
+    name: '文献搜索',
     path: '/search',
     component: '@/pages/Search',
     icon: 'local:search', // 自定义图标
     menu: {
-      category: 'system',
-      categoryName: '系统',
-      sort: 1,
+      category: 'function',
+      categoryName: '功能',
+      sort: 5,
     },
   },
   {
