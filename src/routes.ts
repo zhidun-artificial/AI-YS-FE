@@ -23,6 +23,7 @@ const routes: routeType = [
     name: '会话',
     path: '/home',
     component: '@/pages/Home/index.tsx',
+    icon: 'local:chat',
     menu: {
       category: 'function',
       categoryName: '功能',
@@ -53,6 +54,7 @@ const routes: routeType = [
     name: '知识库',
     path: '/knowledge',
     component: '@/pages/Knowledge',
+    icon: 'local:knowledge', // 自定义图标
     menu: {
       category: 'function',
       categoryName: '功能',
@@ -63,6 +65,7 @@ const routes: routeType = [
     name: '搜索',
     path: '/search',
     component: '@/pages/Search',
+    icon: 'local:search', // 自定义图标
     menu: {
       category: 'system',
       categoryName: '系统',
@@ -72,6 +75,7 @@ const routes: routeType = [
   {
     name: '管理',
     path: '/management',
+    icon: 'local:setting',
     menu: {
       category: 'system',
       categoryName: '系统',
@@ -99,6 +103,7 @@ const routes: routeType = [
     name: '团队管理',
     path: '/team',
     component: '@/pages/Team',
+    icon: 'local:team', // 自定义图标
     menu: {
       category: 'system',
       categoryName: '系统',

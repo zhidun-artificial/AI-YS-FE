@@ -1,4 +1,4 @@
-import { defineConfig, RuntimeConfig } from '@umijs/max';
+import { defineConfig } from '@umijs/max';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import path from 'path';
 import routes from './src/routes';
@@ -14,7 +14,8 @@ const standardFontsDir = path.join(
 );
 
 export default defineConfig({
-  publicPath: process.env.NODE_ENV === 'development' ? '/' : `/${process.env.BASE_URL}/`,
+  publicPath:
+    process.env.NODE_ENV === 'development' ? '/' : `/${process.env.BASE_URL}/`,
   history: { type: 'hash' },
   chainWebpack(config) {
     config.plugin('copy').use(CopyWebpackPlugin, [
@@ -31,19 +32,23 @@ export default defineConfig({
   antd: {
     theme: {
       token: {
-        colorPrimary: '#4F46E5'
-      }
+        colorPrimary: '#4F46E5',
+      },
     },
   },
   access: {},
   model: {},
   initialState: {},
+  icons: {
+    autoInstall: {},
+  },
   request: {},
   layout: false,
   routes,
   define: {
     'process.env.API_ID': process.env.API_ID,
-    'process.env.BASE_URL': process.env.NODE_ENV === 'development' ? '' : process.env.BASE_URL,
+    'process.env.BASE_URL':
+      process.env.NODE_ENV === 'development' ? '' : process.env.BASE_URL,
     'process.env.BUILD_TIME': new Date().getTime(),
   },
   npmClient: 'pnpm',
