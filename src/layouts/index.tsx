@@ -215,7 +215,7 @@ export default () => {
           );
         })}
       </div>
-      <div className="flex-1 h-[100vh] overflow-auto">
+      <div className="flex-1 h-[100vh] overflow-auto flex flex-col">
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
           <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
@@ -236,7 +236,9 @@ export default () => {
             <span>张信服</span>
           </div>
         </Header>
-        <Outlet></Outlet>
+        <Layout className="flex-1 p-6">
+          <Outlet></Outlet>
+        </Layout>
       </div>
     </div>
   );
