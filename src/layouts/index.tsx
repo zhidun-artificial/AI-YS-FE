@@ -248,7 +248,7 @@ export default function AppLayout() {
             <span>张信服</span>
           </div>
         </Header>
-        <div id='appContent' className="flex-1 bg-gray-100 p-2 relative">
+        <div id='appContent' style={{ height: 'calc(100% - 64px)' }} className="flex-1 bg-gray-100 p-2 relative">
           <Drawer
             placement="left"
             mask={true}
