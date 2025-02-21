@@ -22,7 +22,7 @@ interface RouteItem {
   name?: string;
   icon?: string;
   showChildren?: boolean;
-  routes: RouteItem[];
+  routes?: RouteItem[];
   menu?: {
     category?: string;
     categoryName?: string;
@@ -151,7 +151,7 @@ export default function AppLayout() {
         }
       }
     }
-    if (e.children) {
+    if (e.customChildren) {
       e.showChildren = !e.showChildren;
       setRouteObject({ ...routeObject });
     }
