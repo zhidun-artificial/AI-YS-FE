@@ -2,6 +2,9 @@ import type { defineConfig } from '@umijs/max';
 
 type routeType = ReturnType<typeof defineConfig>['routes'];
 
+export const managementPath = '/management';
+export const managementName = '管理';
+
 const routes: routeType = [
   {
     path: '/',
@@ -69,8 +72,8 @@ const routes: routeType = [
         name: '知识库管理',
         path: '/knowledge/management',
         component: '@/pages/Knowledge/management.tsx',
-      }
-    ]
+      },
+    ],
   },
   {
     name: '文献搜索',
@@ -84,8 +87,8 @@ const routes: routeType = [
     },
   },
   {
-    name: '管理',
-    path: '/management',
+    name: managementName, // 管理
+    path: managementPath,
     icon: 'local:setting',
     menu: {
       category: 'system',

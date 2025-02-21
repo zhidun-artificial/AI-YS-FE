@@ -1,7 +1,7 @@
 // import { useAccessMarkedRoutes } from '@@/plugin-access';
 import ConversationHistory from '@/components/ConversationHistory';
 import UserInfo from '@/components/User/UserInfo';
-import routes from '@/routes';
+import routes, { managementName, managementPath } from '@/routes';
 import { ConversationInfo } from '@/services/chat/getConversations';
 import {
   DownOutlined,
@@ -22,6 +22,7 @@ interface RouteItem {
   name?: string;
   icon?: string;
   showChildren?: boolean;
+  routes: RouteItem[];
   menu?: {
     category?: string;
     categoryName?: string;
@@ -31,8 +32,12 @@ interface RouteItem {
   customChildren?: React.ReactNode;
 }
 
-const menuList = (routes as RouteItem[]).filter(
+const menuList = ((routes as RouteItem[]) || []).filter(
   (item) => item.menu && !item.menu.hidden,
+);
+
+const managementChildren = menuList.filter(
+  (item) => item.path === managementPath,
 );
 
 // 按照 menu 中的 category 分组
@@ -135,7 +140,17 @@ export default function AppLayout() {
   };
 
   const onClickMenuItem = (e: any) => {
-    if (e.path) navigate(e.path);
+    if (e.path) {
+      if (e.component) {
+        navigate(e.path);
+      } else {
+        // 重定向到第一个子路由
+        const firstChild = e.routes?.[0];
+        if (firstChild) {
+          navigate(`${firstChild.path}`);
+        }
+      }
+    }
     if (e.children) {
       e.showChildren = !e.showChildren;
       setRouteObject({ ...routeObject });
@@ -147,7 +162,8 @@ export default function AppLayout() {
     navigate(`/chat/${conversation.id}`);
   };
 
-  console.log('routeProps', routeProps);
+  const isManagementRouteActive = pathname.includes(managementPath);
+  console.log('isManagementRouteActive', managementChildren);
   return (
     <div className="flex">
       <div
@@ -184,10 +200,9 @@ export default function AppLayout() {
               </div>
               <div key={index} className="flex flex-col items-center">
                 {menu.items.map((item: RouteItem) => {
-                  const matched = matchPath(
-                    { path: item.path || '/' },
-                    pathname,
-                  );
+                  const matched =
+                    matchPath({ path: item.path || '/' }, pathname) ||
+                    (isManagementRouteActive && item.path === managementPath); // 如果是管理页面，需要额外判断
                   return (
                     <>
                       <div
@@ -240,17 +255,28 @@ export default function AppLayout() {
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
           <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
-              {routeProps.name}
+              {`${isManagementRouteActive ? managementName : routeProps.name}`}
             </h1>
-            <ul className="flex">
-              {routeProps.children?.map((item: any) => (
-                <li key={item.path}>
-                  <Link to={item.path} className="mx-5">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {isManagementRouteActive && (
+              <ul className="flex h-[42px] gap-4 ml-8">
+                {managementChildren[0]?.routes?.map((item: any) => {
+                  const matched = matchPath(
+                    { path: item.path || '/' },
+                    pathname,
+                  );
+                  return (
+                    <li
+                      key={item.path}
+                      className={`${matched ? 'text-[#4F46E5] font-medium border-b-2 border-[#4F46E5] pb-1' : 'text-[#4B5563] font-normal'} leading-[42px] rounded`}
+                    >
+                      <Link to={item.path} className="mx-4">
+                        {item.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
           <div className="flex items-center">
             <UserInfo avatar={url} name={'张信服'} title={'超级管理员'} />
