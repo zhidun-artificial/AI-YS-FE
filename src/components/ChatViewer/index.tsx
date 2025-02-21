@@ -17,16 +17,16 @@ import React, {
   useState,
 } from 'react';
 
-import { Avatar, Button, Flex, Typography, type GetProp } from 'antd';
+import { Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
 import markdownIt from 'markdown-it';
 import { convertMessage, MessageData } from './adapter';
 
 import botImg from '@/assets/images/bot.svg';
 import { getHistoryMessages } from '@/services/chat/getHistoryMessages';
-// import ChatAttachments, {
-//   ChatAttachmentsProps,
-//   ChatAttachmentsRef,
-// } from '../ChatAttachments';
+import ChatAttachments, {
+  ChatAttachmentsProps,
+  ChatAttachmentsRef,
+} from '../ChatAttachments';
 import Guide from './Guide';
 import ModelSelect from './ModelSelect';
 import KnowledgeSelect from './KnowledgeSelect';
@@ -64,15 +64,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
     user: user,
     conversationId: conversationId,
   });
-
   const tempFiles = useRef<MessageFileInfo[]>([]);
   const docFiles = useRef<MessageFileInfo[]>(withDocFiles);
   const slashWithFiles = useRef<boolean>(withDocFiles.length > 0);
   const [newQueryCount, setNewQueryCount] = useState(0);
   const [content, setContent] = useState('');
-  // const [hasAttachment, setHasAttachment] = useState(false);
-  // const attachmentRef = useRef<ChatAttachmentsRef>(null);
-
+  const [hasAttachment, setHasAttachment] = useState(withDocFiles.length > 0);
+  const attachmentRef = useRef<ChatAttachmentsRef>(null);
   const { theme } = useContext(ConfigContext);
 
   //  =================== Roles ====================
@@ -139,7 +137,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       messageRender: renderMarkdown,
     },
     query: {
-      avatar: <Avatar size={44} src={botImg}></Avatar>,
+      avatar: <Avatar size={32} src={botImg}></Avatar>,
       placement: 'end',
       variant: 'shadow',
       classNames: {},
@@ -154,7 +152,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       messageRender: renderQuery
     },
     files: {
-      avatar: <Avatar size={44} src={botImg}></Avatar>,
+      avatar: <Avatar size={32} src={botImg}></Avatar>,
       placement: 'end',
       variant: 'borderless',
       messageRender: renderFiles,
@@ -282,13 +280,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
     if (conversationId) updateMessages();
   }, [conversationId]);
 
-  // const onAttachmentChange: ChatAttachmentsProps['onConfirm'] = (
-  //   selectFiles,
-  // ) => {
-  //   tempFiles.current = [...selectFiles.tmpFiles];
-  //   docFiles.current = [...selectFiles.docFiles];
-  //   setHasAttachment(tempFiles.current.length + docFiles.current.length > 0);
-  // };
+  const onAttachmentChange: ChatAttachmentsProps['onConfirm'] = (
+    selectFiles,
+  ) => {
+    tempFiles.current = [...selectFiles.tmpFiles];
+    docFiles.current = [...selectFiles.docFiles];
+    setHasAttachment(tempFiles.current.length + docFiles.current.length > 0);
+  };
 
   // ==================== Event ====================
 
@@ -347,14 +345,14 @@ const ChatViewer: React.ForwardRefRenderFunction<
     }),
   );
 
-  // const attachmentsNode = (
-  //   <Badge dot={hasAttachment}>
-  //     <ChatAttachments
-  //       ref={attachmentRef}
-  //       onConfirm={onAttachmentChange}
-  //     ></ChatAttachments>
-  //   </Badge>
-  // );
+  const attachmentsNode = (
+    <Badge dot={hasAttachment}>
+      <ChatAttachments
+        ref={attachmentRef}
+        onConfirm={onAttachmentChange}
+      ></ChatAttachments>
+    </Badge>
+  );
 
   // 选择引导功能
   // const onSelectFunc = (key: string) => {
@@ -400,7 +398,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           onChange={setContent}
           placeholder='请输入您的问题，让我来协助您...'
           // 开始对话之后，则无法进行附件上传
-          // prefix={messages.length > 0 ? null : attachmentsNode}
+          prefix={messages.length > 0 ? null : attachmentsNode}
           loading={agent.isRequesting()}
           className="bg-[#F9FAFB] rounded"
           actions={() => {

@@ -97,10 +97,7 @@ const ChatAttachments: React.ForwardRefRenderFunction<
         style={{ color: fileCount >= maxAttachmentCount ? '#EE4A4A' : '' }}
       >{`已选: ${fileCount}/${maxAttachmentCount}`}</h3>
       <Button
-        style={{
-          color: '#fff',
-          background: 'linear-gradient( 294deg, #4C53E6 0%, #477FFF 100%)',
-        }}
+        type="primary"
         className="mr-[18px]"
         onClick={handleConfirm}
       >
