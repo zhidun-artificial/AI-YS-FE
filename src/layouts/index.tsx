@@ -236,9 +236,9 @@ export default () => {
             <span>张信服</span>
           </div>
         </Header>
-        <Layout className="flex-1 p-6">
+        <div className="flex-1 p-6 bg-gray-100">
           <Outlet></Outlet>
-        </Layout>
+        </div>
       </div>
     </div>
   );
