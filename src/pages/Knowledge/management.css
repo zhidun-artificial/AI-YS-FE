@@ -1,0 +1,10 @@
+.ant-tabs-nav {
+  margin-bottom: 24px !important;
+}
+.ant-tabs-nav::before {
+  border: none !important
+}
+.ant-tabs-tab {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}

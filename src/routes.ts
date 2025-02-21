@@ -53,13 +53,24 @@ const routes: routeType = [
   {
     name: '知识库',
     path: '/knowledge',
-    component: '@/pages/Knowledge',
     icon: 'local:knowledge', // 自定义图标
     menu: {
       category: 'function',
       categoryName: '功能',
       sort: 4,
     },
+    routes: [
+      {
+        name: '知识库',
+        path: '',
+        component: '@/pages/Knowledge',
+      },
+      {
+        name: '知识库管理',
+        path: '/knowledge/management',
+        component: '@/pages/Knowledge/management.tsx',
+      }
+    ]
   },
   {
     name: '文献搜索',
