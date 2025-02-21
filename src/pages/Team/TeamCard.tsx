@@ -1,3 +1,4 @@
+import UserInfo from '@/components/User/UserInfo';
 import { Tag } from 'antd';
 import { Icon } from 'umi';
 
@@ -48,19 +49,11 @@ export default function TeamCard() {
       <div>
         {team.members.map((member) => (
           <div key={member.name} className="flex items-center mt-4">
-            <img
-              src={member.avatar}
-              alt={member.name}
-              className="w-8 h-8 rounded-full"
+            <UserInfo
+              avatar={member.avatar}
+              name={member.name}
+              title={member.title}
             />
-            <div className="ml-2 flex flex-col flex-grow">
-              <span className="font-bold text-base text-[#111827]">
-                {member.name}
-              </span>
-              <span className="font-normal text-sm text-[#6B7280]">
-                {member.title}
-              </span>
-            </div>
             {member.isManager ? (
               <Tag bordered={false} color="processing">
                 管理员
