@@ -6,11 +6,13 @@ import {
   RightOutlined,
 } from '@ant-design/icons';
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
-import { Avatar, Button, Layout } from 'antd';
+import { Avatar, Button, Drawer, Layout } from 'antd';
 import { useEffect, useState } from 'react';
 import { Icon, Link, useRouteProps } from 'umi';
 import './Layout.css';
 import SubMenu from './SubMenu';
+import ConversationHistory from '@/components/ConversationHistory';
+import { ConversationInfo } from '@/services/chat/getConversations';
 
 const { Header } = Layout;
 
@@ -53,7 +55,7 @@ const menus: { [key: string]: { categoryName: string; items: RouteItem[] } } =
     {},
   );
 
-export default () => {
+export default function AppLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
@@ -63,6 +65,8 @@ export default () => {
   const [url] = useState<string>(
     'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   );
+  const [showConversations, setShowConversations] = useState(false);
+  const [searchTime, setSearchTime] = useState(Date.now());
 
   // 点击助理或者历史会话
   const onClickSubMenu = (e: any) => {
@@ -137,6 +141,11 @@ export default () => {
     }
   };
 
+  const onSelectConversation = (conversation: ConversationInfo) => {
+    setShowConversations(false);
+    navigate(`/chat/${conversation.id}`);
+  };
+
   console.log('routeProps', routeProps);
   return (
     <div className="flex">
@@ -190,11 +199,10 @@ export default () => {
                           className="mr-[12px]"
                         />
                         <span
-                          className={`${
-                            matched
-                              ? 'text-[#374151] font-medium'
-                              : 'text-[#4B5563] font-normal'
-                          } text-lg flex-grow`}
+                          className={`${matched
+                            ? 'text-[#374151] font-medium'
+                            : 'text-[#4B5563] font-normal'
+                            } text-lg flex-grow`}
                         >
                           {item.name}
                         </span>
@@ -214,8 +222,12 @@ export default () => {
             </>
           );
         })}
+        <Button type='text' size='large' className='w-full h-[40px] justify-start' onClick={() => {
+          if (!showConversations) setSearchTime(Date.now());
+          setShowConversations(!showConversations);
+        }} >历史会话</Button>
       </div>
-      <div className="flex-1 h-[100vh] overflow-auto flex flex-col">
+      <div className="flex-1 h-screen overflow-hidden flex flex-col">
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
           <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
@@ -236,7 +248,25 @@ export default () => {
             <span>张信服</span>
           </div>
         </Header>
-        <div className="flex-1 p-6 bg-gray-100">
+        <div id='appContent' className="flex-1 bg-gray-100 p-2 relative">
+          <Drawer
+            placement="left"
+            mask={true}
+            title="历史会话"
+            getContainer={'#appContent'}
+            rootStyle={{ position: 'absolute', zIndex: 40 }}
+            styles={{
+              content: { background: '#F5F8FD' },
+              mask: { background: 'rgba(0, 0, 0, 0.1)' },
+            }}
+            open={showConversations}
+            onClose={() => setShowConversations(false)}
+          >
+            <ConversationHistory
+              searchTime={searchTime}
+              onSelectConversation={onSelectConversation}
+            ></ConversationHistory>
+          </Drawer>
           <Outlet></Outlet>
         </div>
       </div>

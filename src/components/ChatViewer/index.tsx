@@ -378,7 +378,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
   // ==================== Render =================
 
   return (
-    <div className={`w-full h-screen`}>
+    <div className={`w-full  h-full bg-white`}>
       <div className="h-full w-full max-w-[1200px] m-auto flex flex-col gap-4 py-4">
         {!chatInfo.conversationId && items.length === 0 ? (
           <Guide />
