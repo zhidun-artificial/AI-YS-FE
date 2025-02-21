@@ -19,7 +19,12 @@ const waitTime = (time: number = 100) => {
 const SystemPage: React.FC = () => {
   return (
     <PageContainer
-      style={{ height: '100%', overflow: 'auto', background: 'white' }}
+      style={{
+        height: '100%',
+        overflow: 'auto',
+        background: 'white',
+        borderRadius: '12px',
+      }}
       ghost
       header={{
         title: '基础设置',

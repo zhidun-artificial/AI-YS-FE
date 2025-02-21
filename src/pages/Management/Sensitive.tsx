@@ -118,7 +118,12 @@ const AccessPage: React.FC = () => {
   const actionRef = useRef<ActionType>();
   return (
     <PageContainer
-      style={{ height: '100%', overflow: 'auto' }}
+      style={{
+        height: '100%',
+        overflow: 'auto',
+        background: 'white',
+        borderRadius: '12px',
+      }}
       title="屏蔽词管理"
     >
       <ProTable<SensitiveItem>
@@ -167,8 +172,8 @@ const AccessPage: React.FC = () => {
             width={456}
             layout="horizontal"
             trigger={
-              <Button key="button" icon={<PlusOutlined />}>
-                新建
+              <Button key="button" type="primary" icon={<PlusOutlined />}>
+                添加敏感词
               </Button>
             }
             onFinish={async (values) => {

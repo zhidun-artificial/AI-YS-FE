@@ -285,7 +285,7 @@ export default function AppLayout() {
         <div
           id="appContent"
           style={{ height: 'calc(100% - 64px)' }}
-          className="flex-1 bg-gray-100 p-2 relative"
+          className="flex-1 bg-gray-100 p-6 relative"
         >
           <Drawer
             placement="left"
