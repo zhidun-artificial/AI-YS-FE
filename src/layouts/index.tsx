@@ -163,7 +163,7 @@ export default function AppLayout() {
   };
 
   const isManagementRouteActive = pathname.includes(managementPath);
-  console.log('isManagementRouteActive', managementChildren);
+  // console.log('isManagementRouteActive', managementChildren);
   return (
     <div className="flex">
       <div
@@ -202,7 +202,9 @@ export default function AppLayout() {
                 {menu.items.map((item: RouteItem) => {
                   const matched =
                     matchPath({ path: item.path || '/' }, pathname) ||
-                    (isManagementRouteActive && item.path === managementPath); // 如果是管理页面，需要额外判断
+                    (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
+                    (pathname.includes('/knowledge') &&
+                      item.path === '/knowledge');
                   return (
                     <>
                       <div

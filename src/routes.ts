@@ -65,12 +65,12 @@ const routes: routeType = [
     routes: [
       {
         name: '知识库',
-        path: '',
+        path: '/knowledge/library',
         component: '@/pages/Knowledge',
       },
       {
         name: '知识库管理',
-        path: '/knowledge/management',
+        path: '/knowledge/setting',
         component: '@/pages/Knowledge/management.tsx',
       },
     ],

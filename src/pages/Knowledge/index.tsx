@@ -1,21 +1,27 @@
+import { KnowledgeItem } from '@/services/knowledge';
 import {
-  KnowledgeItem,
-} from '@/services/knowledge';
-import { Icon, history } from 'umi';
-import { useState } from 'react';
-import { Pagination, Button, Input, Card, Modal, Form, Select, Radio } from 'antd';
+  ClockCircleFilled,
+  FolderFilled,
+  PlusOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Pagination,
+  Radio,
+  Select,
+} from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import dayjs from 'dayjs';
+import { useState } from 'react';
+import { Icon, history } from 'umi';
 import './index.css';
-import {
-  PlusOutlined,
-  FolderFilled,
-  ClockCircleFilled
-} from '@ant-design/icons';
 
 export default function Knowledge() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
 
   const [form] = Form.useForm();
   const options: CheckboxGroupProps<string>['options'] = [
@@ -31,7 +37,8 @@ export default function Knowledge() {
       count: 32,
       tag: 'book',
       createTime: 1740066516050,
-      remark: '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
+      remark:
+        '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
     },
     {
       id: '71',
@@ -40,9 +47,9 @@ export default function Knowledge() {
       count: 32,
       tag: 'word',
       createTime: 1740066516050,
-      remark: '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
+      remark:
+        '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
     },
-
   ];
   // 格式化时间戳的函数
   const formatTimestamp = (timestamp: number) => {
@@ -51,44 +58,52 @@ export default function Knowledge() {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  const onChange = () => {
-
-  }
+  const onChange = () => {};
   const handleOk = () => {
-
     setIsModalOpen(false);
-  }
+  };
   const handleCancel = () => {
-
     setIsModalOpen(false);
-  }
+  };
 
-  const onSearch = () => {
-
-  }
+  const onSearch = () => {};
 
   const toManagement = () => {
-    history.push('/knowledge/management')
-  }
+    history.push('/knowledge/setting');
+  };
   return (
-
     <div className="w-full h-full p-6">
       <div className="flex flex-col max-h-full">
         <div className="flex flex-col max-h-full p-6 bg-white">
-          <div className='flex pb-6'>
+          <div className="flex pb-6">
             <Input
-              className='flex-1 h-[38px]'
+              className="flex-1 h-[38px]"
               prefix={<Icon icon="local:search" />}
               suffix={
-                <div className='flex gap-2'>
-                  <Icon className='cursor-pointer' icon="local:more" />
-                  <Icon className='cursor-pointer' icon="local:setup" />
-                </div>}
-              placeholder="搜索知识库..." />
-            <div className='flex justify-end w-1/3'>
-              <Button onClick={showModal} type='primary' icon={<PlusOutlined />}>新建上传</Button>
-              <Modal okText="确认创建"
-                cancelText="取消" width="384px" title="新建知识库" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <div className="flex gap-2">
+                  <Icon className="cursor-pointer" icon="local:more" />
+                  <Icon className="cursor-pointer" icon="local:setup" />
+                </div>
+              }
+              placeholder="搜索知识库..."
+            />
+            <div className="flex justify-end w-1/3">
+              <Button
+                onClick={showModal}
+                type="primary"
+                icon={<PlusOutlined />}
+              >
+                新建上传
+              </Button>
+              <Modal
+                okText="确认创建"
+                cancelText="取消"
+                width="384px"
+                title="新建知识库"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+              >
                 <Form form={form} layout="vertical">
                   <Form.Item
                     label="知识库名称"
@@ -97,17 +112,10 @@ export default function Knowledge() {
                   >
                     <Input placeholder="请输入知识库名称" />
                   </Form.Item>
-                  <Form.Item
-                    label="知识库描述"
-                    name="description"
-                  >
+                  <Form.Item label="知识库描述" name="description">
                     <Input.TextArea rows={4} placeholder="请输入知识库描述" />
                   </Form.Item>
-                  <Form.Item
-                    label="可见权限"
-                    name="auth"
-                  >
-
+                  <Form.Item label="可见权限" name="auth">
                     <Radio.Group block options={options} defaultValue="私密" />
                   </Form.Item>
                   <Form.Item
@@ -137,65 +145,57 @@ export default function Knowledge() {
                       ]}
                     />
                   </Form.Item>
-                  <Form.Item
-                    label="选择图标颜色"
-                    name="iconColor"
-                  >
-
-                    <Radio.Group block defaultValue="私密" >
+                  <Form.Item label="选择图标颜色" name="iconColor">
+                    <Radio.Group block defaultValue="私密">
                       <Radio className="custom-radio" value={1}>
-                        <div className='bg-[#3B82F6] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#3B82F6] w-8 h-8 rounded-full"></div>
                       </Radio>
                       <Radio className="custom-radio" value={2}>
-                        <div className='bg-[#22C55E] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#22C55E] w-8 h-8 rounded-full"></div>
                       </Radio>
                       <Radio className="custom-radio" value={2}>
-                        <div className='bg-[#A855F7] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#A855F7] w-8 h-8 rounded-full"></div>
                       </Radio>
                       <Radio className="custom-radio" value={2}>
-                        <div className='bg-[#EF4444] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#EF4444] w-8 h-8 rounded-full"></div>
                       </Radio>
                       <Radio className="custom-radio" value={2}>
-                        <div className='bg-[#EAB308] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#EAB308] w-8 h-8 rounded-full"></div>
                       </Radio>
                       <Radio className="custom-radio" value={2}>
-                        <div className='bg-[#F97316] w-8 h-8 rounded-full'></div>
+                        <div className="bg-[#F97316] w-8 h-8 rounded-full"></div>
                       </Radio>
                     </Radio.Group>
                   </Form.Item>
-                  <Form.Item
-                    label="选择图标"
-                    name="icon"
-                  >
-
+                  <Form.Item label="选择图标" name="icon">
                     <Radio.Group block defaultValue="私密">
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:wordRadio" />
                         </div>
                       </Radio>
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:codeRadio" />
                         </div>
                       </Radio>
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:bookRadio" />
                         </div>
                       </Radio>
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:toolRadio" />
                         </div>
                       </Radio>
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:defenceRadio" />
                         </div>
                       </Radio>
                       <Radio className="custom-radio" value={1}>
-                        <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                           <Icon icon="local:officeRadio" />
                         </div>
                       </Radio>
@@ -205,51 +205,68 @@ export default function Knowledge() {
               </Modal>
             </div>
           </div>
-          <div className='grid gap-6 grid-cols-[repeat(auto-fill,minmax(350px,_1fr))]'>
+          <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(350px,_1fr))]">
             {cardData.map((item) => (
-              <Card onClick={toManagement} key={item.id} className='text-[#6B7280] cursor-pointer'>
+              <Card
+                onClick={toManagement}
+                key={item.id}
+                className="text-[#6B7280] cursor-pointer"
+              >
                 <Icon
                   icon={`local:${item.tag}` as any}
-                  className='absolute top-6 right-6 w-auto h-6' />
-                <p className='text-[#111827] font-medium text-lg mb-1'>{item.name}</p>
-                <p className='mb-5'>{item.remark}</p>
-                <div className='flex flex-col gap-2'>
-                  <p className='flex items-center mb-0'><Icon icon="local:person" className='mr-2.5' />{item.person} 创建</p>
-                  <p className='flex items-center mb-0'><ClockCircleFilled className='mr-2.5' />{formatTimestamp(item.createTime)} 创建</p>
-                  <p className='flex items-center mb-0'><FolderFilled className='mr-2.5' />包含 {item.count} 个文件</p>
+                  className="absolute top-6 right-6 w-auto h-6"
+                />
+                <p className="text-[#111827] font-medium text-lg mb-1">
+                  {item.name}
+                </p>
+                <p className="mb-5">{item.remark}</p>
+                <div className="flex flex-col gap-2">
+                  <p className="flex items-center mb-0">
+                    <Icon icon="local:person" className="mr-2.5" />
+                    {item.person} 创建
+                  </p>
+                  <p className="flex items-center mb-0">
+                    <ClockCircleFilled className="mr-2.5" />
+                    {formatTimestamp(item.createTime)} 创建
+                  </p>
+                  <p className="flex items-center mb-0">
+                    <FolderFilled className="mr-2.5" />
+                    包含 {item.count} 个文件
+                  </p>
                 </div>
-                <div className='flex gap-2 pt-3'>
-                  <div className=' rounded-full h-6 px-2 text-xs leading-6 bg-[#DBEAFE] text-[#1D4ED8]'>新手指南</div>
-                  <div className=' rounded-full h-6 px-2 text-xs leading-6 bg-[#DCFCE7] text-[#15803D]'>规范制度</div>
+                <div className="flex gap-2 pt-3">
+                  <div className=" rounded-full h-6 px-2 text-xs leading-6 bg-[#DBEAFE] text-[#1D4ED8]">
+                    新手指南
+                  </div>
+                  <div className=" rounded-full h-6 px-2 text-xs leading-6 bg-[#DCFCE7] text-[#15803D]">
+                    规范制度
+                  </div>
                 </div>
               </Card>
             ))}
           </div>
         </div>
-        <div className='py-8 flex flex-col gap-5 text-[#6B7280] justify-center items-center '>
-          <div className='flex justify-center items-center gap-4'>
-            <div>
-              共 126 个知识库
-            </div>
+        <div className="py-8 flex flex-col gap-5 text-[#6B7280] justify-center items-center ">
+          <div className="flex justify-center items-center gap-4">
+            <div>共 126 个知识库</div>
             <Select
               defaultValue="lucy"
               style={{ width: 130 }}
               options={[{ value: 'lucy', label: '每页显示 6 个' }]}
             />
-            <div>
-              当前第 1-6 个
-            </div>
+            <div>当前第 1-6 个</div>
           </div>
-          <Pagination showSizeChanger={false}
-            showQuickJumper={
-              {
-                goButton: <Button>确定</Button>
-              }
-            }
-
-            defaultCurrent={1} total={500} onChange={onChange} />
+          <Pagination
+            showSizeChanger={false}
+            showQuickJumper={{
+              goButton: <Button>确定</Button>,
+            }}
+            defaultCurrent={1}
+            total={500}
+            onChange={onChange}
+          />
         </div>
       </div>
-    </div >
-  )
+    </div>
+  );
 }
