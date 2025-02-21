@@ -25,7 +25,7 @@ interface RouteItem {
     sort: number;
     hidden?: boolean;
   };
-  children?: React.ReactNode;
+  customChildren?: React.ReactNode;
 }
 
 const menuList = (routes as RouteItem[]).filter(
@@ -98,7 +98,9 @@ export default () => {
               menu: {
                 sort: 2,
               },
-              children: <SubMenu items={res.agents} onClick={onClickSubMenu} />, // 将动态的数据放到 children 中
+              customChildren: (
+                <SubMenu items={res.agents} onClick={onClickSubMenu} />
+              ), // 将动态的数据放到 customChildren 中
             },
             {
               name: '历史会话',
@@ -107,9 +109,9 @@ export default () => {
               menu: {
                 sort: 3,
               },
-              children: (
+              customChildren: (
                 <SubMenu items={res.history} onClick={onClickSubMenu} />
-              ), // 将动态的数据放到 children 中
+              ), // 将动态的数据放到 customChildren 中
             },
           );
           newRouteObject['function'].items.sort(
@@ -196,7 +198,7 @@ export default () => {
                         >
                           {item.name}
                         </span>
-                        {item.children &&
+                        {item.customChildren &&
                           (item.showChildren ? (
                             <DownOutlined className="mr-[18px]" />
                           ) : (
@@ -204,7 +206,7 @@ export default () => {
                           ))}
                       </div>
                       {/* 下拉菜单 */}
-                      {item.showChildren && item.children}
+                      {item.showChildren && item.customChildren}
                     </>
                   );
                 })}
