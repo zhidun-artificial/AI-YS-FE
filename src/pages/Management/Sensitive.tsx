@@ -127,6 +127,7 @@ const AccessPage: React.FC = () => {
       title="屏蔽词管理"
     >
       <ProTable<SensitiveItem>
+        key="sensitive"
         columns={columns}
         actionRef={actionRef}
         cardBordered
