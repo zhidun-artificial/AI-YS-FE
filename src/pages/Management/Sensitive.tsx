@@ -17,7 +17,7 @@ import {
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, message, Popconfirm } from 'antd';
+import { Button, message, Popconfirm, Tag } from 'antd';
 import { useRef } from 'react';
 import SensitiveForm from './components/SensitiveForm';
 
@@ -37,18 +37,22 @@ const columns: ProColumns<SensitiveItem>[] = [
   },
   {
     disable: true,
-    title: '备注',
-    dataIndex: 'remarks',
+    title: '添加时间',
+    dataIndex: 'createTime',
+    valueType: 'date',
     search: false,
   },
-  // {
-  //   title: '创建时间',
-  //   key: 'showTime',
-  //   dataIndex: 'createTime',
-  //   valueType: 'date',
-  //   sorter: true,
-  //   hideInSearch: true,
-  // },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    hideInSearch: true,
+    render: (_, record) => (
+      <Tag color={record.status === 'enabled' ? 'green' : 'red'}>
+        {record.status === 'enabled' ? '启用' : '禁用'}
+      </Tag>
+    ),
+  },
+
   {
     title: '操作',
     valueType: 'option',
@@ -130,7 +134,6 @@ const AccessPage: React.FC = () => {
         key="sensitive"
         columns={columns}
         actionRef={actionRef}
-        cardBordered
         request={async (params) => {
           return getData({
             key: params.blockedWord ?? '',
@@ -152,9 +155,7 @@ const AccessPage: React.FC = () => {
           },
         }}
         rowKey="id"
-        search={{
-          labelWidth: 'auto',
-        }}
+        search={false}
         options={false}
         pagination={{
           pageSize: 10,

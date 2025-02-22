@@ -9,6 +9,7 @@ interface SensitiveRequest {
 export type SensitiveItem = {
   id: number;
   blockedWord: string;
+  status: 'enabled' | 'disabled';
   name: string;
   remarks: string;
   createTime: string;
