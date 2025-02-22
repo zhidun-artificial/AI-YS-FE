@@ -46,9 +46,12 @@ export default function TeamCard() {
           </span>
         </div>
       </div>
-      <div>
+      <div className="flex flex-col mt-4 gap-4">
         {team.members.map((member) => (
-          <div key={member.name} className="flex items-center mt-4">
+          <div
+            key={member.name}
+            className="flex items-center hover:bg-[#F9FAFB] p-3 rounded-xl"
+          >
             <UserInfo
               avatar={member.avatar}
               name={member.name}
@@ -59,8 +62,11 @@ export default function TeamCard() {
                 管理员
               </Tag>
             ) : (
-              <span>成员</span>
+              <span className="text-[#6B7280] font-normal text-xs block mr-2">
+                成员
+              </span>
             )}
+            <Icon icon="local:deleteGray" className="cursor-pointer" />
           </div>
         ))}
       </div>
