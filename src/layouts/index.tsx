@@ -125,8 +125,8 @@ export default function AppLayout() {
           { name: 'Agent 2', icon: 'local:agent' },
         ],
         history: [
-          { name: 'History 1', icon: 'local:history' },
-          { name: 'History 2', icon: 'local:history' },
+          { name: 'History 1', icon: 'local:historyChat' },
+          { name: 'History 2', icon: 'local:historyChat' },
           { name: '展示更多', icon: 'local:add', function: 'showMore' },
         ],
       };
@@ -192,6 +192,7 @@ export default function AppLayout() {
           <Icon icon="local:team" />
           <Icon icon="local:agent" />
           <Icon icon="local:history" />
+          <Icon icon="local:historyChat" />
           <Icon icon="local:add" />
         </div>
         <div className="flex flex-col items-center"></div>
