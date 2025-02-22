@@ -61,6 +61,32 @@ const menus: { [key: string]: { categoryName: string; items: RouteItem[] } } =
     {},
   );
 
+// 增加我的助理和历史会话下拉菜单
+menus['function'].items.push(
+  {
+    name: '我的助理',
+    icon: 'local:agent',
+    showChildren: true,
+    menu: {
+      sort: 2,
+    },
+    customChildren: null, // 将动态的数据放到 customChildren 中
+  },
+  {
+    name: '历史会话',
+    icon: 'local:history',
+    showChildren: false,
+    menu: {
+      sort: 3,
+    },
+    customChildren: null, // 将动态的数据放到 customChildren 中
+  },
+);
+
+menus['function'].items.sort(
+  (a, b) => (a.menu?.sort ?? 0) - (b.menu?.sort ?? 0),
+);
+
 export default function AppLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -77,6 +103,12 @@ export default function AppLayout() {
   // 点击助理或者历史会话
   const onClickSubMenu = (e: any) => {
     console.log('onClickSubMenu', e);
+    if (e.function === 'showMore') {
+      if (!showConversations) setSearchTime(Date.now());
+      setShowConversations(!showConversations);
+    } else if (e.function === 'addAgent') {
+      alert('添加助理');
+    }
   };
 
   useEffect(() => {
@@ -88,44 +120,25 @@ export default function AppLayout() {
       // 模拟返回数据
       const res = {
         agents: [
+          { name: '添加助理', icon: 'local:add', function: 'addAgent' },
           { name: 'Agent 1', icon: 'local:agent' },
           { name: 'Agent 2', icon: 'local:agent' },
         ],
         history: [
           { name: 'History 1', icon: 'local:history' },
           { name: 'History 2', icon: 'local:history' },
+          { name: '展示更多', icon: 'local:add', function: 'showMore' },
         ],
       };
 
       if (res) {
         setRouteObject((routeObject) => {
           const newRouteObject = { ...routeObject };
-          newRouteObject['function'].items.push(
-            {
-              name: '我的助理',
-              icon: 'local:agent',
-              showChildren: true,
-              menu: {
-                sort: 2,
-              },
-              customChildren: (
-                <SubMenu items={res.agents} onClick={onClickSubMenu} />
-              ), // 将动态的数据放到 customChildren 中
-            },
-            {
-              name: '历史会话',
-              icon: 'local:history',
-              showChildren: false,
-              menu: {
-                sort: 3,
-              },
-              customChildren: (
-                <SubMenu items={res.history} onClick={onClickSubMenu} />
-              ), // 将动态的数据放到 customChildren 中
-            },
+          newRouteObject['function'].items[1].customChildren = (
+            <SubMenu items={res.agents} onClick={onClickSubMenu} />
           );
-          newRouteObject['function'].items.sort(
-            (a, b) => (a.menu?.sort ?? 0) - (b.menu?.sort ?? 0),
+          newRouteObject['function'].items[2].customChildren = (
+            <SubMenu items={res.history} onClick={onClickSubMenu} />
           );
           return newRouteObject;
         });
@@ -179,6 +192,7 @@ export default function AppLayout() {
           <Icon icon="local:team" />
           <Icon icon="local:agent" />
           <Icon icon="local:history" />
+          <Icon icon="local:add" />
         </div>
         <div className="flex flex-col items-center"></div>
 
@@ -241,7 +255,7 @@ export default function AppLayout() {
             </>
           );
         })}
-        <Button
+        {/* <Button
           type="text"
           size="large"
           className="w-full h-[40px] justify-start"
@@ -251,7 +265,7 @@ export default function AppLayout() {
           }}
         >
           历史会话
-        </Button>
+        </Button> */}
       </div>
       <div className="flex-1 h-screen overflow-hidden flex flex-col">
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
