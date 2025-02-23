@@ -5,6 +5,7 @@
   "eslint.enable": true,
   "eslint.codeActionsOnSave.mode": "problems",
   "cSpell.words": [
+    "antdx",
     "cmaps",
     "dify",
     "favicons",
