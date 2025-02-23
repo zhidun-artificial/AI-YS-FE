@@ -1,5 +1,8 @@
 import { KnowledgeItem } from '@/services/knowledge';
 import {
+  PageContainer
+} from '@ant-design/pro-components';
+import {
   ClockCircleFilled,
   FolderFilled,
   PlusOutlined,
@@ -20,7 +23,7 @@ import { useState } from 'react';
 import { Icon, history } from 'umi';
 import './index.css';
 
-export default function Knowledge() {
+const KnowledgePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [form] = Form.useForm();
@@ -58,7 +61,7 @@ export default function Knowledge() {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  const onChange = () => {};
+  const onChange = () => { };
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -66,15 +69,23 @@ export default function Knowledge() {
     setIsModalOpen(false);
   };
 
-  const onSearch = () => {};
+  const onSearch = () => { };
 
   const toManagement = () => {
     history.push('/knowledge/setting');
   };
   return (
-    <div className="w-full h-full p-6">
+    <PageContainer
+      style={{
+        height: '100%',
+        overflow: 'auto',
+        background: 'white',
+        borderRadius: '12px',
+      }}
+      ghost
+    >
       <div className="flex flex-col max-h-full">
-        <div className="flex flex-col max-h-full p-6 bg-white">
+        <div className="flex flex-col max-h-full">
           <div className="flex pb-6">
             <Input
               className="flex-1 h-[38px]"
@@ -206,6 +217,13 @@ export default function Knowledge() {
             </div>
           </div>
           <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(350px,_1fr))]">
+            {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
+            <div style={{ display: 'none' }}>
+              <Icon icon="local:book" />
+              <Icon icon="local:word" />
+              <Icon icon="local:code" />
+              <Icon icon="local:tool" />
+            </div>
             {cardData.map((item) => (
               <Card
                 onClick={toManagement}
@@ -213,7 +231,7 @@ export default function Knowledge() {
                 className="text-[#6B7280] cursor-pointer"
               >
                 <Icon
-                  icon={`local:${item.tag}` as any}
+                  icon={(`local:${item.tag}` || 'local:knowledge') as any}
                   className="absolute top-6 right-6 w-auto h-6"
                 />
                 <p className="text-[#111827] font-medium text-lg mb-1">
@@ -259,14 +277,23 @@ export default function Knowledge() {
           <Pagination
             showSizeChanger={false}
             showQuickJumper={{
-              goButton: <Button>确定</Button>,
+              goButton: <Button className='ml-2'>确定</Button>,
             }}
+            locale={
+              {
+                // 自定义“Go to Page”文案
+                jump_to: '跳转至',
+                page: '页'
+              }
+            }
             defaultCurrent={1}
             total={500}
             onChange={onChange}
           />
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
+
+export default KnowledgePage;

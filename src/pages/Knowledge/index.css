@@ -1,10 +1,16 @@
-.ant-radio {
-  display: none !important;
-}
-.ant-radio-label {
+
+.custom-radio .ant-radio-label {
   padding-inline-start: 0!important;
   padding-inline-end: 0!important;
 }
 .custom-radio {
+  flex: none
+}
+
+.custom-radio .ant-radio {
+  display: none !important;
+}
+
+.ant-radio-wrapper {
   flex: none
 }
