@@ -27,7 +27,7 @@ interface SensitiveDetail {
 
 export const getSensitives = async (params: SensitiveRequest) => {
   return httpPost<SensitiveRequest, SensitiveResponse>(
-    '/api/v1/blocks/search',
+    '/api/v1/blocked_words/search',
     params,
   );
 };
@@ -38,7 +38,7 @@ export const addSensitives = async (params: { blockedWord: 'string' }) => {
       blockedWord: 'string';
     },
     SensitiveDetail
-  >('/api/v1/blocks', params);
+  >('/api/v1/blocked_words', params);
 };
 
 interface updateRequest {
@@ -47,9 +47,20 @@ interface updateRequest {
 }
 
 export const updateSensitive = async (params: updateRequest) => {
-  return httpPut<updateRequest, SensitiveDetail>(`/api/v1/blocks`, params);
+  return httpPut<updateRequest, SensitiveDetail>(
+    `/api/v1/blocked_words`,
+    params,
+  );
 };
 
 export const deleteSensitive = async (id: number) => {
-  return httpDelete(`/api/v1/blocks/${id}`, {});
+  return httpDelete(`/api/v1/blocked_words/${id}`, {});
+};
+
+export const disableSensitive = async (id: number) => {
+  return httpDelete(`/api/v1/blocked_words/${id}/disable`, {});
+};
+
+export const enableSensitive = async (id: number) => {
+  return httpDelete(`/api/v1/blocked_words/${id}/enable`, {});
 };

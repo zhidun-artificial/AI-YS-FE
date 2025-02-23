@@ -1,6 +1,8 @@
 import {
   addSensitives,
   deleteSensitive,
+  disableSensitive,
+  enableSensitive,
   getSensitives,
   SensitiveItem,
   updateSensitive,
@@ -46,8 +48,23 @@ const columns: ProColumns<SensitiveItem>[] = [
     title: '状态',
     dataIndex: 'status',
     hideInSearch: true,
-    render: (_, record) => (
-      <Tag color={record.status === 'enabled' ? 'green' : 'red'}>
+    render: (text, record, _, action) => (
+      <Tag
+        color={record.status === 'enabled' ? 'green' : 'red'}
+        className="cursor-pointer"
+        onClick={async () => {
+          const res =
+            record.status === 'enabled'
+              ? await enableSensitive(record.id)
+              : await disableSensitive(record.id);
+          if (res instanceof Error) {
+            return;
+          } else {
+            message.success('删除成功');
+            action?.reload();
+          }
+        }}
+      >
         {record.status === 'enabled' ? '启用' : '禁用'}
       </Tag>
     ),
