@@ -87,6 +87,17 @@ const routes: routeType = [
     },
   },
   {
+    name: '团队管理',
+    path: '/team',
+    component: '@/pages/Team',
+    icon: 'local:team', // 自定义图标
+    menu: {
+      category: 'system',
+      categoryName: '系统',
+      sort: 1,
+    },
+  },
+  {
     name: managementName, // 管理
     path: managementPath,
     icon: 'local:setting',
@@ -112,17 +123,6 @@ const routes: routeType = [
         component: '@/pages/Management/Sensitive.tsx',
       },
     ],
-  },
-  {
-    name: '团队管理',
-    path: '/team',
-    component: '@/pages/Team',
-    icon: 'local:team', // 自定义图标
-    menu: {
-      category: 'system',
-      categoryName: '系统',
-      sort: 1,
-    },
   },
 ];
 

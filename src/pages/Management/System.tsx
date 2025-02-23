@@ -3,6 +3,7 @@ import {
   ProForm,
   ProFormText,
   ProFormTextArea,
+  ProFormUploadButton,
 } from '@ant-design/pro-components';
 import { message } from 'antd';
 
@@ -66,6 +67,7 @@ const SystemPage: React.FC = () => {
           tooltip="最长为 24 位"
           placeholder="请输入名称"
         />
+        <ProFormUploadButton label="logo" name="logo" action="upload.do" />
         <ProFormTextArea
           colProps={{ span: 24 }}
           name="prompt"
