@@ -1,10 +1,7 @@
 import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
 import {
-  Attachments,
   Bubble,
   Sender,
-  useXAgent,
-  useXChat,
   XStream,
   type BubbleProps,
 } from '@ant-design/x';
@@ -18,7 +15,6 @@ import React, {
 } from 'react';
 
 import { Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
-import markdownIt from 'markdown-it';
 import { convertMessage, MessageData } from './adapter';
 
 import botImg from '@/assets/images/bot.svg';
@@ -34,8 +30,10 @@ import { ConfigContext } from 'antd/es/config-provider';
 import { CopyFilled, DeleteFilled } from '@ant-design/icons';
 import { ReactComponent as SendSvg } from '@/icons/send.svg';
 import { ReactComponent as RobotSvg } from '@/icons/robot.svg';
-
-const md = markdownIt({ html: true, breaks: true });
+import AttachmentCard from '../ChatAttachments/AttachmentCard';
+import useXChat from '../antdx/use-x-chat';
+import useXAgent from '../antdx/use-x-agent';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatInfo {
   user: number;
@@ -43,6 +41,15 @@ interface ChatInfo {
 }
 
 type MessageFileInfo = DocFileInfo;
+
+interface FullAnswerMessage {
+  messageId: string,
+  answer: string,
+  ctx: {
+    resource?: Array<{ documentId: string; fileName: string; url: string }>
+    files?: Array<{ id: string; fileName: string; url: string }>
+  }
+}
 
 interface ChatViewerProps {
   user: number;
@@ -55,10 +62,18 @@ export interface ChatViewerRef {
   sendMessage: (message: string) => void;
 }
 
+const MarkdownContent = React.memo(({ content }: { content: string }) => {
+  return (
+    <Typography>
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </Typography>
+  );
+});
+
 const ChatViewer: React.ForwardRefRenderFunction<
   ChatViewerRef,
   ChatViewerProps
-> = ({ user, conversationId, withDocFiles = [], onSelectPdfReader }, ref) => {
+> = ({ user, conversationId, withDocFiles = [] }, ref) => {
   // ==================== State ====================
   const [chatInfo, setChatInfo] = useState<ChatInfo>({
     user: user,
@@ -76,38 +91,68 @@ const ChatViewer: React.ForwardRefRenderFunction<
   //  =================== Roles ====================
 
   const renderMarkdown: BubbleProps['messageRender'] = (content) => (
-    <Typography>
-      <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
-    </Typography>
+    <Flex vertical className='min-w-24 group'>
+      <MarkdownContent content={content} />
+    </Flex>
   );
+
+  const renderFullAnswer: BubbleProps['messageRender'] = (content) => {
+    const { answer, ctx } = JSON.parse(content) as FullAnswerMessage;
+    return (
+      <Flex vertical className='min-w-24'>
+        <MarkdownContent content={answer} />
+        {ctx.resource && ctx.resource.length > 0 && <Flex vertical gap={4} className='my-3'>
+          <span className='italic text-[#4B5563]'>参考知识库：</span>
+          {
+            ctx.resource?.map((file) => {
+              return (
+                <AttachmentCard
+                  styles={{ container: { backgroundColor: '#FFF' } }}
+                  key={file.documentId}
+                  info={{
+                    id: file.documentId,
+                    fileName: file.fileName,
+                    url: file.url,
+                  }}
+                  actions={{
+                    onView: (info) => { console.log(info) },
+                    onDownload: (info) => { console.log(info) }
+                  }}
+                ></AttachmentCard>
+              );
+            })
+          }
+        </Flex>}
+        <Flex className='h-14 justify-end items-end gap-3' style={{ height: 56, flex: 0 }}>
+          <span className='cursor-pointer' title='复制'><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
+          <span className='cursor-pointer' title='删除'><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
+        </Flex>
+      </Flex>
+    )
+  }
 
   const renderFiles: BubbleProps['messageRender'] = (content) => {
     const files = JSON.parse(content) as Array<MessageFileInfo>;
     return (
       <div className="flex flex-col gap-2 bg-white p-2 rounded-lg">
+        <span className='italic'>引用文档：</span>
         <div className="flex flex-row gap-1 flex-wrap">
           {files.map((file) => {
             return (
-              <Attachments.FileCard
+              <AttachmentCard
                 key={file.id || file.fileName}
-                item={{
-                  uid: file.id,
-                  name: file.fileName,
+                info={{
+                  id: file.id,
+                  fileName: file.fileName,
                   url: file.url,
                 }}
-              ></Attachments.FileCard>
+                actions={{
+                  onView: (info) => { console.log(info) }
+                }}
+              ></AttachmentCard>
             );
           })}
         </div>
-        <Button
-          size="small"
-          type="link"
-          onClick={() => {
-            if (onSelectPdfReader) onSelectPdfReader(files);
-          }}
-        >
-          进入AI阅读
-        </Button>
       </div>
     );
   };
@@ -115,9 +160,9 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const renderQuery: BubbleProps['messageRender'] = (content) => (
     <Flex vertical className='min-w-24 group'>
       <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
-      <Flex className='h-14 justify-end items-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300' style={{ height: 56, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
-        <span className='cursor-pointer' title='复制'><CopyFilled /></span>
-        <span className='cursor-pointer' title='删除'><DeleteFilled /></span>
+      <Flex className='h-14 justify-end items-end gap-3 invisible group-hover:visible' style={{ height: 56, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+        <span className='cursor-pointer' title='复制'><CopyFilled style={{ fontSize: 16 }} /></span>
+        <span className='cursor-pointer' title='删除'><DeleteFilled style={{ fontSize: 16 }} /></span>
       </Flex>
     </Flex>
   )
@@ -135,6 +180,19 @@ const ChatViewer: React.ForwardRefRenderFunction<
         },
       },
       messageRender: renderMarkdown,
+    },
+    fullAnswer: {
+      avatar: <Avatar size={32} style={{ background: theme?.token?.colorPrimary }} icon={<RobotSvg width={18} height={18} />}></Avatar>,
+      placement: 'start',
+      typing: false,
+      classNames: {},
+      styles: {
+        content: {
+          borderRadius: 8,
+          background: '#F3F4F6',
+        },
+      },
+      messageRender: renderFullAnswer,
     },
     query: {
       avatar: <Avatar size={32} src={botImg}></Avatar>,
@@ -187,15 +245,34 @@ const ChatViewer: React.ForwardRefRenderFunction<
                 user: chatInfo.user,
                 conversationId: parsedMessage.conversationId,
               };
+            parsedMessage.content = contents.join('');
             onUpdate(parsedMessage);
           }
         }
         if (tmpChatInfo) setChatInfo(() => tmpChatInfo);
         onSuccess({
-          type: 'answer',
+          type: 'fullAnswer',
           id: tmpChatInfo?.conversationId || '',
           conversationId: tmpChatInfo?.conversationId || '',
-          content: contents.join(''),
+          content: JSON.stringify({
+            messageId: tmpChatInfo?.conversationId || '',
+            answer: contents.join(''),
+            ctx: {
+              resource: [
+                {
+                  documentId: 'doc-1',
+                  fileName: '文档1.pdf',
+                  url: 'https://www.baidu.com',
+                },
+                {
+                  documentId: 'doc-2',
+                  fileName: '文档2.pdf',
+                  url: 'https://www.baidu.com',
+                },
+              ],
+              files: [],
+            },
+          }),
         });
       }
     },
@@ -266,8 +343,25 @@ const ChatViewer: React.ForwardRefRenderFunction<
           historyMessages.push({
             status: 'local',
             message: {
-              type: 'answer',
-              content: item.answer,
+              type: 'fullAnswer',
+              content: JSON.stringify({
+                messageId: item.id,
+                answer: item.answer,
+                ctx: {
+                  resource: [
+                    {
+                      documentId: 'doc-1',
+                      fileName: '文档1.pdf',
+                      url: 'https://www.baidu.com',
+                    },
+                    {
+                      documentId: 'doc-2',
+                      fileName: '文档2.pdf',
+                      url: 'https://www.baidu.com',
+                    },
+                  ],
+                },
+              }),
               conversationId: chatInfo.conversationId,
               id: `answer-${item.id}`,
             },
@@ -341,7 +435,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       loading: status === 'loading',
       role: message.type,
       content: message.content,
-      typing: status !== 'local',
+      typing: false,
     }),
   );
 
@@ -382,7 +476,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           <Guide />
         ) : (
           // 🌟 消息列表
-          <Bubble.List items={items} roles={roles} className="flex-1" />
+          <Bubble.List items={items} roles={roles} className="flex-1 px-4" />
         )}
         {/* 🌟 提示词 */}
         {/* <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset> */}

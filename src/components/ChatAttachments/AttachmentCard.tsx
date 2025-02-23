@@ -1,6 +1,7 @@
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { EyeFilled, DownloadOutlined, CloseCircleFilled } from '@ant-design/icons';
 import React from 'react';
 import { IconPdfFile, IconWordFile } from './FileIcon';
+
 
 interface AttachmentCardProps {
   info: {
@@ -9,7 +10,11 @@ interface AttachmentCardProps {
     description?: string;
     url: string;
   };
-  onClose?: (info: AttachmentCardProps['info']) => void;
+  actions?: {
+    onClose?: (info: AttachmentCardProps['info']) => void;
+    onDownload?: (info: AttachmentCardProps['info']) => void;
+    onView?: (info: AttachmentCardProps['info']) => void;
+  },
   styles?: {
     container: React.CSSProperties;
   };
@@ -24,29 +29,40 @@ const iconMapForFileExtension: Record<string, React.ReactNode> = {
 const AttachmentCard: React.FC<AttachmentCardProps> = ({
   info,
   styles,
-  onClose,
+  actions = {}
 }) => {
   const { fileName, description } = info;
   const fileExtension = fileName.split('.').pop() || 'pdf';
+  const { onClose, onDownload, onView } = actions;
 
   return (
     <div
-      className="h-[54px] w-full flex flex-row gap-2 items-center group bg-[#F7F8FA] px-4 py-2 rounded-lg justify-between"
+      className="h-[54px] w-full flex flex-row gap-2 items-center group bg-[#F3F4F6] px-4 py-2 rounded-lg justify-between"
       style={styles?.container || {}}
     >
       <div className="w-6 h-full flex items-center justify-center">
         {iconMapForFileExtension[fileExtension]}
       </div>
       <div className="h-full w-1/2 flex-1 flex flex-col justify-center">
-        <h3 className="text-[#000614] line-clamp-1">{fileName}</h3>
+        <h3 className="text-[#4B5563] line-clamp-1">{decodeURIComponent(fileName)}</h3>
         {description && <p className="">{description}</p>}
       </div>
-      <div className="justify-center items-center w-6 flex">
-        <CloseCircleOutlined
-          className="hidden group-hover:block hover:cursor-pointer"
-          style={{ fontSize: 24, color: '#A1ABC2' }}
+      <div className="h-full justify-center items-center flex flex-row gap-3">
+        {onView && <EyeFilled
+          className="invisible group-hover:visible hover:cursor-pointer"
+          style={{ fontSize: 16, color: '#A1ABC2' }}
+          onClick={() => onView?.(info)}>
+        </EyeFilled>}
+        {onDownload && <DownloadOutlined
+          className="invisible group-hover:visible hover:cursor-pointer"
+          style={{ fontSize: 16, color: '#A1ABC2' }}
+          onClick={() => onDownload?.(info)}
+        />}
+        {onClose && <CloseCircleFilled
+          className="invisible group-hover:visible hover:cursor-pointer"
+          style={{ fontSize: 16, color: '#A1ABC2' }}
           onClick={() => onClose?.(info)}
-        />
+        />}
       </div>
     </div>
   );

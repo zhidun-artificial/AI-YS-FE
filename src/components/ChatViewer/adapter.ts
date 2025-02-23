@@ -15,7 +15,7 @@ export interface MessageData {
   content: string;
   tempFiles?: DocFileInfo[];
   docFiles?: DocFileInfo[];
-  type: 'query' | 'answer' | 'files';
+  type: 'query' | 'answer' | 'fullAnswer' | 'files';
 }
 
 export const convertMessage = (data?: string): MessageData | false => {
