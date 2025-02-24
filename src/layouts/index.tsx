@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react';
 import { Icon, Link, useRouteProps } from 'umi';
 import './Layout.css';
 import SubMenu from './SubMenu';
+import withThemeVars from './withThemeVars';
 
 const { Header } = Layout;
 
@@ -94,7 +95,7 @@ menus['function'].items.sort(
   (a, b) => (a.menu?.sort ?? 0) - (b.menu?.sort ?? 0),
 );
 
-export default function AppLayout() {
+const AppLayout = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
@@ -195,7 +196,7 @@ export default function AppLayout() {
     <div className="flex">
       <div
         id="sideMenu"
-        className="w-[255px] p-4 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50"
+        className="w-[255px] p-4 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
       >
         {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
         <div style={{ display: 'none' }}>
@@ -223,11 +224,11 @@ export default function AppLayout() {
         {Object.values(routeObject).map((menu: any, index: number) => {
           const categoryName = menu.categoryName;
           return (
-            <>
+            <div key={index}>
               <div className="text-[#6B7280] text-xs leading-4 font-medium mb-2 mt-6 pl-4">
                 {categoryName}
               </div>
-              <div key={index} className="flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 {menu.items.map((item: RouteItem) => {
                   // 判断是否匹配效果并不好
                   const matched =
@@ -235,9 +236,8 @@ export default function AppLayout() {
                     (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
                     (isSystemRouteActive && item.path === systemPath);
                   return (
-                    <>
+                    <div key={item.path || item.name} className="w-full">
                       <div
-                        key={item.name}
                         className={`${matched ? 'bg-[#F3F4F6]' : 'hover:bg-[#F3F4F6]'} ${'flex-row leading-[40px] pl-4 h-[40px]'} hover:cursor-pointer w-full rounded flex items-center `}
                         onClick={() => onClickMenuItem(item)}
                       >
@@ -246,11 +246,10 @@ export default function AppLayout() {
                           className="mr-[12px]"
                         />
                         <span
-                          className={`${
-                            matched
-                              ? 'text-[#374151] font-medium'
-                              : 'text-[#4B5563] font-normal'
-                          } text-lg flex-grow`}
+                          className={`${matched
+                            ? 'text-[#374151] font-medium'
+                            : 'text-[#4B5563] font-normal'
+                            } text-lg flex-grow`}
                         >
                           {item.name}
                         </span>
@@ -263,11 +262,11 @@ export default function AppLayout() {
                       </div>
                       {/* 下拉菜单 */}
                       {item.showChildren && item.customChildren}
-                    </>
+                    </div>
                   );
                 })}
               </div>
-            </>
+            </div>
           );
         })}
       </div>
@@ -331,3 +330,6 @@ export default function AppLayout() {
     </div>
   );
 }
+
+
+export default withThemeVars(AppLayout);
