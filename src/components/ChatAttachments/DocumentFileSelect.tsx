@@ -85,9 +85,9 @@ const DocumentFileSelect: React.FC<DocumentFileSelectProps> = ({
       const newDocFiles = prevDocFiles.map((f) => f.id).includes(`${node.id}`)
         ? prevDocFiles.filter((file) => `${file.id}` !== `${node.id}`)
         : [
-            ...prevDocFiles,
-            { id: `${node.id}`, fileName: node.fileName, url: node.url },
-          ];
+          ...prevDocFiles,
+          { id: `${node.id}`, fileName: node.fileName, url: node.url },
+        ];
       return newDocFiles;
     });
   };
@@ -184,9 +184,8 @@ const DocumentFileSelect: React.FC<DocumentFileSelectProps> = ({
         </div>
       </div>
       <div
-        className={`flex flex-col flex-1 h-full gap-3 overflow-auto border-l border-[#DCE0E8] px-6 ${
-          docFiles.length > 0 ? '' : 'justify-center'
-        }`}
+        className={`flex flex-col flex-1 h-full gap-3 overflow-auto border-l border-[#DCE0E8] px-6 ${docFiles.length > 0 ? '' : 'justify-center'
+          }`}
       >
         {docFiles.length > 0 ? (
           docFiles.map((item) => (
@@ -199,7 +198,9 @@ const DocumentFileSelect: React.FC<DocumentFileSelectProps> = ({
                 description: '',
                 url: item.url,
               }}
-              onClose={onDeleteFile}
+              actions={{
+                onClose: onDeleteFile
+              }}
             />
           ))
         ) : (

@@ -133,7 +133,9 @@ const TempFileUpload: React.FC<TempFileUploadProps> = ({
             <List.Item>
               <AttachmentCard
                 info={item}
-                onClose={onDeleteFile}
+                actions={{
+                  onClose: onDeleteFile
+                }}
               ></AttachmentCard>
             </List.Item>
           )}
