@@ -7,7 +7,7 @@ export interface DocumentRequest {
 }
 
 export type DocumentItem = {
-    "id"?: string,
+    "id": string,
     "baseId": string,
     "title": string,
     "fileName": string,
@@ -46,14 +46,14 @@ export const addDocuments = async (params: { fileName: 'string' }) => {
 };
 
 interface updateRequest {
-  id: string | number;
-  fileName: string;
+  id: string;
+  name: string;
 }
 
 export const updateDocument = async (params: updateRequest) => {
-  return httpPut<updateRequest, DocumentDetail>(`/api/v1/documents`, params);
+  return httpPut(`/api/v1/documents/${params.id}/rename?name=${params.name}`,{});
 };
 
-export const deleteDocument = async (id: number) => {
+export const deleteDocument = async (id: string) => {
   return httpDelete(`/api/v1/documents/${id}`, {});
 };

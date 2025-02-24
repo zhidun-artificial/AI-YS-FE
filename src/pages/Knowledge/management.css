@@ -8,3 +8,6 @@
   padding-left: 16px !important;
   padding-right: 16px !important;
 }
+.ant-input-group-addon {
+  display: none !important;
+}

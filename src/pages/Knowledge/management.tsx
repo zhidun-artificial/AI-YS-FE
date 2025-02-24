@@ -2,7 +2,8 @@ import { Icon } from 'umi';
 import { useState, useRef, useEffect } from 'react';
 import {
   DocumentItem,
-  getDocuments
+  getDocuments,
+  deleteDocument
 } from '@/services/knowledge/management';
 import {
   KnowledgeItem
@@ -16,6 +17,7 @@ import {
   PlusOutlined,
   DownOutlined
 } from '@ant-design/icons';
+import RenameDocument from './components/RenameDocument';
 
 import type {
   ActionType,
@@ -51,6 +53,8 @@ const KnowledgeManagement: React.FC = () => {
   }, []);
   const [currentId] = useState('1');
   const [form] = Form.useForm();
+
+  const [searchText, setSearchText] = useState('');
   const options: CheckboxGroupProps<string>['options'] = [
     { label: '私密', value: '私密' },
     { label: '团队', value: '团队' },
@@ -92,7 +96,7 @@ const KnowledgeManagement: React.FC = () => {
   const columns: ProColumns<DocumentItem>[] = [
     {
       title: '文献名',
-      dataIndex: 'fileName',
+      dataIndex: 'title',
       ellipsis: true,
       sorter: true,
       formItemProps: {
@@ -132,15 +136,25 @@ const KnowledgeManagement: React.FC = () => {
       title: '操作',
       valueType: 'option',
       key: 'option',
-      render: () => [
-
-        <Icon key="edit" width='14' className='cursor-pointer' icon="local:edit" />,
+      render: (text, record, _, action) => [
+        <RenameDocument
+          key="edit"
+          id={record.id}
+          name={record.title}
+          reload={action?.reload}
+        />,
         <Popconfirm
           key="delete"
           title="删除确认"
-          description="您确定要删除此知识库吗?"
+          description="您确定要删除此文献吗?"
           onConfirm={async () => {
-
+            const res = await deleteDocument(record.id);
+            if (res instanceof Error) {
+              return;
+            } else {
+              message.success('删除成功');
+              action?.reload();
+            }
           }}
           okText="是"
           cancelText="否"
@@ -180,16 +194,15 @@ const KnowledgeManagement: React.FC = () => {
     setTabType(type)
   }
   const handleOk = () => {
-
     setIsModalOpen(false);
   }
   const handleCancel = () => {
-
     setIsModalOpen(false);
   }
 
-  const onSearch = () => {
-
+  const onSearch = (key: string) => {
+    setSearchText(key);
+    actionRef.current?.reload()
   }
   return (
     <PageContainer
@@ -211,7 +224,7 @@ const KnowledgeManagement: React.FC = () => {
             {
               isOpen && (
                 <div ref={dropdownRef} className='absolute top-32 z-10 w-[298px] bg-white border rounded-xl px-2 pt-1 pb-2'>
-                  <Input
+                  <Input.Search
                     className='h-[38px]'
                     suffix={<Icon icon="local:search" />}
                     placeholder="搜索知识库..." />
@@ -229,8 +242,10 @@ const KnowledgeManagement: React.FC = () => {
 
           </div>
           <div className='flex justify-end  gap-4'>
-            <Input
+            <Input.Search
               className='flex-1 h-[38px] w-[280px]'
+              onSearch={onSearch}
+              enterButton={false}
               suffix={<Icon icon="local:search" />}
               placeholder="搜索当前知识库文献..." />
             <Button onClick={showModal} className='' type='primary' icon={<PlusOutlined />}>新建上传</Button>
@@ -249,7 +264,7 @@ const KnowledgeManagement: React.FC = () => {
             cardBordered
             request={async (params) => {
               return getData({
-                key: params.fileName ?? '',
+                key: searchText,
                 pageNo: params.current ?? 1,
                 pageSize: params.pageSize ?? 10,
               });
