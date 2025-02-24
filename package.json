@@ -24,7 +24,8 @@
     "react-dropzone": "^14.3.6",
     "react-markdown": "^10.0.0",
     "react-pdf": "^9.2.1",
-    "react-use": "^17.6.0"
+    "react-use": "^17.6.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@iconify-json/ant-design": "1.2.5",
