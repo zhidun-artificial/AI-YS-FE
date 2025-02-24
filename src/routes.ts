@@ -124,6 +124,18 @@ const routes: routeType = [
       },
     ],
   },
+  {
+    name: '示例',
+    path: '/demo',
+    component: '@/pages/Demo',
+    icon: 'local:team', // 自定义图标
+    menu: {
+      category: 'system',
+      categoryName: '系统',
+      sort: 3,
+      hidden: true,
+    }
+  }
 ];
 
 export default routes;
