@@ -219,11 +219,17 @@ const ChatViewer: React.ForwardRefRenderFunction<
 
   // ==================== Runtime ====================
   const [agent] = useXAgent<MessageData>({
-    request: async ({ message }, { onUpdate, onSuccess, onError }) => {
+    request: async ({ message }, { onRequest, onUpdate, onSuccess, onError }) => {
       if (!message) {
         onError(new Error('Please input message'));
         return;
       }
+      onRequest({
+        type: 'answer',
+        id: 'loading',
+        content: '',
+        conversationId: '',
+      });
       const ret = await chatWithAgent({
         conversationId: message.conversationId,
         query: message.content,
