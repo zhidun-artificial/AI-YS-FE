@@ -1,4 +1,4 @@
-import { EyeFilled, DownloadOutlined, CloseCircleFilled } from '@ant-design/icons';
+import { EyeFilled, DownloadOutlined, CloseCircleFilled, Loading3QuartersOutlined } from '@ant-design/icons';
 import React from 'react';
 import { IconPdfFile, IconWordFile } from './FileIcon';
 
@@ -10,6 +10,7 @@ interface AttachmentCardProps {
     description?: string;
     url: string;
   };
+  status?: "loading" | "success" | "error"
   actions?: {
     onClose?: (info: AttachmentCardProps['info']) => void;
     onDownload?: (info: AttachmentCardProps['info']) => void;
@@ -28,6 +29,7 @@ const iconMapForFileExtension: Record<string, React.ReactNode> = {
 
 const AttachmentCard: React.FC<AttachmentCardProps> = ({
   info,
+  status,
   styles,
   actions = {}
 }) => {
@@ -37,15 +39,23 @@ const AttachmentCard: React.FC<AttachmentCardProps> = ({
 
   return (
     <div
-      className="h-[54px] w-full flex flex-row gap-2 items-center group bg-[#F3F4F6] px-4 py-2 rounded-lg justify-between"
+      className="relative h-[54px] w-full flex flex-row gap-2 items-center group bg-[#F3F4F6] px-4 py-2 rounded-lg justify-between"
       style={styles?.container || {}}
     >
+      {
+        status === 'loading' && (
+          <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center gap-4">
+            <Loading3QuartersOutlined className="text-white animate-spin" />
+            <span className="text-white">上传中...</span>
+          </div>
+        )
+      }
       <div className="w-6 h-full flex items-center justify-center">
         {iconMapForFileExtension[fileExtension]}
       </div>
       <div className="h-full w-1/2 flex-1 flex flex-col justify-center">
         <h3 className="text-[#4B5563] line-clamp-1">{decodeURIComponent(fileName)}</h3>
-        {description && <p className="">{description}</p>}
+        {description && <p className={`text-xs italic ${status === 'error' ? 'text-red-500' : 'text-gray-400'}`}>{description}</p>}
       </div>
       <div className="h-full justify-center items-center flex flex-row gap-3">
         {onView && <EyeFilled
