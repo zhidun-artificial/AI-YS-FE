@@ -191,7 +191,6 @@ export default function AppLayout() {
     routeChildren = systemChildren;
   }
 
-  console.log('isManagementRouteActive', routeProps);
   return (
     <div className="flex">
       <div
@@ -234,10 +233,7 @@ export default function AppLayout() {
                   const matched =
                     matchPath({ path: item.path || '/' }, pathname) ||
                     (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
-                    (pathname.includes('/knowledge') &&
-                      item.path === '/knowledge') ||
-                    (pathname.includes('/statistics') &&
-                      item.path === '/statistics');
+                    (isSystemRouteActive && item.path === systemPath);
                   return (
                     <>
                       <div
@@ -274,17 +270,6 @@ export default function AppLayout() {
             </>
           );
         })}
-        {/* <Button
-          type="text"
-          size="large"
-          className="w-full h-[40px] justify-start"
-          onClick={() => {
-            if (!showConversations) setSearchTime(Date.now());
-            setShowConversations(!showConversations);
-          }}
-        >
-          历史会话
-        </Button> */}
       </div>
       <div className="flex-1 h-screen overflow-hidden flex flex-col">
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
