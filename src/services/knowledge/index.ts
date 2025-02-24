@@ -1,19 +1,24 @@
 import { httpDelete, httpPost, httpPut } from '@/services/http';
 
-interface KnowledgeRequest {
+export interface KnowledgeRequest {
   key: string;
   pageNo: number;
   pageSize: number;
+  sort?: string
 }
 
 export type KnowledgeItem = {
-  id: string;
-  name: string;
-  person: string;
-  createTime: number;
-  count: number;
-  tag: string,
-  remark: string;
+  "id"?: string,
+  "name":string,
+  "creator"?: string,
+  "creatorName"?: string,
+  "docCount": number,
+  "ext": {
+    tag?: string,
+    remark?: string
+  },
+  "createTime"?: number,
+  "updateTime"?: number
 };
 
 interface KnowledgeResponse {

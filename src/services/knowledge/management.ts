@@ -1,45 +1,48 @@
 import { httpDelete, httpPost, httpPut } from '@/services/http';
 
-interface KnowledgeRequest {
+export interface DocumentRequest {
   key: string;
   pageNo: number;
   pageSize: number;
 }
 
-export type KnowledgeItem = {
-  id: string;
-  name: string;
-  person: string;
-  createTime: number;
-  count: number;
-  tag: string,
-  remark: string;
+export type DocumentItem = {
+    "id"?: string,
+    "baseId": string,
+    "title": string,
+    "fileName": string,
+    "url": string,
+    "creator": string,
+    "creatorName": string,
+    "blockedReason": string,
+    "createTime": number,
+    "updateTime": number
 };
 
-interface KnowledgeResponse {
-  records: KnowledgeItem[];
+interface DocumentResponse {
+  records: DocumentItem[];
   total: number;
 }
 
-interface KnowledgeDetail {
+interface DocumentDetail {
   id: number;
   fileName: string;
 }
 
-export const getKnowledges = async (params: KnowledgeRequest) => {
-  return httpPost<KnowledgeRequest, KnowledgeResponse>(
-    '/api/v1/knowledge_base/search',
+export const getDocuments = async (params: DocumentRequest) => {
+  return httpPost<DocumentRequest, DocumentResponse>(
+    '/api/v1/documents/search',
     params,
   );
 };
 
-export const addKnowledges = async (params: { fileName: 'string' }) => {
+export const addDocuments = async (params: { fileName: 'string' }) => {
   return httpPost<
     {
       fileName: 'string';
     },
-    KnowledgeDetail
-  >('/api/v1/knowledge_base', params);
+    DocumentDetail
+  >('/api/v1/documents', params);
 };
 
 interface updateRequest {
@@ -47,10 +50,10 @@ interface updateRequest {
   fileName: string;
 }
 
-export const updateKnowledge = async (params: updateRequest) => {
-  return httpPut<updateRequest, KnowledgeDetail>(`/api/v1/knowledge_base`, params);
+export const updateDocument = async (params: updateRequest) => {
+  return httpPut<updateRequest, DocumentDetail>(`/api/v1/documents`, params);
 };
 
-export const deleteKnowledge = async (id: number) => {
-  return httpDelete(`/api/v1/knowledge_base/${id}`, {});
+export const deleteDocument = async (id: number) => {
+  return httpDelete(`/api/v1/documents/${id}`, {});
 };

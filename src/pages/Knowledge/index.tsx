@@ -1,4 +1,4 @@
-import { KnowledgeItem } from '@/services/knowledge';
+import { KnowledgeItem, getKnowledges, KnowledgeRequest } from '@/services/knowledge';
 import {
   PageContainer
 } from '@ant-design/pro-components';
@@ -16,6 +16,7 @@ import {
   Pagination,
   Radio,
   Select,
+  message
 } from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import dayjs from 'dayjs';
@@ -35,27 +36,28 @@ const KnowledgePage: React.FC = () => {
   const cardData: KnowledgeItem[] = [
     {
       id: '1',
-      name: '基础知识库',
-      person: '系统管理员',
-      count: 32,
-      tag: 'book',
-      createTime: 1740066516050,
-      remark:
-        '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
+      name: '安全防范知识库',
+      creatorName: '系统管理员',
+      docCount: 32,
+      ext: {}
     },
     {
       id: '71',
-      name: '基础知识库',
-      person: '系统管理员',
-      count: 32,
-      tag: 'word',
-      createTime: 1740066516050,
-      remark:
-        '包含系统基础操作指南、常用流程和规范， 是全员必备的共享知识库。适合新员工快速 上手和日常工作参考。',
+      name: '系统管理员',
+      docCount: 32,
+      ext: {}
     },
+    {
+      id: '713',
+      name: '基础知识库',
+      creatorName: '系统管理员',
+      docCount: 32,
+      ext: {}
+    }
   ];
+
   // 格式化时间戳的函数
-  const formatTimestamp = (timestamp: number) => {
+  const formatTimestamp = (timestamp: any) => {
     return dayjs(timestamp).format('YYYY-MM-DD');
   };
   const showModal = () => {
@@ -69,8 +71,32 @@ const KnowledgePage: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const onSearch = () => { };
-
+  const getData = async (params: KnowledgeRequest) => {
+    try {
+      const res = await getKnowledges(params);
+      if (res instanceof Error) {
+        throw res;
+      } else {
+        return {
+          data: res.data.records,
+          success: true,
+          total: res.data.total,
+        };
+      }
+    } catch (error) {
+      message.error((error as Error).message);
+      throw error;
+    }
+  };
+  const onSearch = () => {
+    const params = {
+      key: '',
+      pageNo: 1,
+      pageSize: 20
+    }
+    getData(params);
+  };
+  onSearch();
   const toManagement = () => {
     history.push('/knowledge/setting');
   };
@@ -217,13 +243,6 @@ const KnowledgePage: React.FC = () => {
             </div>
           </div>
           <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(350px,_1fr))]">
-            {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
-            <div style={{ display: 'none' }}>
-              <Icon icon="local:book" />
-              <Icon icon="local:word" />
-              <Icon icon="local:code" />
-              <Icon icon="local:tool" />
-            </div>
             {cardData.map((item) => (
               <Card
                 onClick={toManagement}
@@ -231,17 +250,17 @@ const KnowledgePage: React.FC = () => {
                 className="text-[#6B7280] cursor-pointer"
               >
                 <Icon
-                  icon={(`local:${item.tag}` || 'local:knowledge') as any}
+                  icon={(`local:${item.ext.tag}` || 'local:knowledge') as any}
                   className="absolute top-6 right-6 w-auto h-6"
                 />
                 <p className="text-[#111827] font-medium text-lg mb-1">
                   {item.name}
                 </p>
-                <p className="mb-5">{item.remark}</p>
+                <p className="mb-5">{item.ext.remark}</p>
                 <div className="flex flex-col gap-2">
                   <p className="flex items-center mb-0">
                     <Icon icon="local:person" className="mr-2.5" />
-                    {item.person} 创建
+                    {item.creatorName} 创建
                   </p>
                   <p className="flex items-center mb-0">
                     <ClockCircleFilled className="mr-2.5" />
@@ -249,7 +268,7 @@ const KnowledgePage: React.FC = () => {
                   </p>
                   <p className="flex items-center mb-0">
                     <FolderFilled className="mr-2.5" />
-                    包含 {item.count} 个文件
+                    包含 {item.docCount} 个文件
                   </p>
                 </div>
                 <div className="flex gap-2 pt-3">
