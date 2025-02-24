@@ -4,6 +4,8 @@ type routeType = ReturnType<typeof defineConfig>['routes'];
 
 export const managementPath = '/management';
 export const managementName = '管理';
+export const systemPath = '/statistics';
+export const systemName = '资源统计';
 
 const routes: routeType = [
   {
@@ -125,6 +127,28 @@ const routes: routeType = [
     ],
   },
   {
+    name: systemName, // 管理
+    path: systemPath,
+    icon: 'local:setting',
+    menu: {
+      category: 'system',
+      categoryName: '系统',
+      sort: 3,
+    },
+    routes: [
+      {
+        name: '知识库统计',
+        path: '/statistics/repository',
+        component: '@/pages/System/Repository.tsx',
+      },
+      {
+        name: '资源统计',
+        path: '/statistics/resource',
+        component: '@/pages/System/Resource.tsx',
+      },
+    ],
+  },
+  {
     name: '示例',
     path: '/demo',
     component: '@/pages/Demo',
@@ -134,8 +158,8 @@ const routes: routeType = [
       categoryName: '系统',
       sort: 3,
       hidden: true,
-    }
-  }
+    },
+  },
 ];
 
 export default routes;

@@ -1,7 +1,12 @@
 // import { useAccessMarkedRoutes } from '@@/plugin-access';
 import ConversationHistory from '@/components/ConversationHistory';
 import UserInfo from '@/components/User/UserInfo';
-import routes, { managementName, managementPath } from '@/routes';
+import routes, {
+  managementName,
+  managementPath,
+  systemName,
+  systemPath,
+} from '@/routes';
 import { ConversationInfo } from '@/services/chat/getConversations';
 import {
   DownOutlined,
@@ -39,6 +44,8 @@ const menuList = ((routes as RouteItem[]) || []).filter(
 const managementChildren = menuList.filter(
   (item) => item.path === managementPath,
 );
+
+const systemChildren = menuList.filter((item) => item.path === systemPath);
 
 // 按照 menu 中的 category 分组
 const menus: { [key: string]: { categoryName: string; items: RouteItem[] } } =
@@ -175,8 +182,16 @@ export default function AppLayout() {
     navigate(`/chat/${conversation.id}`);
   };
 
+  let routeChildren;
   const isManagementRouteActive = pathname.includes(managementPath);
-  // console.log('isManagementRouteActive', managementChildren);
+  const isSystemRouteActive = pathname.includes(systemPath);
+  if (isManagementRouteActive) {
+    routeChildren = managementChildren;
+  } else {
+    routeChildren = systemChildren;
+  }
+
+  console.log('isManagementRouteActive', routeProps);
   return (
     <div className="flex">
       <div
@@ -215,11 +230,14 @@ export default function AppLayout() {
               </div>
               <div key={index} className="flex flex-col items-center">
                 {menu.items.map((item: RouteItem) => {
+                  // 判断是否匹配效果并不好
                   const matched =
                     matchPath({ path: item.path || '/' }, pathname) ||
                     (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
                     (pathname.includes('/knowledge') &&
-                      item.path === '/knowledge');
+                      item.path === '/knowledge') ||
+                    (pathname.includes('/statistics') &&
+                      item.path === '/statistics');
                   return (
                     <>
                       <div
@@ -272,11 +290,11 @@ export default function AppLayout() {
         <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
           <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
-              {`${isManagementRouteActive ? managementName : routeProps.name}`}
+              {`${isManagementRouteActive ? managementName : isSystemRouteActive ? systemName : routeProps.name}`}
             </h1>
-            {isManagementRouteActive && (
+            {(isManagementRouteActive || isSystemRouteActive) && (
               <ul className="flex h-[42px] gap-4 ml-8">
-                {managementChildren[0]?.routes?.map((item: any) => {
+                {routeChildren[0]?.routes?.map((item: any) => {
                   const matched = matchPath(
                     { path: item.path || '/' },
                     pathname,
