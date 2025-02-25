@@ -26,7 +26,7 @@ export default defineConfig({
     imports: [
       'core-js/stable',
       'regenerator-runtime/runtime',
-      path.resolve(__dirname, 'src/polyfills/text-encode-transform.js')
+      // path.resolve(__dirname, 'src/polyfills/text-encode-transform.js')
     ]
   },
   publicPath:

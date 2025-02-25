@@ -15,7 +15,7 @@ export default (props: {
       name: string;
     }>
       title="修改文件名称"
-      trigger={<Icon width='14' className='cursor-pointer' icon="local:edit" />}
+      trigger={<Icon width='14' className='cursor-pointer mr-2' icon="local:edit" />}
       form={form}
       autoFocusFirstInput
       modalProps={{

@@ -1,4 +1,5 @@
 // 运行时配置
+import "@/polyfills/text-encode-transform.js"
 import { RequestConfig } from '@umijs/max';
 import { message } from 'antd';
 import { AxiosError, history, matchRoutes, RuntimeConfig } from 'umi';
