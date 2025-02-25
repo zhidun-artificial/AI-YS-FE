@@ -12,7 +12,7 @@ const UPLOAD_ERROR_MESSAGE = {
   'file-invalid-type': '文件格式不支持',
   'file-too-large': '文件过大',
   'file-too-small': '文件过小',
-}
+} as const
 
 type UploadErrorCode = keyof typeof UPLOAD_ERROR_MESSAGE
 
@@ -58,7 +58,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxF
     }
     const uploadTasks = acceptedFiles.map((file) => new Promise<boolean>((resolve) => {
       const uploadId = uuid();
-      setUploadFiles((preFiles) => ([...preFiles, { uploadId: uploadId, id: file.name, fileName: file.name, url: '', status: 'loading' as const }]))
+      setUploadFiles((preFiles) => ([...preFiles, { uploadId: uploadId, id: file.name, fileName: file.name, url: '', status: 'loading' }]))
       uploadFn(file).then(ret => {
         if (ret instanceof Error) {
           setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'error', description: ret.message } : item))
