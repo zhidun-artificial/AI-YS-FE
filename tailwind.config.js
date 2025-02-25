@@ -15,5 +15,24 @@ module.exports = {
         'border-hover': 'var(--color-border-hover)',
       }
     }
-  }
+  },
+  plugins: [
+    function ({ addUtilities }) {
+      const gapUtilities = {};
+      const spacingConfig = require('tailwindcss/defaultTheme').spacing;
+
+      Object.entries(spacingConfig).forEach(([key, value]) => {
+        // For flex-col
+        gapUtilities[`.flex-col.gap-${key} > *:not(:last-child)`] = {
+          marginBottom: value
+        };
+        // For flex-row
+        gapUtilities[`.flex-row.gap-${key} > *:not(:last-child)`] = {
+          marginRight: value
+        };
+      });
+
+      addUtilities(gapUtilities);
+    }
+  ]
 };

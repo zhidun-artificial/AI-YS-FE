@@ -507,7 +507,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
         {/* 🌟 提示词 */}
         {/* <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset> */}
         {/* 参数选择 */}
-        <div className='flex gap-4'>
+        <div className='flex flex-row gap-4'>
           <ModelSelect style={{ width: 200 }}></ModelSelect>
           <KnowledgeSelect style={{ width: 200 }}></KnowledgeSelect>
         </div>
