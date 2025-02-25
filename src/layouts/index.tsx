@@ -17,10 +17,10 @@ import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { Button, Drawer, Layout } from 'antd';
 import { useEffect, useState } from 'react';
 import { Icon, Link, useRouteProps } from 'umi';
+import AddAgent from './AddAgent';
 import './Layout.css';
 import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
-import AddAgent from "./AddAgent";
 
 const { Header } = Layout;
 
@@ -121,9 +121,8 @@ const AppLayout = () => {
     }
   };
   const onClose = () => {
-
     setModalVisit(false);
-  }
+  };
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -253,10 +252,11 @@ const AppLayout = () => {
                           className="mr-[12px]"
                         />
                         <span
-                          className={`${matched
-                            ? 'text-[#374151] font-medium'
-                            : 'text-[#4B5563] font-normal'
-                            } text-lg flex-grow`}
+                          className={`${
+                            matched
+                              ? 'text-[#374151] font-medium'
+                              : 'text-[#4B5563] font-normal'
+                          } text-lg flex-grow`}
                         >
                           {item.name}
                         </span>
@@ -278,7 +278,7 @@ const AppLayout = () => {
         })}
       </div>
       <div className="flex-1 h-screen overflow-hidden flex flex-col">
-        <Header className="p-0 bg-white shadow flex items-center justify-between px-6">
+        <Header className="p-0 !bg-white shadow flex items-center justify-between px-6">
           <div className="flex items-center">
             <h1 className="text-[#1F2937] text-lg font-medium">
               {`${isManagementRouteActive ? managementName : isSystemRouteActive ? systemName : routeProps.name}`}
@@ -336,7 +336,6 @@ const AppLayout = () => {
       </div>
     </div>
   );
-}
-
+};
 
 export default withThemeVars(AppLayout);

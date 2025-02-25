@@ -131,28 +131,28 @@ export default function Search() {
           }}
         />
       </section>
-      <section className="mt-8 mx-auto">
-        <Space style={{ width: '100%' }} direction="horizontal">
-          <Select
-            mode="multiple"
-            size="large"
-            allowClear
-            style={{ width: '192px' }}
-            placeholder="请选择"
-            value={selectedItems}
-            onChange={handleSelectChange}
-            options={options}
-            maxTagCount={0}
-            maxTagPlaceholder={() => `已选择 ${selectedItems.length} 个知识库`}
-            tagRender={tagRender}
-          />
-          <Input
-            className="w-[472px]"
-            size="large"
-            placeholder="请输入"
-            prefix={<SearchOutlined />}
-          />
-        </Space>
+      <section className="mt-8 mx-auto flex flex-row">
+        {/* <Space style={{ width: '100%' }} direction="horizontal"> */}
+        <Select
+          mode="multiple"
+          size="large"
+          allowClear
+          style={{ width: '270px' }}
+          placeholder="请选择"
+          value={selectedItems}
+          onChange={handleSelectChange}
+          options={options}
+          maxTagCount={0}
+          maxTagPlaceholder={() => `已选择 ${selectedItems.length} 个知识库`}
+          tagRender={tagRender}
+        />
+        <Input
+          className="w-[500px] ml-4"
+          size="large"
+          placeholder="请输入"
+          prefix={<SearchOutlined />}
+        />
+        {/* </Space> */}
       </section>
       <ProTable<LibraryItem>
         style={{ padding: 16 }}
