@@ -160,7 +160,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const renderQuery: BubbleProps['messageRender'] = (content) => (
     <Flex vertical className='min-w-24 group'>
       <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
-      <Flex className='h-14 justify-end items-end gap-3 invisible group-hover:visible' style={{ height: 56, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+      <Flex className='h-14 justify-end items-end gap-3 invisible group-hover:visible' style={{ height: 28, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
         <span className='cursor-pointer' title='复制'><CopyFilled style={{ fontSize: 16 }} /></span>
         <span className='cursor-pointer' title='删除'><DeleteFilled style={{ fontSize: 16 }} /></span>
       </Flex>
@@ -174,9 +174,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
       typing: false,
       classNames: {},
       styles: {
+        avatar: {
+          marginRight: 4
+        },
         content: {
           borderRadius: 8,
           background: '#F3F4F6',
+          marginBottom: 8
         },
       },
       messageRender: renderMarkdown,
@@ -187,9 +191,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
       typing: false,
       classNames: {},
       styles: {
+        avatar: {
+          marginRight: 4
+        },
         content: {
           borderRadius: 8,
           background: '#F3F4F6',
+          marginBottom: 12
         },
       },
       messageRender: renderFullAnswer,
@@ -200,11 +208,15 @@ const ChatViewer: React.ForwardRefRenderFunction<
       variant: 'shadow',
       classNames: {},
       styles: {
+        avatar: {
+          marginLeft: 4
+        },
         content: {
           color: 'white',
           background: theme?.token?.colorPrimary,
           borderRadius: 8,
-          paddingBottom: 4
+          paddingBottom: 4,
+          marginBottom: 12
         },
       },
       messageRender: renderQuery
@@ -214,6 +226,14 @@ const ChatViewer: React.ForwardRefRenderFunction<
       placement: 'end',
       variant: 'borderless',
       messageRender: renderFiles,
+      styles: {
+        avatar: {
+          marginLeft: 4
+        },
+        content: {
+          marginBottom: 12
+        }
+      }
     },
   };
 
@@ -482,7 +502,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           <Guide />
         ) : (
           // 🌟 消息列表
-          <Bubble.List items={items} roles={roles} className="flex-1 px-4" />
+          <Bubble.List items={items} roles={roles} style={{ display: 'block' }} className="flex-1 px-4" />
         )}
         {/* 🌟 提示词 */}
         {/* <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset> */}
