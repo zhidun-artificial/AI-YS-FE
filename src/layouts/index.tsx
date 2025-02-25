@@ -20,6 +20,7 @@ import { Icon, Link, useRouteProps } from 'umi';
 import './Layout.css';
 import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
+import AddAgent from "./AddAgent";
 
 const { Header } = Layout;
 
@@ -108,6 +109,7 @@ const AppLayout = () => {
   const [showConversations, setShowConversations] = useState(false);
   const [searchTime, setSearchTime] = useState(Date.now());
 
+  const [modalVisit, setModalVisit] = useState(false);
   // 点击助理或者历史会话
   const onClickSubMenu = (e: any) => {
     console.log('onClickSubMenu', e);
@@ -115,9 +117,13 @@ const AppLayout = () => {
       if (!showConversations) setSearchTime(Date.now());
       setShowConversations(!showConversations);
     } else if (e.function === 'addAgent') {
-      alert('添加助理');
+      setModalVisit(true);
     }
   };
+  const onClose = () => {
+
+    setModalVisit(false);
+  }
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -198,6 +204,7 @@ const AppLayout = () => {
         id="sideMenu"
         className="w-[255px] p-4 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
       >
+        <AddAgent onClose={onClose} modalVisible={modalVisit} />
         {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
         <div style={{ display: 'none' }}>
           <Icon icon="local:chat" />
