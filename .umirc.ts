@@ -14,6 +14,20 @@ const standardFontsDir = path.join(
 );
 
 export default defineConfig({
+  targets: {
+    chrome: 69,
+    // 如果需要支持其他浏览器也可以添加
+    firefox: 51,
+  },
+  legacy: {
+    buildOnly: false
+  },
+  polyfill: {
+    imports: [
+      'core-js/stable',
+      'regenerator-runtime/runtime'
+    ]
+  },
   publicPath:
     process.env.NODE_ENV === 'development' ? '/' : `/${process.env.BASE_URL}/`,
   history: { type: 'hash' },

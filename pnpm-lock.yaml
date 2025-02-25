@@ -29,6 +29,9 @@ importers:
       antd-style:
         specifier: ^3.7.1
         version: 3.7.1(@types/react@18.3.18)(antd@5.24.1(date-fns@2.30.0)(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      core-js:
+        specifier: ^3.40.0
+        version: 3.40.0
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -50,6 +53,9 @@ importers:
       react-use:
         specifier: ^17.6.0
         version: 17.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      regenerator-runtime:
+        specifier: ^0.14.1
+        version: 0.14.1
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -2435,6 +2441,9 @@ packages:
 
   core-js@3.34.0:
     resolution: {integrity: sha512-aDdvlDder8QmY91H88GzNi9EtQi2TjvQhpCX6B1v/dAZHU1AuLgHvRh54RiOerpEhEW46Tkf+vgAViB/CWC0ag==}
+
+  core-js@3.40.0:
+    resolution: {integrity: sha512-7vsMc/Lty6AGnn7uFpYT56QesI5D2Y/UkgKounk87OP9Z2H9Z8kj6jzcSGAxFmUtDOS0ntK6lbQz+Nsa0Jj6mQ==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -10002,6 +10011,8 @@ snapshots:
   core-js-pure@3.40.0: {}
 
   core-js@3.34.0: {}
+
+  core-js@3.40.0: {}
 
   core-util-is@1.0.3: {}
 
