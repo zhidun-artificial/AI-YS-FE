@@ -10,6 +10,7 @@ export default function TeamCard() {
     count: 10,
     members: [
       {
+        id: 1,
         name: '用户1',
         title: '数据分析师',
         isManager: true,
@@ -17,6 +18,7 @@ export default function TeamCard() {
           'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       },
       {
+        id: 2,
         name: '用户2',
         title: '数据分析师',
         isManager: false,
@@ -24,6 +26,7 @@ export default function TeamCard() {
           'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       },
       {
+        id: 3,
         name: '用户3',
         title: '数据分析师',
         isManager: false,
@@ -31,6 +34,10 @@ export default function TeamCard() {
           'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       },
     ],
+  };
+
+  const handleDelete = (id: number) => {
+    console.log('删除成员', id);
   };
 
   return (
@@ -66,7 +73,11 @@ export default function TeamCard() {
                 成员
               </span>
             )}
-            <Icon icon="local:deleteGray" className="cursor-pointer" />
+            <Icon
+              icon="local:deleteGray"
+              className="cursor-pointer"
+              onClick={() => handleDelete(member.id)}
+            />
           </div>
         ))}
       </div>
