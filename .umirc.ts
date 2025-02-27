@@ -62,8 +62,8 @@ export default defineConfig({
   routes,
   define: {
     'process.env.API_ID': process.env.API_ID,
-    'process.env.BASE_URL':
-      process.env.NODE_ENV === 'development' ? '' : process.env.BASE_URL,
+    'process.env.NODE_ENV': process.env.NODE_ENV,
+    'process.env.BASE_URL': process.env.NODE_ENV === 'development' ? '' : process.env.BASE_URL,
     'process.env.BUILD_TIME': new Date().getTime(),
   },
   npmClient: 'pnpm',
