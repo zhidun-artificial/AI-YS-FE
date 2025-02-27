@@ -9,7 +9,7 @@ export interface KnowledgeRequest {
 
 export type KnowledgeItem = {
   "id"?: string,
-  "name":string,
+  "name": string,
   "creator"?: string,
   "creatorName"?: string,
   "docCount": number,
@@ -31,14 +31,14 @@ interface KnowledgeDetail {
   fileName: string;
 }
 
-export const getKnowledges = async (params: KnowledgeRequest) => {
+export const getKnowledgeBases = async (params: KnowledgeRequest) => {
   return httpPost<KnowledgeRequest, KnowledgeResponse>(
     '/api/v1/knowledge_base/search',
     params,
   );
 };
 
-export const addKnowledges = async (params: { fileName: 'string' }) => {
+export const addKnowledgeBase = async (params: { fileName: 'string' }) => {
   return httpPost<
     {
       fileName: 'string';
@@ -52,10 +52,10 @@ interface updateRequest {
   fileName: string;
 }
 
-export const updateKnowledge = async (params: updateRequest) => {
+export const updateKnowledgeBase = async (params: updateRequest) => {
   return httpPut<updateRequest, KnowledgeDetail>(`/api/v1/knowledge_base`, params);
 };
 
-export const deleteKnowledge = async (id: number) => {
+export const deleteKnowledgeBase = async (id: number) => {
   return httpDelete(`/api/v1/knowledge_base/${id}`, {});
 };

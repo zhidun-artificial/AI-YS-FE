@@ -12,7 +12,7 @@ const ModelSelect: React.FC<PropsWithStyle<ModelSelectProps>> = ({ style, onUpda
 
   useEffect(() => {
     const data = ([
-      { name: "GPT-3", value: "gpt-3" },
+      { name: "DeepSeek-R1:70B", value: "DeepSeek-R1:70B" },
       { name: "GPT-2", value: "gpt-2" },
       { name: "GPT-1", value: "gpt-1" },
     ])

@@ -1,33 +1,39 @@
+import { searchKnowledgeBase } from "@/services/knowledge-base/searchKnowledge"
 import { PropsWithStyle } from "@/utils/types"
 import { Select } from "antd"
 import React, { useEffect, useState } from "react"
 
 interface KnowledgeSelectProps {
-  onUpdate?: (model: string) => void
+  onUpdate?: (base: string[]) => void
 }
 
 const KnowledgeSelect: React.FC<PropsWithStyle<KnowledgeSelectProps>> = ({ style, onUpdate }) => {
   const [knowledgeList, setKnowledgeList] = useState<Array<{ name: string, value: string }>>([])
-  const [selectKnowledge, setKnowledgeModel] = useState<string>("")
+  const [selectBases, setSelectBases] = useState<string[]>([])
 
   useEffect(() => {
-    const data = ([
-      { name: "doc-1", value: "doc-1" },
-      { name: "doc-2", value: "doc-2" },
-      { name: "doc-3", value: "doc-3" },
-    ])
-    setKnowledgeList(data)
-    setKnowledgeModel(data[0].value)
-    if (onUpdate) onUpdate(data[0].value)
+
+    const updateKnowledge = async () => {
+      const res = await searchKnowledgeBase();
+      if (res instanceof Error) {
+        return;
+      }
+      if (res.code === 0) {
+        setKnowledgeList(res.data.records.map((item) => {
+          return { name: item.name, value: item.id }
+        }))
+      }
+    }
+    updateKnowledge()
   }, [])
 
-  const onSelectChange = (value: string) => {
-    setKnowledgeModel(value)
+  const onSelectChange = (value: string[]) => {
+    setSelectBases(value)
     if (onUpdate) onUpdate(value)
   }
 
   return (
-    <Select style={style} onChange={onSelectChange} value={selectKnowledge}>
+    <Select style={style} mode="multiple" onChange={onSelectChange} value={selectBases}>
       {
         knowledgeList.map((model, index) => {
           return (
