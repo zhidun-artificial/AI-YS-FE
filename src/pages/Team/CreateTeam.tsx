@@ -1,3 +1,5 @@
+import ColorPicker from '@/components/ColorPikcer';
+import IconPicker from '@/components/IconPicker';
 import { addTeam } from '@/services/team';
 import { PlusOutlined } from '@ant-design/icons';
 import {
@@ -9,107 +11,6 @@ import {
 } from '@ant-design/pro-components';
 import { Button, message } from 'antd';
 import { useState } from 'react';
-import { Icon } from 'umi';
-
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
-
-const colorOptions = [
-  {
-    label: '蓝色',
-    value: '#3B82F6',
-  },
-  {
-    label: '紫色',
-    value: '#A855F7',
-  },
-  {
-    label: '绿色',
-    value: '#22C55E',
-  },
-];
-
-const ColorPicker = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) => {
-  return (
-    <div style={{ display: 'flex', gap: '8px' }}>
-      {colorOptions.map((option) => (
-        <div
-          key={option.value}
-          onClick={() => onChange(option.value)}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            backgroundColor: option.value,
-            border: value === option.value ? '2px solid blue' : 'none',
-            cursor: 'pointer',
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const iconOptions = [
-  {
-    label: '🐝',
-    value: 'local:knowledge',
-  },
-  {
-    label: '🐞',
-    value: 'local:search',
-  },
-  {
-    label: '🐌',
-    value: 'local:chat',
-  },
-];
-
-const IconPicker = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) => {
-  return (
-    <div style={{ display: 'flex', gap: '8px' }}>
-      {iconOptions.map((option) => (
-        <div
-          key={option.value}
-          onClick={() => onChange(option.value)}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#f0f0f0',
-            border: value === option.value ? '2px solid blue' : 'none',
-            cursor: 'pointer',
-          }}
-        >
-          <Icon
-            icon={option.value as any}
-            style={{ fill: value === option.value ? 'blue' : 'black' }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
 
 export default () => {
   const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
@@ -178,7 +79,17 @@ export default () => {
             valuePropName="value"
             trigger="onChange"
           >
-            <ColorPicker value={selectedColor} onChange={setSelectedColor} />
+            <ColorPicker
+              value={selectedColor}
+              onChange={setSelectedColor}
+              colorOptions={[
+                '#3B82F6',
+                '#10B981',
+                '#F59E0B',
+                '#EF4444',
+                '#8B5CF6',
+              ]}
+            />
           </ProFormItem>
           <ProFormItem
             name="icon"
@@ -186,7 +97,11 @@ export default () => {
             valuePropName="value"
             trigger="onChange"
           >
-            <IconPicker value={selectedIcon} onChange={setSelectedIcon} />
+            <IconPicker
+              value={selectedIcon}
+              onChange={setSelectedIcon}
+              iconOptions={['local:knowledge', 'local:team']}
+            />
           </ProFormItem>
         </ModalForm>
       </div>
