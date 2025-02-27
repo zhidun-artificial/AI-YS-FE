@@ -12,8 +12,8 @@ const Demo: React.FC = () => {
   const uploadFn: FileUploadProps['uploadFn'] = useCallback(async (file) => {
     const ret = Math.floor(Math.random() * 100) % 3;
     await sleep(3000);
-    if (ret === 0) return { code: 0, msg: 'success', data: { id: `${ret}`, fileName: file.name, url: 'http://www.baidu.com' } }
-    if (ret === 1) return { code: 1, msg: '上传失败', data: { id: `${ret}`, fileName: file.name, url: 'http://www.baidu.com' } }
+    if (ret === 0) return { id: `${ret}`, fileName: file.name, url: 'http://www.baidu.com' }
+    if (ret === 1) return new Error('上传失败')
     return new Error('接口错误')
   }, [])
 

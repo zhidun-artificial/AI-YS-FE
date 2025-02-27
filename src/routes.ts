@@ -149,6 +149,22 @@ const routes: routeType = [
     ],
   },
   {
+    name: '文档预览',
+    path: '/preview',
+    layout: false,
+    routes: [
+      {
+        name: 'docx预览',
+        path: '/preview/docx',
+        wrapper: '@/layouts/BlankLayout',
+        component: '@/pages/Preview/Docx.tsx',
+      },
+    ],
+    menu: {
+      hidden: true
+    }
+  },
+  {
     name: '示例',
     path: '/demo',
     component: '@/pages/Demo',
