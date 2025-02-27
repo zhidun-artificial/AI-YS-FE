@@ -9,10 +9,11 @@ export interface DocFileInfo {
 interface ChatRequest {
   conversationId: string;
   query: string;
-  documents?: DocFileInfo[];
-  tmpFiles?: DocFileInfo[];
+  llmModel?: string;
+  baseIds?: string[];
+  files?: DocFileInfo[];
 }
 
 export const chatWithAgent = async (params: ChatRequest) => {
-  return httpStream<ChatRequest>('/api/v1/chat/conversations', params);
+  return httpStream<ChatRequest>('/api/v1/chat/conversations/chat', params);
 };

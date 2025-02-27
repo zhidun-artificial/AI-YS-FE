@@ -1,4 +1,4 @@
-import { httpGet } from '../http';
+import { httpPost } from '../http';
 
 export interface ConversationInfo {
   id: string;
@@ -11,23 +11,25 @@ export interface ConversationInfo {
 }
 
 interface GetConversationsRequest {
-  lastId?: string;
-  limit?: number;
+  key?: string;
+  pageNo?: number;
+  pageSize?: number;
   sort?:
-    | 'CREATED_AT_ASC'
-    | 'CREATED_AT_DESC'
-    | 'UPDATED_AT_ASC'
-    | 'UPDATED_AT_DESC';
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
 }
 
 interface GetConversationsResponse {
-  limit: number;
-  hasMore: boolean;
-  data: ConversationInfo[];
+  pageNo: number
+  pageSize: number
+  records: ConversationInfo[]
+  total: number
 }
 
 export const getConversations = (params?: GetConversationsRequest) =>
-  httpGet<GetConversationsRequest, GetConversationsResponse>(
-    '/api/v1/chat/conversations',
+  httpPost<GetConversationsRequest, GetConversationsResponse>(
+    '/api/v1/chat/conversations/search',
     params || {},
   );

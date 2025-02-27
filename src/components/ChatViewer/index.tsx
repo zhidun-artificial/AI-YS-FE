@@ -1,4 +1,3 @@
-import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
 import {
   Bubble,
   Sender,
@@ -18,6 +17,8 @@ import { Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
 import { convertMessage, MessageData } from './adapter';
 
 import botImg from '@/assets/images/bot.svg';
+import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
+import { chatWithAssistant } from '@/services/chat/chatWithAssistant';
 import { getHistoryMessages } from '@/services/chat/getHistoryMessages';
 import ChatAttachments, {
   ChatAttachmentsProps,
@@ -54,6 +55,8 @@ interface FullAnswerMessage {
 interface ChatViewerProps {
   user: number;
   conversationId: string;
+  chatMode: 'chat' | 'chatWithAssistant';
+  assistantId: this['chatMode'] extends 'chatWithAssistant' ? string : undefined;
   withDocFiles?: DocFileInfo[];
   onSelectPdfReader?: (files: DocFileInfo[]) => void;
 }
@@ -73,14 +76,17 @@ const MarkdownContent = React.memo(({ content }: { content: string }) => {
 const ChatViewer: React.ForwardRefRenderFunction<
   ChatViewerRef,
   ChatViewerProps
-> = ({ user, conversationId, withDocFiles = [] }, ref) => {
+> = ({ user, chatMode, conversationId, assistantId, withDocFiles = [] }, ref) => {
   // ==================== State ====================
   const [chatInfo, setChatInfo] = useState<ChatInfo>({
     user: user,
     conversationId: conversationId,
   });
+  const [chatAssistantId] = useState<string | undefined>(assistantId);
+  const [model, setModel] = useState<string>('');
+  const [knowledgeBases, setKnowledgeBases] = useState<string[]>([]);
   const tempFiles = useRef<MessageFileInfo[]>([]);
-  const docFiles = useRef<MessageFileInfo[]>(withDocFiles);
+  // const docFiles = useRef<MessageFileInfo[]>(withDocFiles);
   const slashWithFiles = useRef<boolean>(withDocFiles.length > 0);
   const [newQueryCount, setNewQueryCount] = useState(0);
   const [content, setContent] = useState('');
@@ -90,12 +96,14 @@ const ChatViewer: React.ForwardRefRenderFunction<
 
   //  =================== Roles ====================
 
+  // 渲染回答
   const renderMarkdown: BubbleProps['messageRender'] = (content) => (
     <Flex vertical className='min-w-24 group'>
       <MarkdownContent content={content} />
     </Flex>
   );
 
+  // 渲染完整的回答
   const renderFullAnswer: BubbleProps['messageRender'] = (content) => {
     const { answer, ctx } = JSON.parse(content) as FullAnswerMessage;
     return (
@@ -131,6 +139,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     )
   }
 
+  // 渲染文件
   const renderFiles: BubbleProps['messageRender'] = (content) => {
     const files = JSON.parse(content) as Array<MessageFileInfo>;
     return (
@@ -157,6 +166,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     );
   };
 
+  // 渲染查询
   const renderQuery: BubbleProps['messageRender'] = (content) => (
     <Flex vertical className='min-w-24 group'>
       <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
@@ -167,6 +177,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     </Flex>
   )
 
+  // 交互类型配置
   const roles: GetProp<typeof Bubble.List, 'roles'> = {
     answer: {
       avatar: <Avatar size={32} style={{ background: theme?.token?.colorPrimary }} icon={<RobotSvg width={18} height={18} />}></Avatar>,
@@ -250,12 +261,20 @@ const ChatViewer: React.ForwardRefRenderFunction<
         content: '',
         conversationId: '',
       });
-      const ret = await chatWithAgent({
-        conversationId: message.conversationId,
-        query: message.content,
-        tmpFiles: message.tempFiles || [],
-        documents: message.docFiles || [],
-      });
+      const ret = chatMode === 'chat' ?
+        await chatWithAgent({
+          conversationId: message.conversationId,
+          query: message.content,
+          llmModel: model,
+          baseIds: knowledgeBases,
+          files: message.tempFiles || []
+        }) :
+        await chatWithAssistant({
+          conversationId: message.conversationId,
+          query: message.content,
+          assistantId: chatAssistantId || '',
+          files: message.tempFiles || []
+        })
 
       if (ret instanceof Error) {
         onError(ret);
@@ -329,14 +348,14 @@ const ChatViewer: React.ForwardRefRenderFunction<
   // 历史会话创建会话消息队列
   useEffect(() => {
     const updateMessages = async () => {
-      const res = await getHistoryMessages({ id: conversationId });
+      const res = await getHistoryMessages({ conversationId });
       if (res instanceof Error) {
         return;
       }
       if (res.code === 0) {
         setChatInfo({ conversationId: conversationId, user: user });
         const historyMessages: Parameters<typeof setMessages>[0] = [];
-        res.data.data.forEach((item, i) => {
+        res.data.records.forEach((item, i) => {
           if (item.inputs.files.length > 0) {
             historyMessages.push({
               status: 'local',
@@ -404,8 +423,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     selectFiles,
   ) => {
     tempFiles.current = [...selectFiles.tmpFiles];
-    docFiles.current = [...selectFiles.docFiles];
-    setHasAttachment(tempFiles.current.length + docFiles.current.length > 0);
+    setHasAttachment(tempFiles.current.length > 0);
   };
 
   // ==================== Event ====================
@@ -414,7 +432,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
     if (agent.isRequesting()) return;
-    if (tempFiles.current.length > 0 || docFiles.current.length > 0) {
+    if (tempFiles.current.length > 0) {
       // 如果有携带文件，则不需要再次发送消息
       if (!slashWithFiles.current) {
         setMessages([
@@ -425,7 +443,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
               type: 'files',
               content: JSON.stringify([
                 ...tempFiles.current,
-                ...docFiles.current,
+                // ...docFiles.current,
               ]),
               conversationId: chatInfo.conversationId,
               id: `files-${newQueryCount}`,
@@ -441,10 +459,10 @@ const ChatViewer: React.ForwardRefRenderFunction<
       conversationId: chatInfo.conversationId,
       type: 'query',
       tempFiles: tempFiles.current,
-      docFiles: docFiles.current,
+      // docFiles: docFiles.current,
     });
     tempFiles.current = [];
-    docFiles.current = [];
+    // docFiles.current = [];
     slashWithFiles.current = false;
     setContent('');
     setNewQueryCount(newQueryCount + 1);
@@ -474,17 +492,6 @@ const ChatViewer: React.ForwardRefRenderFunction<
     </Badge>
   );
 
-  // 选择引导功能
-  // const onSelectFunc = (key: string) => {
-  //   if (key === '2') {
-  //     attachmentRef.current?.open();
-  //   } else if (key === '3') {
-  //     attachmentRef.current?.open({
-  //       maxCount: 1,
-  //       tip: '翻译仅支持选择一个文件',
-  //     });
-  //   }
-  // };
 
   // =================== expose methods ====================
   useImperativeHandle(ref, () => ({
@@ -507,10 +514,11 @@ const ChatViewer: React.ForwardRefRenderFunction<
         {/* 🌟 提示词 */}
         {/* <PromptsPreset onSelectPrompt={onPromptsItemClick}></PromptsPreset> */}
         {/* 参数选择 */}
-        <div className='flex flex-row gap-4'>
-          <ModelSelect style={{ width: 200 }}></ModelSelect>
-          <KnowledgeSelect style={{ width: 200 }}></KnowledgeSelect>
-        </div>
+        {chatMode === 'chat' &&
+          <div className='flex flex-row gap-4 items-center'>
+            <span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={v => setModel(v)}></ModelSelect>
+            <span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={v => setKnowledgeBases(v)} ></KnowledgeSelect>
+          </div>}
         {/* 🌟 输入框 */}
         <Sender
           value={content}
@@ -524,7 +532,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           actions={() => {
             return (
               <Button type="primary"
-                icon={<SendSvg style={{ width: 14, height: 14, color: '#FFF' }} />}
+                icon={<SendSvg style={{ width: 14, height: 14, color: '#FFF', marginRight: 8 }} />}
                 disabled={agent.isRequesting()}
                 loading={agent.isRequesting()}
                 onClick={() => onSubmit(content)}>发送</Button>
