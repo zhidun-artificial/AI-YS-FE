@@ -1,4 +1,4 @@
-import { httpGet } from '../http';
+import { httpPost } from '../http';
 
 export type HistoryMessage = {
   id: string;
@@ -25,19 +25,25 @@ export type HistoryMessage = {
 };
 
 interface GetMessagesRequest {
-  id: string;
-  firstId?: string;
-  limit?: number;
+  conversationId: string;
+  pageNo?: number;
+  pageSize?: number;
+  sort?:
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
 }
 
 interface GetMessagesResponse {
-  limit: number;
-  hasMore: boolean;
-  data: HistoryMessage[];
+  pageNo: number;
+  pageSize: number;
+  total: number;
+  records: HistoryMessage[];
 }
 
 export const getHistoryMessages = async (params: GetMessagesRequest) =>
-  httpGet<GetMessagesRequest, GetMessagesResponse>(
-    `/api/v1/chat/conversations/${params.id}/messages`,
+  httpPost<GetMessagesRequest, GetMessagesResponse>(
+    `/api/v1/chat/conversations/messages/search`,
     params,
   );

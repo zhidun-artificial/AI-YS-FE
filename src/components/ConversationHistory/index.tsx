@@ -46,7 +46,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         return;
       }
       if (res.code === 0) {
-        setConversationsItems(res.data.data);
+        setConversationsItems(res.data.records);
       }
     };
     updateConversations();
