@@ -26,19 +26,24 @@ export default function Page() {
       localStorage.setItem(STORE_KEY_USER_ROLE, `${res.data.info.roleId}`);
       setUser(res.data.info);
       console.log('login success');
-      const authRes = await getPermissions(res.data.info.roleId);
-      if (authRes instanceof Error) {
-        message.error(authRes.message);
-        return;
+      // TODO: 处理权限获取
+      try {
+        const authRes = await getPermissions(res.data.info.roleId);
+        if (authRes instanceof Error) {
+          message.error(authRes.message);
+          return;
+        }
+        if (authRes.code === 0) {
+          console.log(authRes.data);
+          setInitialState(() => {
+            return {
+              ...initialState,
+              auth: authRes.data,
+            };
+          });
+        }
       }
-      if (authRes.code === 0) {
-        console.log(authRes.data);
-        setInitialState(() => {
-          return {
-            ...initialState,
-            auth: authRes.data,
-          };
-        });
+      catch (e) {
         navigate(`/home`, { replace: true });
       }
     }
