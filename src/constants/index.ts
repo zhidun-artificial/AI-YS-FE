@@ -1,6 +1,6 @@
 export const APP_NAME = 'AI知识服务系统';
 
-export const API_URL = 'http://113.108.105.54:56800/knowledge';
+export const API_URL = 'http://113.108.105.54:56800/aihub';
 export const API_ID = 'app-AfXTmtLqq5OKdPcoGYLF6M13';
 
 export const STORE_KEY_TOKEN = 'token';
