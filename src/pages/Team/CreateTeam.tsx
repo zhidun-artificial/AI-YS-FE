@@ -12,7 +12,7 @@ import {
 import { Button, message } from 'antd';
 import { useState } from 'react';
 
-export default () => {
+export default ({ update }: { update: () => void }) => {
   const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
   const [selectedIcon, setSelectedIcon] = useState<string>('local:knowledge');
 
@@ -36,7 +36,9 @@ export default () => {
             if (res instanceof Error) {
               message.error(res.message);
             } else {
+              update();
               message.success('提交成功');
+              return true;
             }
           }}
           initialValues={{

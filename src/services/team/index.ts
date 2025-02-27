@@ -7,11 +7,36 @@ export interface ITeam {
   ext: { [key: string]: any };
 }
 
+export interface ISearchParams {
+  key?: string;
+  pageNo?: number;
+  pageSize?: number;
+  withUsers: boolean;
+  sort?: string;
+}
+
 export interface TeamResponse {
   id: number;
   name: string;
   description: string;
   image: string;
+}
+
+export interface IGroupItem {
+  id: number;
+  name: string;
+  creatorName: string;
+  description: string;
+  ext: { [key: string]: any };
+  createTime: number;
+  updateTime: number;
+  userCount: number;
+  users: any[];
+}
+
+export interface SearchGroupResponse {
+  total: number;
+  records: IGroupItem[];
 }
 
 export const addTeam = async (params: ITeam) => {
@@ -25,13 +50,11 @@ export const updateTeam = async (params: ITeam & { id: number }) => {
   );
 };
 
-export const getTeams = async (params: {
-  key?: string;
-  page?: number;
-  pageSize?: number;
-  sort?: string;
-}) => {
-  return httpPost('/api/v1/user_groups/search', params);
+export const getTeams = async (params: ISearchParams) => {
+  return httpPost<ISearchParams, SearchGroupResponse>(
+    '/api/v1/user_groups/search',
+    params,
+  );
 };
 
 export const deleteTeam = async (params: { id: number }) => {

@@ -1,41 +1,9 @@
 import UserInfo from '@/components/User/UserInfo';
+import { IGroupItem } from '@/services/team';
 import { Tag } from 'antd';
 import { Icon } from 'umi';
 
-export default function TeamCard() {
-  const team = {
-    id: 1,
-    name: '团队1',
-    desc: '团队1的描述',
-    count: 10,
-    members: [
-      {
-        id: 1,
-        name: '用户1',
-        title: '数据分析师',
-        isManager: true,
-        avatar:
-          'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-      },
-      {
-        id: 2,
-        name: '用户2',
-        title: '数据分析师',
-        isManager: false,
-        avatar:
-          'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-      },
-      {
-        id: 3,
-        name: '用户3',
-        title: '数据分析师',
-        isManager: false,
-        avatar:
-          'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-      },
-    ],
-  };
-
+export default function TeamCard({ team }: { team: IGroupItem }) {
   const handleDelete = (id: number) => {
     console.log('删除成员', id);
   };
@@ -49,22 +17,22 @@ export default function TeamCard() {
         <div className="flex flex-col">
           <span className="font-bold text-lg text-[#111827]">{team.name}</span>
           <span className=" font-normal text-sm text-[#6B7280]">
-            {team.count}位成员
+            {team.userCount}位成员
           </span>
         </div>
       </div>
       <div className="flex flex-col mt-4 gap-4">
-        {team.members.map((member) => (
+        {team.users.map((user) => (
           <div
-            key={member.name}
+            key={user.name}
             className="flex items-center hover:bg-[#F9FAFB] p-3 rounded-xl"
           >
             <UserInfo
-              avatar={member.avatar}
-              name={member.name}
-              title={member.title}
+              avatar={user.avatar}
+              name={user.name}
+              title={user.title}
             />
-            {member.isManager ? (
+            {user.isManager ? (
               <Tag bordered={false} color="processing">
                 管理员
               </Tag>
@@ -76,7 +44,7 @@ export default function TeamCard() {
             <Icon
               icon="local:deleteGray"
               className="cursor-pointer"
-              onClick={() => handleDelete(member.id)}
+              onClick={() => handleDelete(user.id)}
             />
           </div>
         ))}

@@ -1,9 +1,30 @@
+import { getTeams, IGroupItem } from '@/services/team';
 import { SearchOutlined, UsergroupAddOutlined } from '@ant-design/icons';
-import { Button, Input } from 'antd';
+import { Button, Input, message } from 'antd';
+import { useEffect, useState } from 'react';
 import CreateTeam from './CreateTeam';
 import TeamCard from './TeamCard';
 
 export default function Search() {
+  const [teams, setTeams] = useState<IGroupItem[]>([]);
+
+  const searchTeams = async () => {
+    const res = await getTeams({
+      sort: 'CREATED_AT_DESC',
+      withUsers: true,
+      pageNo: 1,
+      pageSize: 99999,
+    });
+    if (res instanceof Error) {
+      message.error(res.message);
+    } else {
+      setTeams(res.data.records);
+    }
+  };
+
+  useEffect(() => {
+    searchTeams();
+  }, []);
   return (
     <div className="w-full flex flex-col">
       <section className="w-full bg-white px-6 py-7 rounded-xl mb-4">
@@ -13,7 +34,7 @@ export default function Search() {
             <Button type="primary" icon={<UsergroupAddOutlined />}>
               批量添加
             </Button>
-            <CreateTeam />
+            <CreateTeam update={() => searchTeams()} />
           </div>
         </div>
         <Input
@@ -22,9 +43,9 @@ export default function Search() {
         />
       </section>
       <div className="grid grid-cols-2 gap-4">
-        <TeamCard />
-        <TeamCard />
-        <TeamCard />
+        {teams.map((team) => {
+          return <TeamCard key={team.id} team={team} />;
+        })}
       </div>
     </div>
   );
