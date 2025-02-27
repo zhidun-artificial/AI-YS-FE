@@ -1,4 +1,4 @@
-import { KnowledgeItem, getKnowledges, KnowledgeRequest } from '@/services/knowledge';
+import { KnowledgeItem, getKnowledgeBases, KnowledgeRequest } from '@/services/knowledge';
 import {
   PageContainer
 } from '@ant-design/pro-components';
@@ -73,7 +73,7 @@ const KnowledgePage: React.FC = () => {
 
   const getData = async (params: KnowledgeRequest) => {
     try {
-      const res = await getKnowledges(params);
+      const res = await getKnowledgeBases(params);
       if (res instanceof Error) {
         throw res;
       } else {

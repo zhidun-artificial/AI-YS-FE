@@ -252,11 +252,10 @@ const AppLayout = () => {
                           className="mr-[12px]"
                         />
                         <span
-                          className={`${
-                            matched
-                              ? 'text-[#374151] font-medium'
-                              : 'text-[#4B5563] font-normal'
-                          } text-lg flex-grow`}
+                          className={`${matched
+                            ? 'text-[#374151] font-medium'
+                            : 'text-[#4B5563] font-normal'
+                            } text-lg flex-grow`}
                         >
                           {item.name}
                         </span>

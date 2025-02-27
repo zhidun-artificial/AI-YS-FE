@@ -5,7 +5,7 @@ import { message } from 'antd';
 import { AxiosError, history, matchRoutes, RuntimeConfig } from 'umi';
 import './app.css';
 import { ApiResponse } from './services/http';
-import { getPermissions, RoleDetail } from './services/user/role';
+import { RoleDetail } from './services/user/role';
 import { STORE_KEY_TOKEN, STORE_KEY_USER_ROLE } from './constants';
 
 const isAxiosError = (error: any): error is AxiosError => {
@@ -45,36 +45,36 @@ export async function getInitialState(): Promise<
       ...pageAccess,
     };
   }
-  const authRes = await getPermissions(Number(roleId));
-  if (authRes instanceof Error) {
-    // message.error(authRes.message);
-    return {
-      name: 'AI知识服务系统',
-      ...pageAccess,
-    };
-  }
-  if (authRes.code === 0) {
-    const canAccessPathList = authRes.data.data.map(
-      (item) => item.has && item.name,
-    );
-    return {
-      name: 'AI知识服务系统',
-      auth: authRes.data,
-      ...pageAccess,
-      canAccessHome: canAccessPathList.includes('/home'),
-      canAccessChat: canAccessPathList.includes('/chat/:id'),
-      canAccessDocument: canAccessPathList.includes('/document'),
-      canAccessSetting: canAccessPathList.includes('/setting'),
-      canAccessDoc: canAccessPathList.includes('/setting/doc'),
-      canAccessRole: canAccessPathList.includes('/setting/role'),
-      // canAccessRole: true,
-      canAccessUser: canAccessPathList.includes('/setting/user'),
-      canAccessSensitive: canAccessPathList.includes('/setting/sensitive'),
-      canAccessLog: canAccessPathList.includes('/setting/log'),
-      canAccessSystem: canAccessPathList.includes('/setting/system'),
-      canAccessNew: canAccessPathList.includes('/new/:id'),
-    };
-  }
+  // const authRes = await getPermissions(Number(roleId));
+  // if (authRes instanceof Error) {
+  //   // message.error(authRes.message);
+  //   return {
+  //     name: 'AI知识服务系统',
+  //     ...pageAccess,
+  //   };
+  // }
+  // if (authRes.code === 0) {
+  //   const canAccessPathList = authRes.data.data.map(
+  //     (item) => item.has && item.name,
+  //   );
+  //   return {
+  //     name: 'AI知识服务系统',
+  //     auth: authRes.data,
+  //     ...pageAccess,
+  //     canAccessHome: canAccessPathList.includes('/home'),
+  //     canAccessChat: canAccessPathList.includes('/chat/:id'),
+  //     canAccessDocument: canAccessPathList.includes('/document'),
+  //     canAccessSetting: canAccessPathList.includes('/setting'),
+  //     canAccessDoc: canAccessPathList.includes('/setting/doc'),
+  //     canAccessRole: canAccessPathList.includes('/setting/role'),
+  //     // canAccessRole: true,
+  //     canAccessUser: canAccessPathList.includes('/setting/user'),
+  //     canAccessSensitive: canAccessPathList.includes('/setting/sensitive'),
+  //     canAccessLog: canAccessPathList.includes('/setting/log'),
+  //     canAccessSystem: canAccessPathList.includes('/setting/system'),
+  //     canAccessNew: canAccessPathList.includes('/new/:id'),
+  //   };
+  // }
 }
 
 export const request: RequestConfig = {
