@@ -10,7 +10,8 @@
     "dify",
     "favicons",
     "Popconfirm",
-    "umijs"
+    "umijs",
+    "Usergroup"
   ],
   "eslint.validate": [
     "javascript",
