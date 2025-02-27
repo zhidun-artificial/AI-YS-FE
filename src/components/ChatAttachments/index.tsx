@@ -3,21 +3,20 @@ import type { TabsProps } from 'antd';
 import { Button, Modal, Tabs } from 'antd';
 import React, {
   forwardRef,
+  useCallback,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react';
 
-import { MAX_ATTACHMENT_COUNT } from '@/constants';
-import { DocFileInfo } from '@/services/chat/chatConversation';
-import { TmpFileInfo } from '@/services/tmpfile/uploadTmpFile';
-import DocumentFileSelect from './DocumentFileSelect';
-import TempFileUpload from './TempFileUpload';
+import { MAX_ATTACHMENT_COUNT, MAX_UPLOAD_SIZE } from '@/constants';
+import { TmpFileInfo, uploadTmpFile } from '@/services/tmpfile/uploadTmpFile';
+import FileUpload from './FileUpload';
+
 
 export interface ChatAttachmentsProps {
   onConfirm?: (files: {
-    tmpFiles: TmpFileInfo[];
-    docFiles: DocFileInfo[];
+    tmpFiles: TmpFileInfo[]
   }) => void;
 }
 
@@ -35,7 +34,6 @@ const ChatAttachments: React.ForwardRefRenderFunction<
   const [fileCount, setFileCount] = useState(0);
   const [tip, setTip] = useState('');
   const tmpFiles = useRef<TmpFileInfo[]>([]);
-  const docFiles = useRef<DocFileInfo[]>([]);
 
   useImperativeHandle(ref, () => ({
     open: ({ maxCount, tip } = {}) => {
@@ -47,7 +45,7 @@ const ChatAttachments: React.ForwardRefRenderFunction<
 
   const handleConfirm = () => {
     if (onConfirm)
-      onConfirm({ tmpFiles: tmpFiles.current, docFiles: docFiles.current });
+      onConfirm({ tmpFiles: tmpFiles.current });
     setIsModalOpen(false);
   };
 
@@ -57,37 +55,37 @@ const ChatAttachments: React.ForwardRefRenderFunction<
 
   const onTmpFileChange = (files: TmpFileInfo[]) => {
     tmpFiles.current = files;
-    setFileCount(tmpFiles.current.length + docFiles.current.length);
+    setFileCount(tmpFiles.current.length);
   };
 
-  const onDocSelectChange = (files: DocFileInfo[]) => {
-    docFiles.current = files;
-    setFileCount(tmpFiles.current.length + docFiles.current.length);
-  };
+  const uploadFn = useCallback(async (file: File) => {
+    const res = await uploadTmpFile([file]);
+    if (res instanceof Error) {
+      return res;
+    } else {
+      if (res.code === 0) {
+        return res.data[0];
+      } else {
+        return new Error(res.msg);
+      }
+    }
+  }, []);
 
   const items: TabsProps['items'] = [
     {
       key: '1',
       label: `上传本地文档(${tmpFiles.current.length})`,
       children: (
-        <TempFileUpload
-          disabled={fileCount >= maxAttachmentCount}
-          onFileChange={onTmpFileChange}
+        <FileUpload
           style={{ height: 480 }}
-        />
-      ),
-    },
-    {
-      key: '2',
-      label: `文库文档(${docFiles.current.length})`,
-      children: (
-        <DocumentFileSelect
+          maxFiles={maxAttachmentCount}
+          maxSize={MAX_UPLOAD_SIZE}
           disabled={fileCount >= maxAttachmentCount}
-          onDocSelectChange={onDocSelectChange}
-          style={{ height: 480 }}
-        />
+          uploadFn={uploadFn}
+          onFileChange={onTmpFileChange}>
+        </FileUpload>
       ),
-    },
+    }
   ];
 
   const ActionBtns = (

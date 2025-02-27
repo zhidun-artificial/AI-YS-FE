@@ -1,4 +1,3 @@
-import { ApiResponse } from '@/services/http';
 import { TmpFileInfo } from '@/services/tmpfile/uploadTmpFile';
 import { Empty, List, message, Typography } from 'antd';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -21,7 +20,7 @@ export interface FileUploadProps extends DropzoneOptions {
   style?: React.CSSProperties;
   disabled?: boolean;
   onFileChange?: (files: TmpFileInfo[]) => void;
-  uploadFn: (file: File) => Promise<ApiResponse<TmpFileInfo> | Error>;
+  uploadFn: (file: File) => Promise<TmpFileInfo | Error>;
 }
 
 
@@ -64,13 +63,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxF
           setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'error', description: ret.message } : item))
           resolve(false);
         } else {
-          if (ret.code === 0) {
-            setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'success', ...ret } : item))
-            resolve(true);
-          } else {
-            setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'error', description: ret.msg } : item))
-            resolve(false);
-          }
+          setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'success', ...ret } : item))
+          resolve(true);
         }
       });
     }))

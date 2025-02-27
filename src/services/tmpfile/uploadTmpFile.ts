@@ -4,7 +4,6 @@ export interface TmpFileInfo {
   url: string;
   id: string;
   fileName: string;
-  description?: string;
 }
 
 type UploadTmpFileRequest = FormData;
