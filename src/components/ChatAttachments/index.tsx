@@ -11,7 +11,7 @@ import React, {
 
 import { MAX_ATTACHMENT_COUNT, MAX_UPLOAD_SIZE } from '@/constants';
 import { TmpFileInfo, uploadTmpFile } from '@/services/tmpfile/uploadTmpFile';
-import FileUpload from './FileUpload';
+import FileUpload, { FileUploadProps } from './FileUpload';
 
 
 export interface ChatAttachmentsProps {
@@ -53,8 +53,13 @@ const ChatAttachments: React.ForwardRefRenderFunction<
     setIsModalOpen(false);
   };
 
-  const onTmpFileChange = (files: TmpFileInfo[]) => {
-    tmpFiles.current = files;
+  const onTmpFileChange: FileUploadProps['onFileChange'] = (mode, files) => {
+    if (mode === 'add') {
+      tmpFiles.current = [...tmpFiles.current, ...files];
+    }
+    if (mode === 'remove') {
+      tmpFiles.current = tmpFiles.current.filter((file) => !files.some((f) => f.id === file.id));
+    }
     setFileCount(tmpFiles.current.length);
   };
 

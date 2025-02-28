@@ -1,4 +1,4 @@
-import { EyeFilled, DownloadOutlined, CloseCircleFilled, Loading3QuartersOutlined } from '@ant-design/icons';
+import { EyeFilled, DownloadOutlined, CloseCircleFilled, Loading3QuartersOutlined, FileUnknownFilled } from '@ant-design/icons';
 import React from 'react';
 import { IconPdfFile, IconWordFile } from './FileIcon';
 
@@ -25,6 +25,7 @@ const iconMapForFileExtension: Record<string, React.ReactNode> = {
   pdf: <IconPdfFile style={{ fontSize: 30 }} />,
   doc: <IconWordFile style={{ fontSize: 30 }} />,
   docx: <IconWordFile style={{ fontSize: 30 }} />,
+  unknown: <FileUnknownFilled style={{ fontSize: 30, color: '#ef4444' }} />,
 };
 
 const AttachmentCard: React.FC<AttachmentCardProps> = ({
@@ -51,7 +52,7 @@ const AttachmentCard: React.FC<AttachmentCardProps> = ({
         )
       }
       <div className="w-6 h-full flex items-center justify-center">
-        {iconMapForFileExtension[fileExtension]}
+        {iconMapForFileExtension[fileExtension] || iconMapForFileExtension['unknown']}
       </div>
       <div className="h-full w-1/2 flex-1 flex flex-col justify-center">
         <h3 className="text-[#4B5563] line-clamp-1">{decodeURIComponent(fileName)}</h3>

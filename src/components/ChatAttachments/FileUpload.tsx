@@ -19,7 +19,7 @@ type UploadErrorCode = keyof typeof UPLOAD_ERROR_MESSAGE
 export interface FileUploadProps extends DropzoneOptions {
   style?: React.CSSProperties;
   disabled?: boolean;
-  onFileChange?: (files: TmpFileInfo[]) => void;
+  onFileChange?: (change: 'add' | 'remove', files: TmpFileInfo[]) => void;
   uploadFn: (file: File) => Promise<TmpFileInfo | Error>;
 }
 
@@ -52,31 +52,62 @@ const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxF
 
   const onDropAccepted: DropzoneOptions['onDropAccepted'] = useCallback((acceptedFiles: File[]) => {
     if (successUploadCount + acceptedFiles.length > maxFiles) {
-      message.error('最多上传两个文件')
+      message.error(`最多上传${maxFiles}个文件`);
       return;
     }
-    const uploadTasks = acceptedFiles.map((file) => new Promise<boolean>((resolve) => {
-      const uploadId = uuid();
-      setUploadFiles((preFiles) => ([...preFiles, { uploadId: uploadId, id: file.name, fileName: file.name, url: '', status: 'loading' }]))
-      uploadFn(file).then(ret => {
-        if (ret instanceof Error) {
-          setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'error', description: ret.message } : item))
-          resolve(false);
-        } else {
-          setUploadFiles((preFiles) => preFiles.map((item) => item.uploadId === uploadId ? { ...item, status: 'success', ...ret } : item))
-          resolve(true);
-        }
-      });
-    }))
-    Promise.all(uploadTasks).finally(() => {
-      setUploadFiles((prevFiles) => {
-        const latestFiles = prevFiles.filter(file => file.status === 'success');
-        if (onFileChange) onFileChange(latestFiles)
-        return prevFiles;
-      });
-    })
 
-  }, [uploadFiles])
+    const newUploadFiles = acceptedFiles.map((file) => ({
+      uploadId: uuid(),
+      id: file.name,
+      fileName: file.name,
+      url: '',
+      status: 'loading' as const
+    }));
+
+    setUploadFiles(prevFiles => [...prevFiles, ...newUploadFiles]);
+
+    const uploadTasks = newUploadFiles.map(async (fileInfo) => {
+      try {
+        const result = await uploadFn(acceptedFiles.find(f => f.name === fileInfo.fileName)!);
+
+        if (result instanceof Error) {
+          setUploadFiles(prevFiles =>
+            prevFiles.map(item =>
+              item.uploadId === fileInfo.uploadId
+                ? { ...item, status: 'error' as const, description: result.message }
+                : item
+            )
+          );
+          return null;
+        }
+
+        setUploadFiles(prevFiles =>
+          prevFiles.map(item =>
+            item.uploadId === fileInfo.uploadId
+              ? { ...item, status: 'success' as const, ...result }
+              : item
+          )
+        );
+        return result;
+      } catch (err) {
+        setUploadFiles(prevFiles =>
+          prevFiles.map(item =>
+            item.uploadId === fileInfo.uploadId
+              ? { ...item, status: 'error' as const, description: '上传失败' }
+              : item
+          )
+        );
+        return null;
+      }
+    });
+
+    Promise.all(uploadTasks).then(results => {
+      const successFiles = results.filter(Boolean) as TmpFileInfo[];
+      if (onFileChange && successFiles.length > 0) {
+        onFileChange('add', successFiles);
+      }
+    });
+  }, [successUploadCount, maxFiles, uploadFn, onFileChange]);
 
   const onError = useCallback((error: Error) => {
     console.error('error', error)
@@ -84,11 +115,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxF
 
   const onDeleteFile = useCallback((file: UploadFile) => {
     setUploadFiles((prevFiles) => {
-      const newFiles = prevFiles.filter(f => f.uploadId !== file.uploadId)
-      if (file.status === 'success' && onFileChange) onFileChange(newFiles.filter(f => f.status === 'success'))
-      return newFiles
-    })
-  }, [])
+      const newFiles = prevFiles.filter(f => f.uploadId !== file.uploadId);
+      return newFiles;
+    });
+    if (onFileChange) onFileChange('remove', [file]);
+  }, [onFileChange]);
 
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     multiple: true,
