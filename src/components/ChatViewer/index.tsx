@@ -15,8 +15,6 @@ import React, {
 
 import { Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
 import { convertMessage, MessageData } from './adapter';
-
-import botImg from '@/assets/images/bot.svg';
 import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
 import { chatWithAssistant } from '@/services/chat/chatWithAssistant';
 import { getHistoryMessages } from '@/services/chat/getHistoryMessages';
@@ -34,7 +32,7 @@ import { ReactComponent as RobotSvg } from '@/icons/robot.svg';
 import AttachmentCard from '../ChatAttachments/AttachmentCard';
 import useXChat from '../antdx/use-x-chat';
 import useXAgent from '../antdx/use-x-agent';
-import ReactMarkdown from 'react-markdown';
+import MarkdownContent from './MarkdownContent';
 
 interface ChatInfo {
   user: number;
@@ -65,18 +63,11 @@ export interface ChatViewerRef {
   sendMessage: (message: string) => void;
 }
 
-const MarkdownContent = React.memo(({ content }: { content: string }) => {
-  return (
-    <Typography>
-      <ReactMarkdown>{content}</ReactMarkdown>
-    </Typography>
-  );
-});
 
 const ChatViewer: React.ForwardRefRenderFunction<
   ChatViewerRef,
   ChatViewerProps
-> = ({ user, chatMode, conversationId, assistantId, withDocFiles = [] }, ref) => {
+> = ({ user, chatMode = 'chat', conversationId, assistantId, withDocFiles = [] }, ref) => {
   // ==================== State ====================
   const [chatInfo, setChatInfo] = useState<ChatInfo>({
     user: user,
@@ -105,7 +96,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
 
   // 渲染完整的回答
   const renderFullAnswer: BubbleProps['messageRender'] = (content) => {
-    const { answer, ctx } = JSON.parse(content) as FullAnswerMessage;
+    const { answer, ctx = {} } = JSON.parse(content) as FullAnswerMessage;
     return (
       <Flex vertical className='min-w-24'>
         <MarkdownContent content={answer} />
@@ -214,7 +205,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       messageRender: renderFullAnswer,
     },
     query: {
-      avatar: <Avatar size={32} src={botImg}></Avatar>,
+      avatar: <Avatar size={32} style={{ background: theme?.token?.colorPrimary }} icon={<RobotSvg width={18} height={18} />}></Avatar>,
       placement: 'end',
       variant: 'shadow',
       classNames: {},
@@ -233,7 +224,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       messageRender: renderQuery
     },
     files: {
-      avatar: <Avatar size={32} src={botImg}></Avatar>,
+      avatar: <Avatar size={32} style={{ background: theme?.token?.colorPrimary }} icon={<RobotSvg width={18} height={18} />}></Avatar>,
       placement: 'end',
       variant: 'borderless',
       messageRender: renderFiles,
@@ -265,15 +256,15 @@ const ChatViewer: React.ForwardRefRenderFunction<
         await chatWithAgent({
           conversationId: message.conversationId,
           query: message.content,
-          llmModel: model,
+          llmModel: undefined,
           baseIds: knowledgeBases,
-          files: message.tempFiles || []
+          files: message?.ctx?.files || []
         }) :
         await chatWithAssistant({
           conversationId: message.conversationId,
           query: message.content,
           assistantId: chatAssistantId || '',
-          files: message.tempFiles || []
+          files: message?.ctx?.files || []
         })
 
       if (ret instanceof Error) {
@@ -281,17 +272,24 @@ const ChatViewer: React.ForwardRefRenderFunction<
       } else {
         let tmpChatInfo: ChatInfo | null = null;
         const contents: string[] = [];
+        let ctxInfo: MessageData['ctx'] = undefined;
         for await (const chunk of XStream({ readableStream: ret })) {
           const parsedMessage = convertMessage(chunk.data);
           if (parsedMessage !== false) {
-            contents.push(parsedMessage.content);
-            if (!tmpChatInfo)
-              tmpChatInfo = {
-                user: chatInfo.user,
-                conversationId: parsedMessage.conversationId,
-              };
-            parsedMessage.content = contents.join('');
-            onUpdate(parsedMessage);
+            if (parsedMessage.event === 'rag') {
+              // 上下文消息
+              ctxInfo = parsedMessage.ctx;
+            } else if (parsedMessage.event === 'partial_message') {
+              // 实时更新消息
+              contents.push(parsedMessage.content);
+              if (!tmpChatInfo)
+                tmpChatInfo = {
+                  user: chatInfo.user,
+                  conversationId: parsedMessage.conversationId,
+                };
+              parsedMessage.content = contents.join('');
+              onUpdate(parsedMessage);
+            }
           }
         }
         if (tmpChatInfo) setChatInfo(() => tmpChatInfo);
@@ -302,21 +300,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           content: JSON.stringify({
             messageId: tmpChatInfo?.conversationId || '',
             answer: contents.join(''),
-            ctx: {
-              resource: [
-                {
-                  documentId: 'doc-1',
-                  fileName: '文档1.pdf',
-                  url: 'https://www.baidu.com',
-                },
-                {
-                  documentId: 'doc-2',
-                  fileName: '文档2.pdf',
-                  url: 'https://www.baidu.com',
-                },
-              ],
-              files: [],
-            },
+            ctx: ctxInfo
           }),
         });
       }
@@ -356,17 +340,17 @@ const ChatViewer: React.ForwardRefRenderFunction<
         setChatInfo({ conversationId: conversationId, user: user });
         const historyMessages: Parameters<typeof setMessages>[0] = [];
         res.data.records.forEach((item, i) => {
-          if (item.inputs.files.length > 0) {
+          const { files = [], resources = [] } = item.files;
+          if (files && files.length > 0) {
             historyMessages.push({
               status: 'local',
               message: {
                 type: 'files',
                 content: JSON.stringify(
-                  item.inputs.files.map((f, j) => ({
-                    id: `${f.id || `msg-${i}-f${j}-${f.filename}`}`,
-                    fileName: f.filename,
-                    url: f.remote_url,
-                    size: f.size,
+                  item.files.files.map((f, j) => ({
+                    id: `${f.id || `msg-${i}-f${j}-${f.fileName}`}`,
+                    fileName: f.fileName,
+                    url: f.url
                   })),
                 ),
                 conversationId: chatInfo.conversationId,
@@ -393,18 +377,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
                 messageId: item.id,
                 answer: item.answer,
                 ctx: {
-                  resource: [
-                    {
-                      documentId: 'doc-1',
-                      fileName: '文档1.pdf',
-                      url: 'https://www.baidu.com',
-                    },
-                    {
-                      documentId: 'doc-2',
-                      fileName: '文档2.pdf',
-                      url: 'https://www.baidu.com',
-                    },
-                  ],
+                  resource: resources || [],
+                  files: files || [],
                 },
               }),
               conversationId: chatInfo.conversationId,
@@ -458,7 +432,9 @@ const ChatViewer: React.ForwardRefRenderFunction<
       content: nextContent,
       conversationId: chatInfo.conversationId,
       type: 'query',
-      tempFiles: tempFiles.current,
+      ctx: {
+        files: tempFiles.current,
+      }
       // docFiles: docFiles.current,
     });
     tempFiles.current = [];
@@ -516,8 +492,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
         {/* 参数选择 */}
         {chatMode === 'chat' &&
           <div className='flex flex-row gap-4 items-center'>
-            <span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={v => setModel(v)}></ModelSelect>
-            <span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={v => setKnowledgeBases(v)} ></KnowledgeSelect>
+            <div><span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={v => setModel(v)}></ModelSelect></div>
+            <div><span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={v => setKnowledgeBases(v)} ></KnowledgeSelect></div>
           </div>}
         {/* 🌟 输入框 */}
         <Sender
