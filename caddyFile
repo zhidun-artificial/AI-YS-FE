@@ -3,9 +3,15 @@
 	auto_https disable_redirects
 }
 
+# 定义变量
+(vars) {
+	base_url /knowledge
+	target_address 113.108.105.54:56800
+}
+
 # 配置代理目标地址
 (reverse_proxy) {
-	reverse_proxy 113.108.105.54:56800
+	reverse_proxy {$target_address}
 }
 
 # 配置ws代理
@@ -14,8 +20,8 @@
 		header Connection *Upgrade*
 		header Upgrade websocket
 	}
-
-	reverse_proxy @websockets 113.108.105.54:56800
+	
+	reverse_proxy @websockets {$target_address}
 }
 
 http://127.0.0.1 {
@@ -23,10 +29,11 @@ http://127.0.0.1 {
 	root * dist
 	file_server
 
-	# import reverse_ws
-
 	# 代理指定路径
-	route /knowledge/api/* {
+	route {$base_url}/api/* {
 		import reverse_proxy
 	}
+	
+	# 如需启用ws，取消下面注释
+	# import reverse_ws
 }
