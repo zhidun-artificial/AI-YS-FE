@@ -1,25 +1,16 @@
+import { ResourceInfo } from '@/components/ChatViewer/adapter';
 import { httpPost } from '../http';
+import { TmpFileInfo } from '../tmpfile/uploadTmpFile';
 
 export type HistoryMessage = {
   id: string;
   conversationId: string;
   query: string;
-  inputs: {
-    files: Array<{
-      dify_model_identity: '__dify__file__';
-      id: number;
-      tenant_id: string;
-      type: string;
-      transfer_method: string;
-      remote_url: string;
-      related_id: number;
-      filename: string;
-      extension: string;
-      mime_type: string;
-      size: number;
-    }>;
-  };
   answer: string;
+  files: {
+    resources: ResourceInfo[];
+    files: TmpFileInfo[];
+  }
   createdAt: number;
   updatedAt: number;
 };

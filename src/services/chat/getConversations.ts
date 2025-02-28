@@ -3,11 +3,10 @@ import { httpPost } from '../http';
 export interface ConversationInfo {
   id: string;
   name: string;
-  inputs: Record<string, string>;
-  status: string;
-  introduction: string;
-  createdAt: number;
-  updatedAt: number;
+  creator: string;
+  creatorName: string;
+  createTime: number;
+  updateTime: number;
 }
 
 interface GetConversationsRequest {

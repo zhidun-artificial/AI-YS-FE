@@ -125,7 +125,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         items={conversationsItems.map((item) => ({
           key: item.id,
           label: item.name,
-          timestamp: item.createdAt,
+          timestamp: item.createTime,
           ...item,
         }))}
         menu={menuConfig}
