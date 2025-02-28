@@ -118,6 +118,9 @@ export const request: RequestConfig = {
     ],
     [
       (response) => {
+        if ((response.config as { ignoreError?: boolean }).ignoreError) {
+          return response;
+        }
         const res = response.data as ApiResponse<unknown>;
         if (res.code !== 0) {
           message.error(res.msg);
