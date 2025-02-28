@@ -8,22 +8,21 @@ export interface KnowledgeRequest {
 }
 
 export type KnowledgeItem = {
-  "id"?: string,
-  "name": string,
-  "creator"?: string,
-  "creatorName"?: string,
-  "docCount": number,
-  "ext": {
-    tag?: string,
-    remark?: string
-  },
-  "createTime"?: number,
-  "updateTime"?: number
+  id: string;
+  name: string;
+  creator: string;
+  creatorName: string;
+  docCount: number;
+  ext: Record<string, unknown>;
+  createTime: number;
+  updateTime: number;
 };
 
 interface KnowledgeResponse {
-  records: KnowledgeItem[];
-  total: number;
+  pageNo: number
+  pageSize: number
+  records: KnowledgeItem[]
+  total: number
 }
 
 interface KnowledgeDetail {

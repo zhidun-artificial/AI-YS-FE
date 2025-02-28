@@ -39,20 +39,30 @@ const KnowledgePage: React.FC = () => {
       name: '安全防范知识库',
       creatorName: '系统管理员',
       docCount: 32,
-      ext: {}
+      ext: {},
+      creator: '',
+      createTime: 0,
+      updateTime: 0
     },
     {
       id: '71',
-      name: '系统管理员',
+      name: '安全防范知识库',
+      creatorName: '系统管理员',
       docCount: 32,
-      ext: {}
+      ext: {},
+      creator: '',
+      createTime: 0,
+      updateTime: 0
     },
     {
       id: '713',
       name: '基础知识库',
       creatorName: '系统管理员',
       docCount: 32,
-      ext: {}
+      ext: {},
+      creator: '',
+      createTime: 0,
+      updateTime: 0
     }
   ];
 
@@ -63,7 +73,9 @@ const KnowledgePage: React.FC = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  const onChange = () => { };
+  const onChange = () => {
+
+  };
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -88,15 +100,15 @@ const KnowledgePage: React.FC = () => {
       throw error;
     }
   };
-  const onSearch = () => {
+  const onSearch = (keyword: string) => {
     const params = {
-      key: '',
+      key: keyword,
       pageNo: 1,
       pageSize: 20
     }
     getData(params);
   };
-  onSearch();
+  onSearch('');
   const toManagement = () => {
     history.push('/knowledge/setting');
   };
@@ -113,15 +125,17 @@ const KnowledgePage: React.FC = () => {
       <div className="flex flex-col max-h-full">
         <div className="flex flex-col max-h-full">
           <div className="flex pb-6">
-            <Input
+            <Input.Search
               className="flex-1 h-[38px]"
+              onSearch={onSearch}
+              enterButton={false}
               prefix={<Icon icon="local:search" />}
-              suffix={
-                <div className="flex gap-2">
-                  <Icon className="cursor-pointer" icon="local:more" />
-                  <Icon className="cursor-pointer" icon="local:setup" />
-                </div>
-              }
+              // suffix={
+              //   <div className="flex gap-2">
+              //     <Icon className="cursor-pointer" icon="local:more" />
+              //     <Icon className="cursor-pointer" icon="local:setup" />
+              //   </div>
+              // }
               placeholder="搜索知识库..."
             />
             <div className="flex justify-end w-1/3">
@@ -256,7 +270,7 @@ const KnowledgePage: React.FC = () => {
                 <p className="text-[#111827] font-medium text-lg mb-1">
                   {item.name}
                 </p>
-                <p className="mb-5">{item.ext.remark}</p>
+                <p className="mb-5">{item.ext?.description as any}</p>
                 <div className="flex flex-col gap-2">
                   <p className="flex items-center mb-0">
                     <Icon icon="local:person" className="mr-2.5" />

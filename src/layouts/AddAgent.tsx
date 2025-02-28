@@ -18,7 +18,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
 
   return (
     <ModalForm<AgenteItem>
-      title="initialValue={name}"
+      title="添加助理"
       form={form}
       open={modalVisible}
       modalProps={{

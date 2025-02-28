@@ -12,5 +12,5 @@
 }
 
 .ant-radio-wrapper {
-  flex: none
+  flex: none !important;
 }

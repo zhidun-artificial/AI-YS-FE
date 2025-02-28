@@ -57,3 +57,8 @@ export const updateDocument = async (params: updateRequest) => {
 export const deleteDocument = async (id: string) => {
   return httpDelete(`/api/v1/documents/${id}`, {});
 };
+
+
+export const batchDeleteDocument = async (ids: string[]) => {
+  return httpPost(`/api/v1/documents/batch_delete`, {ids});
+};  

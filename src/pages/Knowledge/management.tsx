@@ -3,14 +3,16 @@ import { useState, useRef, useEffect } from 'react';
 import {
   DocumentItem,
   getDocuments,
-  deleteDocument
+  deleteDocument,
+  batchDeleteDocument
 } from '@/services/knowledge/management';
 import {
-  KnowledgeItem
+  KnowledgeItem,
+  getKnowledgeBases
 } from '@/services/knowledge';
-import { Button, Input, Modal, Form, Select, Radio, Tabs, Popconfirm, message } from 'antd';
+import { Button, Input, Modal, Form, Select, Radio, Tabs, Popconfirm, message, Dropdown } from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
-import type { TabsProps } from 'antd';
+import type { TabsProps, MenuProps } from 'antd';
 import './management.css';
 import './index.css';
 import {
@@ -34,6 +36,7 @@ const KnowledgeManagement: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [tabType, setTabType] = useState('1');
+  const [knowledgeList, setknowledgeList] = useState<KnowledgeItem[]>([]);
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -43,6 +46,26 @@ const KnowledgeManagement: React.FC = () => {
       setIsOpen(false);
     }
   };
+
+  const searchKnowledge = async (keyword: string) => {
+    const params = {
+      key: keyword,
+      pageNo: 1,
+      pageSize: 9999
+    }
+    try {
+      const res = await getKnowledgeBases(params);
+      if (res instanceof Error) {
+        throw res;
+      } else {
+        setknowledgeList(res.data.records)
+      }
+    } catch (error) {
+      message.error((error as Error).message);
+      throw error;
+    }
+  };
+  searchKnowledge('');
 
   // 使用 useEffect 监听全局点击事件
   useEffect(() => {
@@ -71,28 +94,13 @@ const KnowledgeManagement: React.FC = () => {
     }
   ];
 
-  const cardData: KnowledgeItem[] = [
+  const menus: MenuProps['items'] = [
     {
-      id: '1',
-      name: '安全防范知识库',
-      creatorName: '系统管理员',
-      docCount: 32,
-      ext: {}
-    },
-    {
-      id: '71',
-      name: '系统管理员',
-      docCount: 32,
-      ext: {}
-    },
-    {
-      id: '713',
-      name: '基础知识库',
-      creatorName: '系统管理员',
-      docCount: 32,
-      ext: {}
+      label: '批量解析',
+      key: '1',
     },
   ];
+
   const columns: ProColumns<DocumentItem>[] = [
     {
       title: '文献名',
@@ -166,6 +174,7 @@ const KnowledgeManagement: React.FC = () => {
     },
   ];
 
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const getData = async (params: {
     key: string;
     pageNo: number;
@@ -204,6 +213,35 @@ const KnowledgeManagement: React.FC = () => {
     setSearchText(key);
     actionRef.current?.reload()
   }
+
+  const onSelectChange = (newSelectedRows: any[]) => {
+    setSelectedRows(newSelectedRows);
+    console.log('选中的行数据：', selectedRows);
+  };
+
+
+  const getBatchDeleteDocument = async () => {
+    if (selectedRows.length === 0) {
+      message.error('请先选择要删除的文献');
+      return;
+    }
+    // 批量删除逻辑
+    const res = await batchDeleteDocument(selectedRows);
+    if (res instanceof Error) {
+      return;
+    } else {
+      message.success('删除成功');
+      actionRef.current?.reload();
+    }
+    message.success('删除成功');
+  }
+
+  const handleButtonClick = () => {
+    getBatchDeleteDocument();
+  }
+  const rowSelection = {
+    onChange: onSelectChange,
+  };
   return (
     <PageContainer
       style={{
@@ -216,20 +254,20 @@ const KnowledgeManagement: React.FC = () => {
       <div className="flex flex-col  w-full h-full">
         <div className="flex relative">
           <div className='flex flex-1 flex-col'>
-            <div onClick={toggleDropdown} className='border w-[182px] py-2 flex px-4 cursor-pointer'>
+            <div onClick={toggleDropdown} className='border !w-[182px] py-2 flex px-4 cursor-pointer'>
               <span className='flex-1 text-lg font-medium'>{'安全防范知识库'}</span>
               <DownOutlined className='w-3' />
             </div>
             <Tabs defaultActiveKey="1" tabBarGutter={16} items={items} onChange={onChange} />
             {
               isOpen && (
-                <div ref={dropdownRef} className='absolute top-32 z-10 w-[298px] bg-white border rounded-xl px-2 pt-1 pb-2'>
+                <div ref={dropdownRef} className='absolute top-32 z-10 !w-[298px] bg-white border rounded-xl px-2 pt-1 pb-2'>
                   <Input.Search
                     className='h-[38px]'
                     suffix={<Icon icon="local:search" />}
                     placeholder="搜索知识库..." />
                   <div className='flex-1 grid grid-cols-2 pt-2 pr-7 gap-2'>
-                    {cardData.map((item) => (
+                    {knowledgeList.map((item) => (
                       <div key={item.id} className={`border rounded text-center cursor-pointer py-2 ${item.id === currentId ? ' bg-indigo-600 text-white' : ''}`} >
                         {item.name}
                       </div>
@@ -243,13 +281,16 @@ const KnowledgeManagement: React.FC = () => {
           </div>
           <div className='flex justify-end  gap-4'>
             <Input.Search
-              className='flex-1 h-[38px] w-[280px]'
+              className='flex-1 h-[38px] !w-[280px]'
               onSearch={onSearch}
               enterButton={false}
               suffix={<Icon icon="local:search" />}
               placeholder="搜索当前知识库文献..." />
             <Button onClick={showModal} className='' type='primary' icon={<PlusOutlined />}>新建上传</Button>
-            <Button type='primary' danger icon={<Icon width='14' icon="local:del" />}>批量删除</Button>
+
+            <Dropdown.Button className='!w-auto' type="primary" danger menu={{ items: menus }} placement="bottomRight" onClick={handleButtonClick}>
+              <Icon width='14' icon="local:del" /> 批量删除
+            </Dropdown.Button>
             <Modal okText="确认创建"
               cancelText="取消" width="384px" title="编辑文献" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
 
@@ -258,9 +299,9 @@ const KnowledgeManagement: React.FC = () => {
         </div>
         {tabType === '1' && <div className='flex-1'>
           <ProTable<DocumentItem>
-            rowSelection={{}}
             columns={columns}
             actionRef={actionRef}
+            rowSelection={rowSelection}
             cardBordered
             request={async (params) => {
               return getData({
