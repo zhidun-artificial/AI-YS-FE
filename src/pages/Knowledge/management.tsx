@@ -35,6 +35,7 @@ const KnowledgeManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const [tabType, setTabType] = useState('1');
   const [knowledgeList, setknowledgeList] = useState<KnowledgeItem[]>([]);
   const toggleDropdown = () => {
@@ -42,7 +43,7 @@ const KnowledgeManagement: React.FC = () => {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    if (triggerRef.current && !triggerRef.current.contains(event.target as Node) && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsOpen(false);
     }
   };
@@ -65,7 +66,6 @@ const KnowledgeManagement: React.FC = () => {
       throw error;
     }
   };
-  searchKnowledge('');
 
   // 使用 useEffect 监听全局点击事件
   useEffect(() => {
@@ -197,7 +197,7 @@ const KnowledgeManagement: React.FC = () => {
     }
   };
   const showModal = () => {
-    setIsModalOpen(true);
+     setIsModalOpen(true);
   };
   const onChange = (type: string) => {
     setTabType(type)
@@ -207,7 +207,7 @@ const KnowledgeManagement: React.FC = () => {
   }
   const handleCancel = () => {
     setIsModalOpen(false);
-  }
+  } 
 
   const onSearch = (key: string) => {
     setSearchText(key);
@@ -254,16 +254,17 @@ const KnowledgeManagement: React.FC = () => {
       <div className="flex flex-col  w-full h-full">
         <div className="flex relative">
           <div className='flex flex-1 flex-col'>
-            <div onClick={toggleDropdown} className='border !w-[182px] py-2 flex px-4 cursor-pointer'>
+            <div ref={triggerRef} onClick={toggleDropdown} className='border !w-[182px] py-2 flex px-4 cursor-pointer'>
               <span className='flex-1 text-lg font-medium'>{'安全防范知识库'}</span>
               <DownOutlined className='w-3' />
             </div>
             <Tabs defaultActiveKey="1" tabBarGutter={16} items={items} onChange={onChange} />
             {
               isOpen && (
-                <div ref={dropdownRef} className='absolute top-32 z-10 !w-[298px] bg-white border rounded-xl px-2 pt-1 pb-2'>
+                <div ref={dropdownRef} className='absolute top-32 z-10 !w-[298px] min-h-52 bg-white border rounded-xl px-2 pt-1 pb-2'>
                   <Input.Search
                     className='h-[38px]'
+                    onSearch={searchKnowledge}
                     suffix={<Icon icon="local:search" />}
                     placeholder="搜索知识库..." />
                   <div className='flex-1 grid grid-cols-2 pt-2 pr-7 gap-2'>
