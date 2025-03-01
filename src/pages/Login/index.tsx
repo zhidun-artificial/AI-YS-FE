@@ -1,15 +1,13 @@
-import bigBg from '@/assets/images/big-ai.png';
-import logoIcon from '@/assets/images/logo.png';
 import { STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from '@/constants';
 import { login } from '@/services/auth/login';
 import { getPermissions } from '@/services/user/role';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useModel, useNavigate } from '@umijs/max';
 import { Button, Form, Input, message } from 'antd';
+import titleImg from '@/assets/images/title.png';
 
 export default function Page() {
   const navigate = useNavigate();
-  const { globalInfo } = useModel('global');
   const { setUser } = useModel('user');
   const { initialState, setInitialState } = useModel('@@initialState');
 
@@ -25,7 +23,6 @@ export default function Page() {
       localStorage.setItem(STORE_KEY_USER_NAME, `${res.data.info.name}`);
       localStorage.setItem(STORE_KEY_USER_ROLE, `${res.data.info.roleId}`);
       setUser(res.data.info);
-      console.log('login success');
       // TODO: 处理权限获取
       try {
         const authRes = await getPermissions(res.data.info.roleId);
@@ -53,24 +50,11 @@ export default function Page() {
     console.log('Failed:', errorInfo);
   };
   return (
-    <div className="h-screen bg-[url('@/assets/images/bg.png')] bg-[length:100%_100%]">
-      <section className="h-[162px] p-[50px] flex items-center ">
-        <img
-          src={logoIcon}
-          alt="logo"
-          className="w-[62px] h-[62px] mr-[20px]"
-        />
-        <h1 className="text-[#000614] text-[43px] -tracking-[0px]">
-          {globalInfo.appName}
-        </h1>
-      </section>
-      <section className="flex justify-center items-center gap-[225px] mx-auto">
-        <img src={bigBg} alt="bigBg" className="w-1/3 h-1/3 object-cover" />
+    <div className="h-screen w-full flex justify-center items-center bg-[url('@/assets/images/login/bg.png')] bg-[length:100%_100%]">
+      <section className="min-w-[1000px] flex justify-center items-center gap-[225px] mx-auto">
+        {/* <img src={bigBg} alt="bigBg" className="w-1/3 h-1/3 object-cover" /> */}
         <div className="w-1/2 max-w-[600px] mr-10 p-10 bg-white flex justify-center items-center flex-col rounded-[20px] shadow-xl">
-          <h1 className="text-[#000614] text-3xl font-bold tracking-widest mb-4">
-            欢迎登录
-          </h1>
-          <div className="w-8 h-1 bg-[#0060CE] mb-6 xl:mb-12"></div>
+          <img src={titleImg} alt="title" className="w-[235px] mb-[50px]" />
           <Form
             className="w-full"
             name="login"
