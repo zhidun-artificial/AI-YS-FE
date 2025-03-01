@@ -16,7 +16,7 @@ import {
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { Button, Drawer, Layout } from 'antd';
 import { useEffect, useState } from 'react';
-import { Icon, Link, useRouteProps } from 'umi';
+import { Icon, Link, useModel, useRouteProps } from 'umi';
 import AddAgent from './AddAgent';
 import './Layout.css';
 import SubMenu from './SubMenu';
@@ -101,6 +101,7 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
+  const { globalInfo } = useModel('global');
   const [routeObject, setRouteObject] = useState<{
     [key: string]: { categoryName: string; items: RouteItem[] };
   }>(menus);
@@ -278,6 +279,9 @@ const AppLayout = () => {
             </div>
           );
         })}
+        <div className=' absolute bottom-0 w-full flex justify-start items-center'>
+          <span className=' text-sm italic text-gray-500'>构建时间：{globalInfo.buildTime}</span>
+        </div>
       </div>
       <div className="flex-1 h-screen overflow-hidden flex flex-col">
         <Header className="p-0 !bg-white shadow flex items-center justify-between px-6">
