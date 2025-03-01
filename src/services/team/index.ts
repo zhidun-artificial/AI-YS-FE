@@ -80,7 +80,7 @@ export const deleteTeam = async (params: { id: number }) => {
   return httpDelete(`/api/v1/user_groups/${params.id}`, params);
 };
 
-export const addUser = async (params: { userId: number; groupId: number }) => {
+export const addUser = async (params: { userId: string; groupId: string }) => {
   return httpPost('/api/v1/user_groups/add_user', params);
 };
 

@@ -1,4 +1,4 @@
-import { getTeams, getTreeData, IGroupItem } from '@/services/team';
+import { addUser, getTeams, getTreeData, IGroupItem } from '@/services/team';
 import { UsergroupAddOutlined } from '@ant-design/icons';
 import { Button, message, Select, TreeSelect } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -68,6 +68,19 @@ export default function Search() {
     searchTeams();
   }, []);
 
+  const handlerAddMember = async () => {
+    const res = await addUser({
+      groupId: selectedTeam as string,
+      userId: value.join(','),
+    });
+    if (res instanceof Error) {
+      message.error(res.message);
+    } else {
+      message.success('添加成功');
+      searchTeams();
+    }
+  };
+
   return (
     <div className="w-full flex flex-col">
       <section className="w-full bg-white px-6 py-7 rounded-xl mb-4">
@@ -89,14 +102,9 @@ export default function Search() {
             <Button
               type="primary"
               icon={<UsergroupAddOutlined />}
-              onClick={() => {
-                if (!selectedTeam) {
-                  message.error('请先选择团队');
-                  return;
-                }
-              }}
+              onClick={handlerAddMember}
             >
-              批量添加
+              添加
             </Button>
             <CreateTeam update={() => searchTeams()} treeData={treeData} />
           </div>
