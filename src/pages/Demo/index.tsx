@@ -1,4 +1,6 @@
 import FileUpload, { FileUploadProps } from "@/components/ChatAttachments/FileUpload";
+import { previewDocx, previewPdf } from "@/utils/preview";
+import { Button } from "antd";
 import React, { useCallback } from "react";
 
 const sleep = async (time: number) => {
@@ -22,6 +24,8 @@ const Demo: React.FC = () => {
       <h1>Demo</h1>
       <FileUpload uploadFn={uploadFn} onFileChange={(files) => { console.log(files) }}>
       </FileUpload>
+      <Button onClick={() => previewDocx({ name: '测试文档', url: `${location.origin}/test.docx` })}>预览 docx 文件</Button>
+      <Button onClick={() => previewPdf({ name: '测试文档', url: `${location.origin}/test.pdf` })}>预览 pdf 文件</Button>
     </>
   )
 }
