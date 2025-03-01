@@ -34,10 +34,29 @@ export interface IGroupItem {
   users: any[];
 }
 
+export interface ITreeData {
+  id: 'string';
+  organName: 'string';
+  status: 'string';
+  organFather: 'string';
+  personArray: {
+    id: string;
+    ifLeader: number;
+    logincode: any;
+    name: string;
+    officer: string;
+    organId: number;
+  }[];
+}
+
 export interface SearchGroupResponse {
   total: number;
   records: IGroupItem[];
 }
+
+export const getTreeData = async () => {
+  return httpPost<any, ITreeData[]>('/api/v1/users_tree/get', {});
+};
 
 export const addTeam = async (params: ITeam) => {
   return httpPost<ITeam, TeamResponse>('/api/v1/user_groups', params);

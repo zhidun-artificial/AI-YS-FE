@@ -5,16 +5,24 @@ import { PlusOutlined } from '@ant-design/icons';
 import {
   ModalForm,
   ProFormItem,
-  ProFormSelect,
   ProFormText,
   ProFormTextArea,
+  ProFormTreeSelect,
 } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
+import { Button, message, TreeSelect } from 'antd';
 import { useState } from 'react';
+import { TreeDataType } from '.';
 
-export default ({ update }: { update: () => void }) => {
+const CreateTeam = ({
+  update,
+  treeData,
+}: {
+  treeData: TreeDataType[];
+  update: () => void;
+}) => {
   const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
   const [selectedIcon, setSelectedIcon] = useState<string>('local:knowledge');
+  const treeDefaultExpandAll = true;
 
   return (
     <>
@@ -55,18 +63,28 @@ export default ({ update }: { update: () => void }) => {
             tooltip="最长为 24 位"
             placeholder="请输入团队名称"
           />
-          <ProFormSelect
+          <ProFormTreeSelect
             name="adminId"
             label="团队管理员"
-            valueEnum={{
-              1: '1',
-              2: '2',
-              3: '3',
-              4: '4',
-              5: '5',
-            }}
             placeholder="搜索并选择管理员"
             rules={[{ required: true, message: '搜索并选择管理员!' }]}
+            fieldProps={{
+              treeData: treeData.map((item) => ({
+                ...item,
+                selectable: !item.children, // 仅叶子节点可选
+              })),
+              fieldNames: {
+                label: 'title',
+                value: 'value',
+                children: 'children',
+              },
+              treeCheckable: false,
+              showCheckedStrategy: TreeSelect.SHOW_CHILD,
+              treeDefaultExpandAll,
+              treeNodeFilterProp: 'title',
+              treeNodeLabelProp: 'title',
+              multiple: false,
+            }}
           />
           <ProFormTextArea
             colProps={{ span: 24 }}
@@ -110,3 +128,5 @@ export default ({ update }: { update: () => void }) => {
     </>
   );
 };
+
+export default CreateTeam;

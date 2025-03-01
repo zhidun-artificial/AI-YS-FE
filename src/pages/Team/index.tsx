@@ -1,12 +1,51 @@
-import { getTeams, IGroupItem } from '@/services/team';
-import { SearchOutlined, UsergroupAddOutlined } from '@ant-design/icons';
-import { Button, Input, message } from 'antd';
-import { useEffect, useState } from 'react';
+import { getTeams, getTreeData, IGroupItem } from '@/services/team';
+import { UsergroupAddOutlined } from '@ant-design/icons';
+import { Button, message, Select, TreeSelect } from 'antd';
+import React, { useEffect, useState } from 'react';
 import CreateTeam from './CreateTeam';
 import TeamCard from './TeamCard';
 
+export type TreeDataType = {
+  title: string;
+  value: string;
+  children: { title: string; value: string }[];
+};
+
 export default function Search() {
   const [teams, setTeams] = useState<IGroupItem[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<string | undefined>(
+    undefined,
+  );
+  const [treeData, setTreeData] = useState<TreeDataType[]>([]);
+  const [value, setValue] = React.useState<string[]>([]);
+
+  const onChange = (newValue: string[]) => {
+    setValue(newValue);
+  };
+
+  useEffect(() => {
+    const fetchTreeData = async () => {
+      const res = await getTreeData();
+      if (res instanceof Error) {
+        message.error(res.message);
+      } else {
+        const resTreeData = res.data.map((item) => {
+          return {
+            title: item.organName,
+            value: `F-${item.id.toString()}`,
+            children: item.personArray?.map((child) => {
+              return {
+                title: child.name,
+                value: child.id.toString(),
+              };
+            }),
+          };
+        });
+        setTreeData(resTreeData);
+      }
+    };
+    fetchTreeData();
+  }, []);
 
   const searchTeams = async () => {
     const res = await getTeams({
@@ -19,27 +58,60 @@ export default function Search() {
       message.error(res.message);
     } else {
       setTeams(res.data.records);
+      if (res.data.records.length > 0) {
+        setSelectedTeam(res.data.records[0].id.toString());
+      }
     }
   };
 
   useEffect(() => {
     searchTeams();
   }, []);
+
   return (
     <div className="w-full flex flex-col">
       <section className="w-full bg-white px-6 py-7 rounded-xl mb-4">
         <div className="flex justify-between items-center mb-4">
           <span>添加成员</span>
           <div className="flex">
-            <Button type="primary" icon={<UsergroupAddOutlined />}>
+            {/* 下拉筛选框 */}
+            <Select
+              style={{ width: 200, marginRight: 16 }}
+              value={selectedTeam}
+              onChange={(value) => setSelectedTeam(value)}
+            >
+              {teams.map((team) => (
+                <Select.Option key={team.id} value={team.id}>
+                  {team.name}
+                </Select.Option>
+              ))}
+            </Select>
+            <Button
+              type="primary"
+              icon={<UsergroupAddOutlined />}
+              onClick={() => {
+                if (!selectedTeam) {
+                  message.error('请先选择团队');
+                  return;
+                }
+              }}
+            >
               批量添加
             </Button>
-            <CreateTeam update={() => searchTeams()} />
+            <CreateTeam update={() => searchTeams()} treeData={treeData} />
           </div>
         </div>
-        <Input
+        <TreeSelect
+          treeData={treeData}
+          value={value}
+          onChange={onChange}
+          multiple
+          style={{ width: '100%' }}
+          treeCheckable
+          treeDefaultExpandAll
           placeholder="搜索用户"
-          prefix={<SearchOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+          showCheckedStrategy={TreeSelect.SHOW_CHILD}
+          dropdownStyle={{ maxHeight: 500, overflow: 'auto' }} // 设置下拉框的最大高度和滚动条
         />
       </section>
       <div className="grid grid-cols-2 gap-4">
