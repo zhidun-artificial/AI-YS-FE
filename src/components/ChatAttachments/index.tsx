@@ -94,7 +94,7 @@ const ChatAttachments: React.ForwardRefRenderFunction<
   ];
 
   const ActionBtns = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center flex-row gap-3">
       {tip && <span>{tip}</span>}
       <h3
         style={{ color: fileCount >= maxAttachmentCount ? '#EE4A4A' : '' }}

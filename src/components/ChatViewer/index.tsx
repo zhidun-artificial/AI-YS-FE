@@ -122,7 +122,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
             })
           }
         </Flex>}
-        <Flex className='h-14 justify-end items-end gap-3' style={{ height: 56, flex: 0 }}>
+        <Flex className='h-14 justify-end items-end flex-row gap-3' style={{ height: 24, flex: 0 }}>
           <span className='cursor-pointer' title='复制'><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
           <span className='cursor-pointer' title='删除'><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
         </Flex>
@@ -161,7 +161,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const renderQuery: BubbleProps['messageRender'] = (content) => (
     <Flex vertical className='min-w-24 group'>
       <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
-      <Flex className='h-14 justify-end items-end gap-3 invisible group-hover:visible' style={{ height: 28, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+      <Flex className='h-14 justify-end items-end flex-row gap-3 invisible group-hover:visible' style={{ height: 28, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
         <span className='cursor-pointer' title='复制'><CopyFilled style={{ fontSize: 16 }} /></span>
         <span className='cursor-pointer' title='删除'><DeleteFilled style={{ fontSize: 16 }} /></span>
       </Flex>

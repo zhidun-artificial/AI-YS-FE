@@ -119,7 +119,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-white">
       {/* 🌟 会话管理 */}
       <Conversations
         items={conversationsItems.map((item) => ({

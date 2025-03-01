@@ -21,6 +21,7 @@ import AddAgent from './AddAgent';
 import './Layout.css';
 import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
+import titleImg from '@/assets/images/title.png';
 
 const { Header } = Layout;
 
@@ -201,7 +202,7 @@ const AppLayout = () => {
     <div className="flex">
       <div
         id="sideMenu"
-        className="w-[255px] p-4 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
+        className="w-[255px] p-4 pt-0 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
       >
         <AddAgent onClose={onClose} modalVisible={modalVisit} />
         {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
@@ -217,7 +218,9 @@ const AppLayout = () => {
           <Icon icon="local:add" />
         </div>
         <div className="flex flex-col items-center"></div>
-
+        <div className='h-16 w-full flex justify-center items-center'>
+          <Link to='/home'><img className='w-[172px]' src={titleImg} alt="logo" /></Link>
+        </div>
         <Button
           icon={<PlusCircleOutlined />}
           type="primary"
@@ -319,7 +322,7 @@ const AppLayout = () => {
             getContainer={'#appContent'}
             rootStyle={{ position: 'absolute', zIndex: 40 }}
             styles={{
-              content: { background: '#F5F8FD' },
+              content: { background: '#FFF' },
               mask: { background: 'rgba(0, 0, 0, 0.1)' },
             }}
             open={showConversations}
