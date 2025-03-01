@@ -120,6 +120,8 @@ export default function Search() {
           placeholder="搜索用户"
           showCheckedStrategy={TreeSelect.SHOW_CHILD}
           dropdownStyle={{ maxHeight: 500, overflow: 'auto' }} // 设置下拉框的最大高度和滚动条
+          showSearch
+          treeNodeFilterProp="title" // 设置过滤属性为 title
         />
       </section>
       <div className="grid grid-cols-2 gap-4">
