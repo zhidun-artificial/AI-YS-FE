@@ -102,6 +102,7 @@ const AppLayout = () => {
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
   const { globalInfo } = useModel('global');
+  const { user } = useModel('user');
   const [routeObject, setRouteObject] = useState<{
     [key: string]: { categoryName: string; items: RouteItem[] };
   }>(menus);
@@ -311,7 +312,7 @@ const AppLayout = () => {
             )}
           </div>
           <div className="flex items-center">
-            <UserInfo avatar={url} name={'张信服'} title={'超级管理员'} />
+            <UserInfo avatar={url} name={user.name} title={'超级管理员'} />
           </div>
         </Header>
         <div

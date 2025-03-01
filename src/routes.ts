@@ -165,6 +165,15 @@ const routes: routeType = [
     }
   },
   {
+    name: "重定向",
+    path: '/redirect',
+    component: '@/pages/Redirect',
+    layout: false,
+    menu: {
+      hidden: true
+    }
+  },
+  {
     name: '示例',
     path: '/demo',
     component: '@/pages/Demo',

@@ -1,10 +1,10 @@
-import { STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from '@/constants';
-import { login } from '@/services/auth/login';
+import { CAS_URL, STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from '@/constants';
 import { getPermissions } from '@/services/user/role';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useModel, useNavigate } from '@umijs/max';
 import { Button, Form, Input, message } from 'antd';
 import titleImg from '@/assets/images/title.png';
+import { loginByCAS } from '@/services/auth/cas';
 
 export default function Page() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function Page() {
   const { initialState, setInitialState } = useModel('@@initialState');
 
   const onFinish = async (values: { username: string; password: string }) => {
-    const res = await login(values);
+    const res = await loginByCAS(values);
     if (res instanceof Error) {
       return;
     }
@@ -101,7 +101,7 @@ export default function Page() {
             </Form.Item>
           </Form>
           <span className="text-[#666666]">
-            没有账号？
+            {/* 没有账号？
             <span
               className="text-[#477FFF] hover:cursor-pointer"
               onClick={() => {
@@ -110,7 +110,8 @@ export default function Page() {
               }}
             >
               注册
-            </span>
+            </span> */}
+            <span className="ml-2 text-[#477FFF]" ><a href={CAS_URL}>CAS 登录</a></span>
           </span>
         </div>
       </section>

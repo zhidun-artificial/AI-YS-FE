@@ -1,5 +1,5 @@
 import { API_URL, STORE_KEY_TOKEN } from '@/constants';
-import { history, request } from '@umijs/max';
+import { history, request, RequestOptions } from '@umijs/max';
 import { message } from 'antd';
 import { ExpireError } from './error';
 
@@ -10,16 +10,23 @@ export type ApiResponse<T> = {
   data: T;
 };
 
+export interface RequestCustomOptions extends RequestOptions {
+  API_URL?: string;
+  ignoreError?: boolean;
+}
+
 export const isResponseOK = (status: number) => status >= 200 && status < 300;
 
 export async function httpGet<T = Record<string, unknown>, R = object>(
   url: string,
   params: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'GET',
     params,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,
@@ -29,11 +36,13 @@ export async function httpGet<T = Record<string, unknown>, R = object>(
 export async function httpPost<T = Record<string, unknown>, R = object>(
   url: string,
   data: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'POST',
     data,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,
@@ -43,11 +52,13 @@ export async function httpPost<T = Record<string, unknown>, R = object>(
 export async function httpPatch<T = Record<string, unknown>, R = object>(
   url: string,
   data: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'PATCH',
     data,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,
@@ -57,11 +68,13 @@ export async function httpPatch<T = Record<string, unknown>, R = object>(
 export async function httpDelete<T = Record<string, unknown>, R = object>(
   url: string,
   params: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'DELETE',
     params,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,
@@ -71,11 +84,13 @@ export async function httpDelete<T = Record<string, unknown>, R = object>(
 export async function httpPut<T = Record<string, unknown>, R = object>(
   url: string,
   data: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'PUT',
     data,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,
@@ -85,11 +100,13 @@ export async function httpPut<T = Record<string, unknown>, R = object>(
 export async function httpHead<T = Record<string, unknown>, R = null>(
   url: string,
   params: T,
+  options: RequestCustomOptions = {},
 ): Promise<ApiResponse<R> | Error> {
-  return request<ApiResponse<T>>(`${API_URL}${url}`, {
+  return request<ApiResponse<T>>(`${options.API_URL || API_URL}${url}`, {
     method: 'HEAD',
     params,
     getResponse: true,
+    ...options
   }).then(
     (res) => res.data,
     (err) => err,

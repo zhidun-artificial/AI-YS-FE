@@ -66,6 +66,19 @@ export default defineConfig({
     'process.env.BASE_URL': process.env.NODE_ENV === 'development' ? '' : process.env.BASE_URL,
     'process.env.BUILD_TIME': new Date().getTime(),
   },
+  proxy: {
+    '/cas': {
+      target: 'http://113.108.105.54:56800',
+      changeOrigin: false,
+      // secure: false,
+      // onProxyRes: (proxyRes, req, res) => {
+      //   console.log('res', res);
+      //   // Handle redirects from the CAS server
+      // },
+      // changeOrigin: true,
+      // pathRewrite: { '^/cas/login': '/cas/login' }, // Uncomment if path rewriting is needed
+    },
+  },
   npmClient: 'pnpm',
   esbuildMinifyIIFE: true,
   tailwindcss: {},
