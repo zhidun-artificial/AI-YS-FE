@@ -14,7 +14,7 @@ import {
   RightOutlined,
 } from '@ant-design/icons';
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
-import { Button, Drawer, Layout } from 'antd';
+import { Button, Drawer, Layout, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { Icon, Link, useModel, useRouteProps } from 'umi';
 import AddAgent from './AddAgent';
@@ -23,6 +23,7 @@ import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
 import titleImg from '@/assets/images/title.png';
 import { CAS_URL_EXIT } from '@/constants';
+import { getAgentes, AgenteItem } from '@/services/agent';
 
 const { Header } = Layout;
 
@@ -100,6 +101,9 @@ menus['function'].items.sort(
 
 const AppLayout = () => {
   const navigate = useNavigate();
+
+  // 模拟网络延迟
+  const [agents, setAgents] = useState<AgenteItem[]>([]);
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
   const { globalInfo } = useModel('global');
@@ -124,43 +128,50 @@ const AppLayout = () => {
       setModalVisit(true);
     }
   };
-  const onClose = () => {
-    setModalVisit(false);
-  };
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      // 模拟网络延迟
-      // eslint-disable-next-line no-promise-executor-return
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 模拟返回数据
-      const res = {
-        agents: [
-          { name: '添加助理', icon: 'local:add', function: 'addAgent' },
-          { name: 'Agent 1', icon: 'local:agent' },
-          { name: 'Agent 2', icon: 'local:agent' },
-        ],
-        history: [
-          { name: 'History 1', icon: 'local:historyChat' },
-          { name: 'History 2', icon: 'local:historyChat' },
-          { name: '展示更多', icon: 'local:add', function: 'showMore' },
-        ],
-      };
-
-      if (res) {
-        setRouteObject((routeObject) => {
-          const newRouteObject = { ...routeObject };
-          newRouteObject['function'].items[1].customChildren = (
-            <SubMenu items={res.agents} onClick={onClickSubMenu} />
-          );
-          newRouteObject['function'].items[2].customChildren = (
-            <SubMenu items={res.history} onClick={onClickSubMenu} />
-          );
-          return newRouteObject;
-        });
-      }
+  const fetchAgents = async () => {
+    const res = {
+      history: [
+        { name: 'History 1', icon: 'local:historyChat' },
+        { name: 'History 2', icon: 'local:historyChat' },
+        { name: '展示更多', icon: 'local:add', function: 'showMore' },
+      ],
+      agents: [] as any[]
     };
+    const Response = await getAgentes({ key: '', sort: "CREATED_AT_ASC", forEdit: false, pageNo: 1, pageSize: 9999 });
+    if (Response instanceof Error) {
+
+      message.error('查询助理列表失败')
+    } else if (Response.code === 0) {
+      const data = Response.data?.records;
+      setAgents(data);
+      res.agents = [
+        { name: '添加助理', icon: 'local:add', function: 'addAgent' },
+        ...data.slice(0, 5),
+      ]
+      if (data.length > 5) res.agents.push({ name: '展示更多', icon: 'local:add', function: 'showMore' })
+      console.log(agents)
+    }
+
+
+
+    if (res) {
+      setRouteObject((routeObject) => {
+        const newRouteObject = { ...routeObject };
+        newRouteObject['function'].items[1].customChildren = (
+          <SubMenu items={res.agents} onClick={onClickSubMenu} />
+        );
+        newRouteObject['function'].items[2].customChildren = (
+          <SubMenu items={res.history} onClick={onClickSubMenu} />
+        );
+        console.log(newRouteObject)
+        return newRouteObject;
+      });
+    }
+  };
+  useEffect(() => {
+
 
     fetchAgents();
   }, []);
@@ -200,7 +211,10 @@ const AppLayout = () => {
   } else {
     routeChildren = systemChildren;
   }
-
+  const onClose = () => {
+    setModalVisit(false);
+    fetchAgents();
+  };
   return (
     <div className="flex">
       <div

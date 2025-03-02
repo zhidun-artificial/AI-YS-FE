@@ -1,10 +1,11 @@
-import { httpDelete, httpPost, httpPut } from '@/services/http';
+import { httpDelete, httpPost, httpPut, httpGet } from '@/services/http';
 
 export interface AgenteRequest {
   key: string;
   pageNo: number;
   pageSize: number;
-  sort?: string
+  sort?: string;
+  forEdit: boolean;
 }
 
 export type AgenteItem = {
@@ -12,16 +13,21 @@ export type AgenteItem = {
   "name": string,
   "llmModel": string,
   "systemPrompt": string,
-  "permit": number,
+  "permit": 1 | 0,
   "description": string,
   "baseIds": string[],  // string
   "creator": string,
-  "ext": object
+  "ext": object,
 };
 
 interface AgenteResponse {
-  records: AgenteItem[];
-  total: number;
+  records: never[];
+  code: number;
+  data: {
+    records: AgenteItem[];
+    total: number;
+  },
+  msg: string;
 }
 
 interface AgenteDetail {
@@ -29,7 +35,7 @@ interface AgenteDetail {
   "name": string,
   "llmModel": string,
   "systemPrompt": string,
-  "permit": number,
+  "permit": 1 | 0,
   "description": string,
   "baseIds": string[],  // string
   "creator": string,
@@ -53,7 +59,13 @@ interface updateRequest {
   id: string | number;
   name: string;
 }
-
+interface ModelsResponse {
+  "embeddings": string[],
+  "llm": string[]
+}
+interface ModelsRequest {
+  id?: string
+}
 export const updateAgente = async (params: updateRequest) => {
   return httpPut<updateRequest, AgenteDetail>(`/api/v1/assistants`, params);
 };
@@ -61,3 +73,9 @@ export const updateAgente = async (params: updateRequest) => {
 export const deleteAgente = async (id: number) => {
   return httpDelete(`/api/v1/assistants/${id}`, {});
 };
+
+export const getModels = async () => {
+  return httpGet<ModelsRequest, ModelsResponse>(
+    '/api/v1/models/show', {}
+  );
+}
