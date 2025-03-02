@@ -10,12 +10,14 @@ const NewPage: React.FC = () => {
   const withFiles = state
     ? (state as { tmpFiles: DocFileInfo[]; docFiles: DocFileInfo[] })
     : { tmpFiles: [], docFiles: [] };
+  const assistantId = state ? (state as { assistantId: string }).assistantId : '';
 
   return (
     <ReadViewer
       key={match?.params.id}
       userId={user.id}
       docFiles={withFiles.docFiles}
+      assistantId={assistantId}
     ></ReadViewer>
   );
 };

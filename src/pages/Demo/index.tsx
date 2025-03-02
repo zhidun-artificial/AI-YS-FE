@@ -1,5 +1,6 @@
 import FileUpload, { FileUploadProps } from "@/components/ChatAttachments/FileUpload";
 import { previewDocx, previewPdf } from "@/utils/preview";
+import { history } from "@umijs/max";
 import { Button } from "antd";
 import React, { useCallback } from "react";
 
@@ -26,6 +27,7 @@ const Demo: React.FC = () => {
       </FileUpload>
       <Button onClick={() => previewDocx({ name: '测试文档', url: `${location.origin}${location.pathname}test.docx` })}>预览 docx 文件</Button>
       <Button onClick={() => previewPdf({ name: '测试文档', url: `${location.origin}${location.pathname}test.pdf` })}>预览 pdf 文件</Button>
+      <Button onClick={() => history.push(`/new/${Date.now()}`, { assistantId: '019557345d4a76c193aeabf4633a2ab4' })}>助理开启聊天</Button>
     </>
   )
 }
