@@ -1,4 +1,4 @@
-import { httpDelete, httpPost } from '../http';
+import { httpDelete, httpPost, httpPut } from '../http';
 
 export interface ITeam {
   name: string;
@@ -25,6 +25,7 @@ export interface TeamResponse {
 export interface IGroupItem {
   id: number;
   name: string;
+  adminId: string;
   creatorName: string;
   description: string;
   ext: { [key: string]: any };
@@ -71,7 +72,7 @@ export const addTeam = async (params: ITeam) => {
 };
 
 export const updateTeam = async (params: ITeam & { id: number }) => {
-  return httpPost<ITeam & { id: number }, TeamResponse>(
+  return httpPut<ITeam & { id: number }, TeamResponse>(
     `/api/v1/user_groups/${params.id}`,
     params,
   );

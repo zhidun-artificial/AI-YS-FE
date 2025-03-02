@@ -12,6 +12,7 @@ export type TreeDataType = {
 };
 
 export type IInitFormData = {
+  id?: number;
   name?: string;
   adminId?: string;
   description?: string;
@@ -163,7 +164,9 @@ export default function Search() {
               editTeam={(team) => {
                 setVisible(true);
                 setInitialValues({
+                  id: team.id,
                   name: team.name,
+                  adminId: team.adminId,
                   description: team.description,
                   theme: team.ext.theme,
                   icon: team.ext.icon,

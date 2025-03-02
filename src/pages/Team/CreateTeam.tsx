@@ -1,6 +1,6 @@
 import ColorPicker from '@/components/ColorPikcer';
 import IconPicker from '@/components/IconPicker';
-import { addTeam } from '@/services/team';
+import { addTeam, updateTeam } from '@/services/team';
 import {
   ModalForm,
   ProFormItem,
@@ -35,15 +35,18 @@ const CreateTeam = ({
         open={visible}
         onOpenChange={(open) => setVisible(open)}
         onFinish={async (values: any) => {
-          const res = await addTeam({
+          const params = {
             ...values,
             ext: { theme: selectedColor, icon: selectedIcon },
-          });
+          };
+          const res = initialValues?.id
+            ? await updateTeam({ ...params, id: initialValues.id })
+            : await addTeam(params);
           if (res instanceof Error) {
             message.error(res.message);
           } else {
             update();
-            message.success('提交成功');
+            message.success(initialValues?.id ? '更新成功' : '提交成功');
             setVisible(false);
             return true;
           }
