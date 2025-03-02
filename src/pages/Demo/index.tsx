@@ -24,8 +24,8 @@ const Demo: React.FC = () => {
       <h1>Demo</h1>
       <FileUpload uploadFn={uploadFn} onFileChange={(files) => { console.log(files) }}>
       </FileUpload>
-      <Button onClick={() => previewDocx({ name: '测试文档', url: `${location.origin}/test.docx` })}>预览 docx 文件</Button>
-      <Button onClick={() => previewPdf({ name: '测试文档', url: `${location.origin}/test.pdf` })}>预览 pdf 文件</Button>
+      <Button onClick={() => previewDocx({ name: '测试文档', url: `${location.origin}${location.pathname}test.docx` })}>预览 docx 文件</Button>
+      <Button onClick={() => previewPdf({ name: '测试文档', url: `${location.origin}${location.pathname}test.pdf` })}>预览 pdf 文件</Button>
     </>
   )
 }
