@@ -26,7 +26,7 @@ import SensitiveForm from './components/SensitiveForm';
 const columns: ProColumns<SensitiveItem>[] = [
   {
     title: '屏蔽词',
-    dataIndex: 'blockedWord',
+    dataIndex: 'value',
     ellipsis: true,
     formItemProps: {
       rules: [
@@ -46,17 +46,16 @@ const columns: ProColumns<SensitiveItem>[] = [
   },
   {
     title: '状态',
-    dataIndex: 'status',
+    dataIndex: 'enabled',
     hideInSearch: true,
     render: (text, record, _, action) => (
       <Tag
-        color={record.status === 'enabled' ? 'green' : 'red'}
+        color={record.enabled ? 'green' : 'red'}
         className="cursor-pointer"
         onClick={async () => {
-          const res =
-            record.status === 'enabled'
-              ? await enableSensitive(record.id)
-              : await disableSensitive(record.id);
+          const res = record.enabled
+            ? await enableSensitive(record.id)
+            : await disableSensitive(record.id);
           if (res instanceof Error) {
             return;
           } else {
@@ -65,7 +64,7 @@ const columns: ProColumns<SensitiveItem>[] = [
           }
         }}
       >
-        {record.status === 'enabled' ? '启用' : '禁用'}
+        {record.enabled ? '启用' : '禁用'}
       </Tag>
     ),
   },
@@ -79,8 +78,11 @@ const columns: ProColumns<SensitiveItem>[] = [
         key="edit"
         id={record.id}
         title="编辑屏蔽词"
-        onFinish={async (blockedWord) => {
-          const res = await updateSensitive({ id: record.id, blockedWord });
+        onFinish={async (value) => {
+          const res = await updateSensitive({
+            id: record.id,
+            value: value,
+          });
           if (res instanceof Error) {
             return;
           } else {
@@ -153,7 +155,7 @@ const AccessPage: React.FC = () => {
         actionRef={actionRef}
         request={async (params) => {
           return getData({
-            key: params.blockedWord ?? '',
+            key: params.value ?? '',
             pageNo: params.current ?? 1,
             pageSize: params.pageSize ?? 10,
           });
@@ -196,7 +198,7 @@ const AccessPage: React.FC = () => {
               </Button>
             }
             onFinish={async (values) => {
-              addSensitives({ blockedWord: values.blockedWord }).then((res) => {
+              addSensitives({ value: values.value }).then((res) => {
                 if (res instanceof Error) {
                 } else if (res.code === 0) {
                   message.success('添加成功');
@@ -208,7 +210,7 @@ const AccessPage: React.FC = () => {
           >
             <ProFormText
               width="md"
-              name="blockedWord"
+              name="value"
               rules={[{ required: true, message: '请输入名称' }]}
               label="屏蔽词"
               placeholder="请输入名称"

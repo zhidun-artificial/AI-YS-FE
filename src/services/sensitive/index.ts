@@ -8,8 +8,8 @@ interface SensitiveRequest {
 
 export type SensitiveItem = {
   id: number;
-  blockedWord: string;
-  status: 'enabled' | 'disabled';
+  value: string;
+  enabled: boolean;
   name: string;
   remarks: string;
   createTime: string;
@@ -32,10 +32,10 @@ export const getSensitives = async (params: SensitiveRequest) => {
   );
 };
 
-export const addSensitives = async (params: { blockedWord: 'string' }) => {
+export const addSensitives = async (params: { value: 'string' }) => {
   return httpPost<
     {
-      blockedWord: 'string';
+      value: 'string';
     },
     SensitiveDetail
   >('/api/v1/blocked_words', params);
@@ -43,7 +43,7 @@ export const addSensitives = async (params: { blockedWord: 'string' }) => {
 
 interface updateRequest {
   id: string | number;
-  blockedWord: string;
+  value: string;
 }
 
 export const updateSensitive = async (params: updateRequest) => {
