@@ -72,6 +72,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
       />
       <ProFormSelect
         name="llmModel"
+        rules={[{ required: true, message: '请选择基础模型' }]}
         label="基础模型（来自于） "
         request={async () => {
 
@@ -145,6 +146,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
       <ProFormSelect
         name="baseIds"
         mode="multiple"
+        rules={[{ required: true, message: '请选择挂载知识库' }]}
         label="挂载知识库"
         request={async () => {
           const params = {

@@ -11,3 +11,6 @@
 .ant-input-group-addon {
   display: none !important;
 }
+.ant-radio-wrapper-checked.custom-radio .ant-radio-label .border {
+  @apply border-blue-500;
+}

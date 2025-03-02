@@ -1,4 +1,4 @@
-import { httpDelete, httpPost, httpPut } from '@/services/http';
+import { httpDelete, httpPost, httpPut, httpGet } from '@/services/http';
 
 export interface KnowledgeRequest {
   key: string;
@@ -16,7 +16,7 @@ export type KnowledgeItem = {
   embedModel: string;
   description: string;
   tags: string[];
-  permit?: number;
+  permit?: 1 | 0;
   groupId: string,
   ext: Record<string, unknown>;
   createTime: number;
@@ -59,3 +59,17 @@ export const updateKnowledgeBase = async (params: KnowledgeItem) => {
 export const deleteKnowledgeBase = async (id: number) => {
   return httpDelete(`/api/v1/knowledge_base/${id}`, {});
 };
+
+
+// interface TagsResponse {
+//   data: string[]
+// }
+interface TagsRequest {
+  id?: string
+}
+
+export const getTags = async () => {
+  return httpGet<TagsRequest, string[]>(
+    '/api/v1/knowledge_base/tags', {}
+  );
+}

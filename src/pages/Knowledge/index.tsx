@@ -12,7 +12,7 @@ import {
   Card,
   Input,
   Pagination,
-  Select,
+  // Select,
   message,
   Empty
 } from 'antd';
@@ -32,17 +32,21 @@ const KnowledgePage: React.FC = () => {
     return dayjs(timestamp).format('YYYY-MM-DD');
   };
 
-  const onChange = () => {
+  const [pagination, setPagination] = useState({ pageNo: 1, pageSize: 20 });
+  const [keyword, setKeyword] = useState('');
+  const colorMap = [
+    '#3B82F6',
+    '#22C55E',
+    '#A855F7',
+    '#EF4444',
+    '#EAB308',
+    '#F97316',
+  ]
 
-  };
-
-
-
-  const onSearch = async (keyword?: string) => {
+  const onSearch = async () => {
     const params = {
       key: keyword || '',
-      pageNo: 1,
-      pageSize: 20
+      ...pagination
     }
     try {
       const res = await getKnowledgeBases(params);
@@ -58,8 +62,13 @@ const KnowledgePage: React.FC = () => {
     }
 
   };
+  const onChange = (page: any, size: any) => {
+    setPagination({ pageNo: page, pageSize: size });
+    onSearch();
+  };
+
   useEffect(() => {
-    onSearch('');
+    onSearch();
   }, []);
   const toManagement = (id: string) => {
     history.push('/knowledge/setting', { id });
@@ -80,8 +89,10 @@ const KnowledgePage: React.FC = () => {
             <Input.Search
               className="flex-1 h-[38px]"
               onSearch={onSearch}
+              onChange={(e) => setKeyword(e.target.value)}
               enterButton={false}
               prefix={<Icon icon="local:search" />}
+
               // suffix={
               //   <div className="flex gap-2">
               //     <Icon className="cursor-pointer" icon="local:more" />
@@ -124,12 +135,19 @@ const KnowledgePage: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex gap-2 pt-3">
-                  <div className=" rounded-full h-6 px-2 text-xs leading-6 bg-[#DBEAFE] text-[#1D4ED8]">
-                    新手指南
-                  </div>
-                  <div className=" rounded-full h-6 px-2 text-xs leading-6 bg-[#DCFCE7] text-[#15803D]">
-                    规范制度
-                  </div>
+                  {
+                    item.tags.map((tag: string, index) => (
+                      <div key={tag} style={
+                        {
+                          color: colorMap[index],
+                          backgroundColor: colorMap[index] + '1A',
+                        }
+                      }
+                        className={`rounded-full h-6 px-2 text-xs leading-6 `}>
+                        {tag}
+                      </div>
+                    ))
+                  }
                 </div>
               </Card>
             ))}
@@ -143,7 +161,7 @@ const KnowledgePage: React.FC = () => {
           }
         </div>
         <div className="py-8 flex flex-col gap-5 text-[#6B7280] justify-center items-center ">
-          <div className="flex justify-center items-center gap-4">
+          {/* <div className="flex justify-center items-center gap-4">
             <div>共 {total} 个知识库</div>
             <Select
               defaultValue="lucy"
@@ -151,9 +169,9 @@ const KnowledgePage: React.FC = () => {
               options={[{ value: 'lucy', label: '每页显示 6 个' }]}
             />
             <div>当前第 1-6 个</div>
-          </div>
+          </div> */}
           <Pagination
-            showSizeChanger={false}
+            showSizeChanger={true}
             showQuickJumper={{
               goButton: <Button className='ml-2'>确定</Button>,
             }}
@@ -170,7 +188,7 @@ const KnowledgePage: React.FC = () => {
           />
         </div>
       </div>
-    </PageContainer>
+    </PageContainer >
   );
 }
 
