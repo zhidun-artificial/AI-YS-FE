@@ -25,10 +25,10 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
   const { modalVisible, onClose } = props;
   const [selectedIcon, setSelectedIcon] = useState<string>('local:wordRadio');
 
-  const options: CheckboxGroupProps<string>['options'] = [
-    { label: '私密', value: '1' },
-    { label: '团队', value: '2' },
-    { label: '公开', value: '0' },
+  const options: CheckboxGroupProps<number>['options'] = [
+    { label: '私密', value: 1 },
+    { label: '团队', value: 2 },
+    { label: '公开', value: 0 },
   ];
 
 
@@ -174,7 +174,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
       <ProFormRadio.Group
         label="可见权限"
         name="permit"
-        initialValue="1"
+        initialValue={1}
         options={options}
       />
     </ModalForm>

@@ -8,11 +8,13 @@ import {
   deleteDocument,
   batchDeleteDocument
 } from '@/services/knowledge/management';
+import ColorPicker from '@/components/ColorPikcer';
 import {
   KnowledgeItem,
-  getKnowledgeBases
+  getKnowledgeBases,
+  getTags
 } from '@/services/knowledge';
-import { Input, Modal, Form, Select, Radio, Tabs, Popconfirm, message, Dropdown, Empty } from 'antd';
+import { Input, Modal, Form, Radio, Tabs, Popconfirm, message, Dropdown, Empty } from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import type { TabsProps, MenuProps } from 'antd';
 import './management.css';
@@ -30,7 +32,8 @@ import type {
 } from '@ant-design/pro-components';
 import {
   ProTable,
-  PageContainer
+  PageContainer,
+  ProFormText, ProFormTextArea, ProFormRadio, ProFormSelect
 } from '@ant-design/pro-components';
 
 const KnowledgeManagement: React.FC = () => {
@@ -42,6 +45,10 @@ const KnowledgeManagement: React.FC = () => {
   const triggerRef = useRef<HTMLDivElement>(null);
   const [tabType, setTabType] = useState('1');
   const [knowledgeList, setknowledgeList] = useState<KnowledgeItem[]>([]);
+
+  const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
+  const [selectedIcon, setSelectedIcon] = useState<string>('local:wordRadio');
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -52,6 +59,8 @@ const KnowledgeManagement: React.FC = () => {
     }
   };
 
+  const [currentId, setCurrentId] = useState('');
+  const [form] = Form.useForm();
   const searchKnowledge = async (keyword: string) => {
     const params = {
       key: keyword,
@@ -70,13 +79,13 @@ const KnowledgeManagement: React.FC = () => {
       throw error;
     }
   };
-  const [currentId, setCurrentId] = useState('');
   // 使用 useEffect 监听全局点击事件
   useEffect(() => {
     searchKnowledge('');
 
     const { id } = location.state as { id: string };
     setCurrentId(id);
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -84,13 +93,12 @@ const KnowledgeManagement: React.FC = () => {
   }, [location]);
 
 
-  const [form] = Form.useForm();
 
   const [searchText, setSearchText] = useState('');
-  const options: CheckboxGroupProps<string>['options'] = [
-    { label: '私密', value: '私密' },
-    { label: '团队', value: '团队' },
-    { label: '公开', value: '公开' },
+  const options: CheckboxGroupProps<number>['options'] = [
+    { label: '私密', value: 1 },
+    { label: '团队', value: 2 },
+    { label: '公开', value: 0 },
   ];
   const items: TabsProps['items'] = [
     {
@@ -185,6 +193,7 @@ const KnowledgeManagement: React.FC = () => {
 
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const getData = async (params: {
+    baseId: string;
     key: string;
     pageNo: number;
     pageSize: number;
@@ -207,8 +216,17 @@ const KnowledgeManagement: React.FC = () => {
   };
 
   const onChange = (type: string) => {
-    setTabType(type)
+    setTabType(type);
+
   }
+  useEffect(() => {
+    if (tabType === '2') {
+      const item = knowledgeList.find((item: KnowledgeItem) => item.id === currentId);
+      form.setFieldsValue(item);
+      setSelectedIcon(item?.ext?.icon as string || 'local:folder');
+
+    }
+  }, [tabType]);
   const handleOk = () => {
     setIsModalOpen(false);
   }
@@ -243,6 +261,15 @@ const KnowledgeManagement: React.FC = () => {
     }
   }
 
+
+
+  const knowledgeSelect = (item: KnowledgeItem) => {
+    setCurrentId(item.id || '');
+    actionRef.current?.reload();
+
+    form.setFieldsValue(item)
+    setSelectedIcon(item?.ext?.icon as string || 'local:folder');
+  }
   const handleButtonClick = () => {
     getBatchDeleteDocument();
   }
@@ -262,7 +289,7 @@ const KnowledgeManagement: React.FC = () => {
         <div className="flex relative">
           <div className='flex flex-1 flex-col'>
             <div ref={triggerRef} onClick={toggleDropdown} className='border !w-[182px] py-2 flex px-4 cursor-pointer'>
-              <span className='flex-1 text-lg font-medium'>{'安全防范知识库'}</span>
+              <span className='flex-1 text-lg font-medium'>{knowledgeList.find(item => item.id === currentId)?.name || '全部知识库'}</span>
               <DownOutlined className='w-3' />
             </div>
             <Tabs defaultActiveKey="1" tabBarGutter={16} items={items} onChange={onChange} />
@@ -276,7 +303,7 @@ const KnowledgeManagement: React.FC = () => {
                     placeholder="搜索知识库..." />
                   <div className='flex-1 grid grid-cols-2 pt-2 pr-7 gap-2'>
                     {knowledgeList.map((item) => (
-                      <div key={item.id} className={`border rounded text-center cursor-pointer py-2 ${item.id === currentId ? ' bg-indigo-600 text-white' : ''}`} >
+                      <div key={item.id} onClick={() => knowledgeSelect(item)} className={`border rounded text-center cursor-pointer py-2 ${item.id === currentId ? ' bg-indigo-600 text-white' : ''}`} >
                         {item.name}
                       </div>
                     ))
@@ -319,6 +346,7 @@ const KnowledgeManagement: React.FC = () => {
             request={async (params) => {
               return getData({
                 key: searchText,
+                baseId: currentId,
                 pageNo: params.current ?? 1,
                 pageSize: params.pageSize ?? 10,
               });
@@ -349,112 +377,98 @@ const KnowledgeManagement: React.FC = () => {
         </div>}
         {tabType === '2' &&
           <Form form={form} layout="vertical">
-            <Form.Item
-              label="知识库名称"
+            <ProFormText
+              width="md"
               name="name"
+              required
+              initialValue={''}
               rules={[{ required: true, message: '请输入知识库名称' }]}
-            >
-              <Input placeholder="请输入知识库名称" />
-            </Form.Item>
-            <Form.Item
+              label="知识库名称"
+              tooltip="最长为 24 位"
+              placeholder="请输入知识库名称"
+            />
+            <ProFormTextArea
               label="知识库描述"
               name="description"
-            >
-              <Input.TextArea rows={4} placeholder="请输入知识库描述" />
-            </Form.Item>
-            <Form.Item
-              label="可见权限"
-              name="auth"
-            >
-
-              <Radio.Group block options={options} defaultValue="私密" />
-            </Form.Item>
-            <Form.Item
+              initialValue={''}
+              width="md"
+              placeholder="请输入知识库描述"
+            />
+            <ProFormRadio.Group
+              initialValue={1} disabled label="可见权限" name="permit" options={options} />
+            <ProFormSelect
+              name="tags"
+              mode='multiple'
               label="标签分类"
-              name="tagCategory"
+              request={async () => {
+
+                try {
+                  const res = await getTags();
+                  if (res instanceof Error) {
+                    throw res;
+                  } else {
+                    return res.data.map((item: any) => {
+                      return {
+                        label: item,
+                        value: item
+                      }
+                    })
+                  }
+                } catch (error) {
+                  message.error((error as Error).message);
+                  throw error;
+                }
+              }}
+              placeholder="请选择标签分类"
               rules={[{ required: true, message: '请选择标签分类' }]}
-            >
-              <Select
-                showSearch
-                placeholder="请选择标签分类"
-                optionFilterProp="label"
-                onChange={onChange}
-                onSearch={onSearch}
-                options={[
-                  {
-                    value: 'jack',
-                    label: 'Jack',
-                  },
-                  {
-                    value: 'lucy',
-                    label: 'Lucy',
-                  },
-                  {
-                    value: 'tom',
-                    label: 'Tom',
-                  },
-                ]}
-              />
-            </Form.Item>
-            <Form.Item
-              label="选择图标颜色"
-              name="iconColor"
-            >
+            />
+            <Form.Item label="选择图标颜色" name="iconColor">
 
-              <Radio.Group block defaultValue="私密" >
-                <Radio className="custom-radio" value={1}>
-                  <div className='bg-[#3B82F6] w-8 h-8 rounded-full'></div>
-                </Radio>
-                <Radio className="custom-radio" value={2}>
-                  <div className='bg-[#22C55E] w-8 h-8 rounded-full'></div>
-                </Radio>
-                <Radio className="custom-radio" value={2}>
-                  <div className='bg-[#A855F7] w-8 h-8 rounded-full'></div>
-                </Radio>
-                <Radio className="custom-radio" value={2}>
-                  <div className='bg-[#EF4444] w-8 h-8 rounded-full'></div>
-                </Radio>
-                <Radio className="custom-radio" value={2}>
-                  <div className='bg-[#EAB308] w-8 h-8 rounded-full'></div>
-                </Radio>
-                <Radio className="custom-radio" value={2}>
-                  <div className='bg-[#F97316] w-8 h-8 rounded-full'></div>
-                </Radio>
-              </Radio.Group>
+              <div>
+                <span className=' hidden'>{selectedColor}</span>
+                <ColorPicker
+                  value={selectedColor}
+                  onChange={setSelectedColor}
+                  colorOptions={[
+                    '#3B82F6',
+                    '#22C55E',
+                    '#A855F7',
+                    '#EF4444',
+                    '#EAB308',
+                    '#F97316',
+                  ]}
+                ></ColorPicker>
+              </div>
             </Form.Item>
-            <Form.Item
-              label="选择图标"
-              name="icon"
-            >
-
-              <Radio.Group block defaultValue="私密">
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+            <Form.Item label="选择图标">
+              <Radio.Group block defaultValue={selectedIcon}>
+                <Radio className="custom-radio" value={'local:wordRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:wordRadio" />
                   </div>
                 </Radio>
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                <Radio className="custom-radio" value={'local:codeRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:codeRadio" />
                   </div>
                 </Radio>
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                <Radio className="custom-radio" value={'local:bookRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:bookRadio" />
                   </div>
                 </Radio>
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                <Radio className="custom-radio" value={'local:toolRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:toolRadio" />
                   </div>
                 </Radio>
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                <Radio className="custom-radio" value={'local:defenceRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:defenceRadio" />
                   </div>
                 </Radio>
-                <Radio className="custom-radio" value={1}>
-                  <div className='border border-[#E5E7EB] w-8 h-8 flex justify-center items-center'>
+                <Radio className="custom-radio" value={'local:officeRadio'}>
+                  <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
                     <Icon icon="local:officeRadio" />
                   </div>
                 </Radio>

@@ -17,10 +17,10 @@ export default (props: {
   reload: () => void;
 }) => {
   const [form] = Form.useForm<KnowledgeItem>();
-  const options: CheckboxGroupProps<string>['options'] = [
-    { label: '私密', value: '1' },
-    { label: '团队', value: '2' },
-    { label: '公开', value: '0' },
+  const options: CheckboxGroupProps<number>['options'] = [
+    { label: '私密', value: 1 },
+    { label: '团队', value: 2 },
+    { label: '公开', value: 0 },
   ];
 
   const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
@@ -107,7 +107,7 @@ export default (props: {
         placeholder="请选择"
       />
       <ProFormRadio.Group
-        initialValue="1" label="可见权限" name="permit" options={options} />
+        initialValue={1} label="可见权限" name="permit" options={options} />
       <ProFormSelect
         name="tags"
         mode='multiple'
