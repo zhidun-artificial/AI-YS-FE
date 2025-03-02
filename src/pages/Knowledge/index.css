@@ -14,3 +14,6 @@
 .ant-radio-wrapper {
   flex: none !important;
 }
+.ant-input-group-addon {
+  display: none !important;
+}

@@ -7,16 +7,16 @@ export interface DocumentRequest {
 }
 
 export type DocumentItem = {
-    "id": string,
-    "baseId": string,
-    "title": string,
-    "fileName": string,
-    "url": string,
-    "creator": string,
-    "creatorName": string,
-    "blockedReason": string,
-    "createTime": number,
-    "updateTime": number
+  "id": string,
+  "baseId": string,
+  "title": string,
+  "fileName": string,
+  "url": string,
+  "creator": string,
+  "creatorName": string,
+  "blockedReason": string,
+  "createTime": number,
+  "updateTime": number
 };
 
 interface DocumentResponse {
@@ -24,10 +24,12 @@ interface DocumentResponse {
   total: number;
 }
 
-interface DocumentDetail {
-  id: number;
-  fileName: string;
+interface DocumentUpload {
+  baseId: string;
+  files: File[];
 }
+
+
 
 export const getDocuments = async (params: DocumentRequest) => {
   return httpPost<DocumentRequest, DocumentResponse>(
@@ -36,13 +38,8 @@ export const getDocuments = async (params: DocumentRequest) => {
   );
 };
 
-export const addDocuments = async (params: { fileName: 'string' }) => {
-  return httpPost<
-    {
-      fileName: 'string';
-    },
-    DocumentDetail
-  >('/api/v1/documents', params);
+export const addDocuments = async (params: DocumentUpload) => {
+  return httpPost(`/api/v1/documents/upload?baseId=${params.baseId}`, params);
 };
 
 interface updateRequest {
@@ -51,7 +48,7 @@ interface updateRequest {
 }
 
 export const updateDocument = async (params: updateRequest) => {
-  return httpPut(`/api/v1/documents/${params.id}/rename?name=${params.name}`,{});
+  return httpPut(`/api/v1/documents/${params.id}/rename?name=${params.name}`, {});
 };
 
 export const deleteDocument = async (id: string) => {
@@ -60,5 +57,5 @@ export const deleteDocument = async (id: string) => {
 
 
 export const batchDeleteDocument = async (ids: string[]) => {
-  return httpPost(`/api/v1/documents/batch_delete`, {ids});
+  return httpPost(`/api/v1/documents/batch_delete`, { ids });
 };  

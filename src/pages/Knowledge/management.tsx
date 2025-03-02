@@ -1,4 +1,6 @@
 import { Icon } from 'umi';
+
+import { useLocation } from '@umijs/max';
 import { useState, useRef, useEffect } from 'react';
 import {
   DocumentItem,
@@ -10,16 +12,16 @@ import {
   KnowledgeItem,
   getKnowledgeBases
 } from '@/services/knowledge';
-import { Button, Input, Modal, Form, Select, Radio, Tabs, Popconfirm, message, Dropdown } from 'antd';
+import { Input, Modal, Form, Select, Radio, Tabs, Popconfirm, message, Dropdown, Empty } from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import type { TabsProps, MenuProps } from 'antd';
 import './management.css';
 import './index.css';
 import {
-  PlusOutlined,
   DownOutlined
 } from '@ant-design/icons';
 import RenameDocument from './components/RenameDocument';
+import UploadFile from './components/UploadFile';
 
 import type {
   ActionType,
@@ -30,7 +32,9 @@ import {
   ProTable,
   PageContainer
 } from '@ant-design/pro-components';
+
 const KnowledgeManagement: React.FC = () => {
+  const location = useLocation(); // 获取路由参数
   const actionRef = useRef<ActionType>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -66,15 +70,20 @@ const KnowledgeManagement: React.FC = () => {
       throw error;
     }
   };
-
+  const [currentId, setCurrentId] = useState('');
   // 使用 useEffect 监听全局点击事件
   useEffect(() => {
+    searchKnowledge('');
+
+    const { id } = location.state as { id: string };
+    setCurrentId(id);
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-  const [currentId] = useState('1');
+  }, [location]);
+
+
   const [form] = Form.useForm();
 
   const [searchText, setSearchText] = useState('');
@@ -196,9 +205,7 @@ const KnowledgeManagement: React.FC = () => {
       throw error;
     }
   };
-  const showModal = () => {
-     setIsModalOpen(true);
-  };
+
   const onChange = (type: string) => {
     setTabType(type)
   }
@@ -207,12 +214,13 @@ const KnowledgeManagement: React.FC = () => {
   }
   const handleCancel = () => {
     setIsModalOpen(false);
-  } 
+  }
 
   const onSearch = (key: string) => {
     setSearchText(key);
     actionRef.current?.reload()
   }
+
 
   const onSelectChange = (newSelectedRows: any[]) => {
     setSelectedRows(newSelectedRows);
@@ -233,7 +241,6 @@ const KnowledgeManagement: React.FC = () => {
       message.success('删除成功');
       actionRef.current?.reload();
     }
-    message.success('删除成功');
   }
 
   const handleButtonClick = () => {
@@ -261,7 +268,7 @@ const KnowledgeManagement: React.FC = () => {
             <Tabs defaultActiveKey="1" tabBarGutter={16} items={items} onChange={onChange} />
             {
               isOpen && (
-                <div ref={dropdownRef} className='absolute top-32 z-10 !w-[298px] min-h-52 bg-white border rounded-xl px-2 pt-1 pb-2'>
+                <div ref={dropdownRef} className='absolute top-24 mt-2 z-10 !w-[298px] max-h-52 bg-white border rounded-xl px-2 pt-1 pb-2'>
                   <Input.Search
                     className='h-[38px]'
                     onSearch={searchKnowledge}
@@ -275,6 +282,11 @@ const KnowledgeManagement: React.FC = () => {
                     ))
                     }
                   </div>
+                  {
+                    knowledgeList.length === 0 && <div className='flex justify-center'>
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    </div>
+                  }
                 </div>
               )
             }
@@ -287,8 +299,8 @@ const KnowledgeManagement: React.FC = () => {
               enterButton={false}
               suffix={<Icon icon="local:search" />}
               placeholder="搜索当前知识库文献..." />
-            <Button onClick={showModal} className='' type='primary' icon={<PlusOutlined />}>新建上传</Button>
 
+            <UploadFile baseId={currentId} reload={actionRef.current?.reload} />
             <Dropdown.Button className='!w-auto' type="primary" danger menu={{ items: menus }} placement="bottomRight" onClick={handleButtonClick}>
               <Icon width='14' icon="local:del" /> 批量删除
             </Dropdown.Button>

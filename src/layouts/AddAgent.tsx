@@ -56,8 +56,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
         request={async () => [
           { label: 'DeepSeek-R1:70B ', value: 'DeepSeek-R1:70B ' }
         ]}
-        placeholder="基础模型"
-        rules={[{ required: true, message: '基础模型!' }]}
+        placeholder="请选择"
       />
       <ProFormSelect
         name="select2"
@@ -65,8 +64,7 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
         request={async () => [
           { label: 'DeepSeek-R1:70B ', value: 'DeepSeek-R1:70B ' }
         ]}
-        placeholder="基础模型"
-        rules={[{ required: true, message: '基础模型!' }]}
+        placeholder="请选择"
       />
       <ProFormTextArea
         initialValue={name}
@@ -80,9 +78,9 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
         initialValue={name}
         name="name"
         required
-        rules={[{ required: true, message: '系统提示词' }]}
+        rules={[{ required: true, message: '请输入系统提示词' }]}
         label="系统提示词"
-        placeholder="请输入名称"
+        placeholder="请输入系统提示词"
       />
       <ProFormSelect
         name="select2"
@@ -91,7 +89,6 @@ const AddAgent: React.FC<PropsWithChildren<AddAgentProps>> = (props) => {
           { label: 'DeepSeek-R1:70B ', value: 'DeepSeek-R1:70B ' }
         ]}
         placeholder="选择知识库 "
-        rules={[{ required: true, message: '挂载知识库!' }]}
       />
       <ProFormRadio.Group
         label="可见权限"

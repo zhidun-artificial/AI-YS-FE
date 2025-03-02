@@ -1,116 +1,68 @@
-import { KnowledgeItem, getKnowledgeBases, KnowledgeRequest } from '@/services/knowledge';
+import { KnowledgeItem, getKnowledgeBases } from '@/services/knowledge';
 import {
   PageContainer
 } from '@ant-design/pro-components';
+import AddKnowledge from './components/AddKnowledge'
 import {
   ClockCircleFilled,
   FolderFilled,
-  PlusOutlined,
 } from '@ant-design/icons';
 import {
   Button,
   Card,
-  Form,
   Input,
-  Modal,
   Pagination,
-  Radio,
   Select,
-  message
+  message,
+  Empty
 } from 'antd';
-import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { Icon, history } from 'umi';
+import React, { useState, useEffect } from 'react';
+import { Icon } from 'umi';
+import { history } from '@umijs/max';
+;
 import './index.css';
 
 const KnowledgePage: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [form] = Form.useForm();
-  const options: CheckboxGroupProps<string>['options'] = [
-    { label: '私密', value: '私密' },
-    { label: '团队', value: '团队' },
-    { label: '公开', value: '公开' },
-  ];
-  const cardData: KnowledgeItem[] = [
-    {
-      id: '1',
-      name: '安全防范知识库',
-      creatorName: '系统管理员',
-      docCount: 32,
-      ext: {},
-      creator: '',
-      createTime: 0,
-      updateTime: 0
-    },
-    {
-      id: '71',
-      name: '安全防范知识库',
-      creatorName: '系统管理员',
-      docCount: 32,
-      ext: {},
-      creator: '',
-      createTime: 0,
-      updateTime: 0
-    },
-    {
-      id: '713',
-      name: '基础知识库',
-      creatorName: '系统管理员',
-      docCount: 32,
-      ext: {},
-      creator: '',
-      createTime: 0,
-      updateTime: 0
-    }
-  ];
-
+  const [knowledgeList, setknowledgeList] = useState<KnowledgeItem[]>([]);
+  const [total, setTotal] = useState(0);
   // 格式化时间戳的函数
   const formatTimestamp = (timestamp: any) => {
     return dayjs(timestamp).format('YYYY-MM-DD');
   };
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+
   const onChange = () => {
 
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
 
-  const getData = async (params: KnowledgeRequest) => {
+
+
+  const onSearch = async (keyword?: string) => {
+    const params = {
+      key: keyword || '',
+      pageNo: 1,
+      pageSize: 20
+    }
     try {
       const res = await getKnowledgeBases(params);
       if (res instanceof Error) {
         throw res;
       } else {
-        return {
-          data: res.data.records,
-          success: true,
-          total: res.data.total,
-        };
+        setknowledgeList(res.data.records);
+        setTotal(res.data.total);
       }
     } catch (error) {
       message.error((error as Error).message);
       throw error;
     }
+
   };
-  const onSearch = (keyword: string) => {
-    const params = {
-      key: keyword,
-      pageNo: 1,
-      pageSize: 20
-    }
-    getData(params);
-  };
-  onSearch('');
-  const toManagement = () => {
-    history.push('/knowledge/setting');
+  useEffect(() => {
+    onSearch('');
+  }, []);
+  const toManagement = (id: string) => {
+    history.push('/knowledge/setting', { id });
   };
   return (
     <PageContainer
@@ -139,127 +91,13 @@ const KnowledgePage: React.FC = () => {
               placeholder="搜索知识库..."
             />
             <div className="flex justify-end w-1/3">
-              <Button
-                onClick={showModal}
-                type="primary"
-                icon={<PlusOutlined />}
-              >
-                新建上传
-              </Button>
-              <Modal
-                okText="确认创建"
-                cancelText="取消"
-                width="384px"
-                title="新建知识库"
-                open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
-              >
-                <Form form={form} layout="vertical">
-                  <Form.Item
-                    label="知识库名称"
-                    name="name"
-                    rules={[{ required: true, message: '请输入知识库名称' }]}
-                  >
-                    <Input placeholder="请输入知识库名称" />
-                  </Form.Item>
-                  <Form.Item label="知识库描述" name="description">
-                    <Input.TextArea rows={4} placeholder="请输入知识库描述" />
-                  </Form.Item>
-                  <Form.Item label="可见权限" name="auth">
-                    <Radio.Group block options={options} defaultValue="私密" />
-                  </Form.Item>
-                  <Form.Item
-                    label="标签分类"
-                    name="tagCategory"
-                    rules={[{ required: true, message: '请选择标签分类' }]}
-                  >
-                    <Select
-                      showSearch
-                      placeholder="请选择标签分类"
-                      optionFilterProp="label"
-                      onChange={onChange}
-                      onSearch={onSearch}
-                      options={[
-                        {
-                          value: 'jack',
-                          label: 'Jack',
-                        },
-                        {
-                          value: 'lucy',
-                          label: 'Lucy',
-                        },
-                        {
-                          value: 'tom',
-                          label: 'Tom',
-                        },
-                      ]}
-                    />
-                  </Form.Item>
-                  <Form.Item label="选择图标颜色" name="iconColor">
-                    <Radio.Group block defaultValue="私密">
-                      <Radio className="custom-radio" value={1}>
-                        <div className="bg-[#3B82F6] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                      <Radio className="custom-radio" value={2}>
-                        <div className="bg-[#22C55E] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                      <Radio className="custom-radio" value={2}>
-                        <div className="bg-[#A855F7] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                      <Radio className="custom-radio" value={2}>
-                        <div className="bg-[#EF4444] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                      <Radio className="custom-radio" value={2}>
-                        <div className="bg-[#EAB308] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                      <Radio className="custom-radio" value={2}>
-                        <div className="bg-[#F97316] w-8 h-8 rounded-full"></div>
-                      </Radio>
-                    </Radio.Group>
-                  </Form.Item>
-                  <Form.Item label="选择图标" name="icon">
-                    <Radio.Group block defaultValue="私密">
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:wordRadio" />
-                        </div>
-                      </Radio>
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:codeRadio" />
-                        </div>
-                      </Radio>
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:bookRadio" />
-                        </div>
-                      </Radio>
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:toolRadio" />
-                        </div>
-                      </Radio>
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:defenceRadio" />
-                        </div>
-                      </Radio>
-                      <Radio className="custom-radio" value={1}>
-                        <div className="border border-[#E5E7EB] w-8 h-8 flex justify-center items-center">
-                          <Icon icon="local:officeRadio" />
-                        </div>
-                      </Radio>
-                    </Radio.Group>
-                  </Form.Item>
-                </Form>
-              </Modal>
+              <AddKnowledge reload={onSearch} />
             </div>
           </div>
           <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(350px,_1fr))]">
-            {cardData.map((item) => (
+            {knowledgeList.map((item) => (
               <Card
-                onClick={toManagement}
+                onClick={() => toManagement(item.id || '')}
                 key={item.id}
                 className="text-[#6B7280] cursor-pointer"
               >
@@ -295,11 +133,18 @@ const KnowledgePage: React.FC = () => {
                 </div>
               </Card>
             ))}
+
           </div>
+          {
+
+            knowledgeList.length === 0 && <div className='flex justify-center'>
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            </div>
+          }
         </div>
         <div className="py-8 flex flex-col gap-5 text-[#6B7280] justify-center items-center ">
           <div className="flex justify-center items-center gap-4">
-            <div>共 126 个知识库</div>
+            <div>共 {total} 个知识库</div>
             <Select
               defaultValue="lucy"
               style={{ width: 130 }}
@@ -320,7 +165,7 @@ const KnowledgePage: React.FC = () => {
               }
             }
             defaultCurrent={1}
-            total={500}
+            total={total}
             onChange={onChange}
           />
         </div>
