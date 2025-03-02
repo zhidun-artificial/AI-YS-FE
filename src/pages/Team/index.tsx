@@ -1,5 +1,5 @@
 import { addUser, getTeams, getTreeData, IGroupItem } from '@/services/team';
-import { UsergroupAddOutlined } from '@ant-design/icons';
+import { PlusOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import { Button, message, Select, TreeSelect } from 'antd';
 import React, { useEffect, useState } from 'react';
 import CreateTeam from './CreateTeam';
@@ -11,6 +11,14 @@ export type TreeDataType = {
   children: { title: string; value: string }[];
 };
 
+export type IInitFormData = {
+  name?: string;
+  adminId?: string;
+  description?: string;
+  theme?: string;
+  icon?: string;
+};
+
 export default function Search() {
   const [teams, setTeams] = useState<IGroupItem[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(
@@ -18,6 +26,8 @@ export default function Search() {
   );
   const [treeData, setTreeData] = useState<TreeDataType[]>([]);
   const [value, setValue] = React.useState<string[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [initialValues, setInitialValues] = useState<IInitFormData>({});
 
   const onChange = (newValue: string[]) => {
     setValue(newValue);
@@ -106,7 +116,20 @@ export default function Search() {
             >
               添加
             </Button>
-            <CreateTeam update={() => searchTeams()} treeData={treeData} />
+            <Button
+              icon={<PlusOutlined />}
+              className="ml-3"
+              onClick={() => setVisible(true)}
+            >
+              新建团队
+            </Button>
+            <CreateTeam
+              update={() => searchTeams()}
+              treeData={treeData}
+              visible={visible}
+              initialValues={initialValues}
+              setVisible={setVisible}
+            />
           </div>
         </div>
         <TreeSelect
@@ -126,7 +149,22 @@ export default function Search() {
       </section>
       <div className="grid grid-cols-2 gap-4">
         {teams.map((team) => {
-          return <TeamCard key={team.id} team={team} reload={searchTeams} />;
+          return (
+            <TeamCard
+              key={team.id}
+              team={team}
+              reload={searchTeams}
+              editTeam={(team) => {
+                setVisible(true);
+                setInitialValues({
+                  name: team.name,
+                  description: team.description,
+                  theme: team.ext.theme,
+                  icon: team.ext.icon,
+                });
+              }}
+            />
+          );
         })}
       </div>
     </div>
