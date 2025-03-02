@@ -1,4 +1,4 @@
-import { httpDelete, httpPost, httpPut } from '../http';
+import { httpPost, httpPut } from '../http';
 
 export interface ITeam {
   name: string;
@@ -89,7 +89,7 @@ export const deleteTeam = async (params: {
   groupId: number;
   userId: string;
 }) => {
-  return httpDelete(`/api/v1/user_groups/delete_user`, params);
+  return httpPost(`/api/v1/user_groups/delete_user`, params);
 };
 
 export const addUser = async (params: { userId: string; groupId: string }) => {
