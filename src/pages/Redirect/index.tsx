@@ -21,7 +21,7 @@ const DocxPreview: React.FC = () => {
     if (!ticket) return
 
     const validate = async () => {
-      const res = await getToken({ ticket, service: window.location.origin });
+      const res = await getToken({ ticket, service: `${window.location.origin}${window.location.pathname}` });
       if (res instanceof Error) {
         message.error(res.message)
         return

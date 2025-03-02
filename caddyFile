@@ -5,7 +5,7 @@
 
 # 定义变量
 (vars) {
-	base_url /knowledge
+	base_url /aihub
 	target_address 113.108.105.54:56800
 }
 
