@@ -1,5 +1,5 @@
+import { searchKnowledgeBase } from '@/services/knowledge-base/searchKnowledge';
 import { CalendarOutlined, SearchOutlined } from '@ant-design/icons';
-import type { SelectProps } from 'antd';
 import {
   Button,
   DatePicker,
@@ -12,14 +12,12 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './index.css';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Text, Link } = Typography;
-
-const options: SelectProps['options'] = [];
+const { Link } = Typography;
 
 interface DataType {
   key: string;
@@ -27,13 +25,6 @@ interface DataType {
   description: string;
   uploadDate: string;
   uploader: string;
-}
-
-for (let i = 10; i < 36; i++) {
-  options.push({
-    label: i.toString(36) + i,
-    value: i.toString(36) + i,
-  });
 }
 
 const handleChange = (value: string[]) => {
@@ -50,7 +41,7 @@ const tagRender = (props: any) => {
 
 export default function Search() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [isSearching, setIsSearching] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [fileType, setFileType] = useState<string>('全部');
   const [uploader, setUploader] = useState<string>('所有人');
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
@@ -60,6 +51,26 @@ export default function Search() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
   const [jumpToPage, setJumpToPage] = useState<string>('');
+  const [knowledgeList, setKnowledgeList] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+
+  useEffect(() => {
+    const updateKnowledge = async () => {
+      const res = await searchKnowledgeBase();
+      if (res instanceof Error) {
+        return;
+      }
+      if (res.code === 0) {
+        setKnowledgeList(
+          res.data.records.map((item) => {
+            return { label: item.name, value: item.id };
+          }),
+        );
+      }
+    };
+    updateKnowledge();
+  }, []);
 
   const data: DataType[] = [
     {
@@ -194,7 +205,7 @@ export default function Search() {
           placeholder="请选择"
           value={selectedItems}
           onChange={handleSelectChange}
-          options={options}
+          options={knowledgeList}
           maxTagCount={0}
           maxTagPlaceholder={() => `已选择 ${selectedItems.length} 个知识库`}
           tagRender={tagRender}
@@ -204,116 +215,119 @@ export default function Search() {
           size="large"
           placeholder="请输入"
           prefix={<SearchOutlined />}
+          onPressEnter={() => setIsSearching(true)}
         />
       </section>
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '4px',
-        }}
-      >
-        <div className="flex flex-row gap-4 mb-5">
-          <div>
-            <span>文件类型:</span>
-            <Select
-              value={fileType}
-              style={{ width: 150 }}
-              onChange={setFileType}
-              suffixIcon={<SearchOutlined />}
-            >
-              <Option value="全部">全部</Option>
-              <Option value="文档">文档</Option>
-              <Option value="图片">图片</Option>
-              <Option value="视频">视频</Option>
-            </Select>
-          </div>
-
-          <div>
-            <span>上传人:</span>
-            <Select
-              value={uploader}
-              style={{ width: 150 }}
-              onChange={setUploader}
-              suffixIcon={<SearchOutlined />}
-            >
-              <Option value="所有人">所有人</Option>
-              <Option value="陈明宇">陈明宇</Option>
-              <Option value="林晓华">林晓华</Option>
-              <Option value="王建军">王建军</Option>
-            </Select>
-          </div>
-
-          <div>
-            <span>上传时间:</span>
-            <RangePicker
-              value={dateRange}
-              onChange={(dates) =>
-                dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-              }
-            />
-          </div>
-
-          <Button type="primary" onClick={handleFilter}>
-            筛选
-          </Button>
-        </div>
-
-        <Table
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-          rowClassName={() => 'expandable-row'}
-        />
-
+      {isSearching && (
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '20px',
-            alignItems: 'center',
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '4px',
           }}
         >
-          <span>
-            共 126 条数据 | 每页显示
-            <Select
-              value={pageSize.toString()}
-              style={{ margin: '0 8px', width: '60px' }}
-              onChange={(value) =>
-                handlePageSizeChange(currentPage, Number.parseInt(value))
-              }
-            >
-              <Option value="5">5</Option>
-              <Option value="10">10</Option>
-              <Option value="20">20</Option>
-            </Select>
-            条
-          </span>
+          <div className="flex flex-row gap-4 mb-5">
+            <div>
+              <span>文件类型:</span>
+              <Select
+                value={fileType}
+                style={{ width: 150 }}
+                onChange={setFileType}
+                suffixIcon={<SearchOutlined />}
+              >
+                <Option value="全部">全部</Option>
+                <Option value="文档">文档</Option>
+                <Option value="图片">图片</Option>
+                <Option value="视频">视频</Option>
+              </Select>
+            </div>
 
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={126}
-              onChange={handlePageChange}
-              showQuickJumper={false}
-              showSizeChanger={false}
-            />
+            <div>
+              <span>上传人:</span>
+              <Select
+                value={uploader}
+                style={{ width: 150 }}
+                onChange={setUploader}
+                suffixIcon={<SearchOutlined />}
+              >
+                <Option value="所有人">所有人</Option>
+                <Option value="陈明宇">陈明宇</Option>
+                <Option value="林晓华">林晓华</Option>
+                <Option value="王建军">王建军</Option>
+              </Select>
+            </div>
 
-            <span style={{ marginLeft: '20px' }}>
-              跳转
-              <Input
-                style={{ width: '50px', margin: '0 8px' }}
-                value={jumpToPage}
-                onChange={(e) => setJumpToPage(e.target.value)}
+            <div>
+              <span>上传时间:</span>
+              <RangePicker
+                value={dateRange}
+                onChange={(dates) =>
+                  dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+                }
               />
-              <Button type="primary" onClick={handleJumpToPage}>
-                跳转
-              </Button>
+            </div>
+
+            <Button type="primary" onClick={handleFilter}>
+              筛选
+            </Button>
+          </div>
+
+          <Table
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            rowClassName={() => 'expandable-row'}
+          />
+
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginTop: '20px',
+              alignItems: 'center',
+            }}
+          >
+            <span>
+              共 126 条数据 | 每页显示
+              <Select
+                value={pageSize.toString()}
+                style={{ margin: '0 8px', width: '60px' }}
+                onChange={(value) =>
+                  handlePageSizeChange(currentPage, Number.parseInt(value))
+                }
+              >
+                <Option value="5">5</Option>
+                <Option value="10">10</Option>
+                <Option value="20">20</Option>
+              </Select>
+              条
             </span>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={126}
+                onChange={handlePageChange}
+                showQuickJumper={false}
+                showSizeChanger={false}
+              />
+
+              <span style={{ marginLeft: '20px' }}>
+                跳转
+                <Input
+                  style={{ width: '50px', margin: '0 8px' }}
+                  value={jumpToPage}
+                  onChange={(e) => setJumpToPage(e.target.value)}
+                />
+                <Button type="primary" onClick={handleJumpToPage}>
+                  跳转
+                </Button>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
