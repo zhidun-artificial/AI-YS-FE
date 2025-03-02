@@ -156,7 +156,6 @@ export const onRouteChange: RuntimeConfig['onRouteChange'] = ({
   //     history.push('/redirect?ticket=' + ticket);
   //   }
   // }
-  console.log('route', route?.path, decodeURIComponent(route?.path || ''));
 
   if ((route?.path || '') === '/redirect') {
     history.push('/redirect');

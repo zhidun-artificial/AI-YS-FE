@@ -54,7 +54,7 @@ interface ChatViewerProps {
   user: number;
   conversationId: string;
   chatMode: 'chat' | 'chatWithAssistant';
-  assistantId: this['chatMode'] extends 'chatWithAssistant' ? string : undefined;
+  assistantId?: string;
   withDocFiles?: DocFileInfo[];
   onSelectPdfReader?: (files: DocFileInfo[]) => void;
 }
@@ -96,18 +96,18 @@ const ChatViewer: React.ForwardRefRenderFunction<
 
   // 渲染完整的回答
   const renderFullAnswer: BubbleProps['messageRender'] = (content) => {
-    const { answer, ctx = {} } = JSON.parse(content) as FullAnswerMessage;
+    const { answer, messageId, ctx = {} } = JSON.parse(content) as FullAnswerMessage;
     return (
       <Flex vertical className='min-w-24'>
         <MarkdownContent content={answer} />
-        {ctx.resource && ctx.resource.length > 0 && <Flex vertical gap={4} className='my-3'>
+        {ctx.resource && ctx.resource.length > 0 && <Flex vertical className='flex-col gap-1 my-4'>
           <span className='italic text-[#4B5563]'>参考知识库：</span>
           {
-            ctx.resource?.map((file) => {
+            ctx.resource?.map((file, index) => {
               return (
                 <AttachmentCard
                   styles={{ container: { backgroundColor: '#FFF' } }}
-                  key={file.documentId}
+                  key={`${file.documentId}-${index + 1}`}
                   info={{
                     id: file.documentId,
                     fileName: file.fileName,
@@ -122,9 +122,9 @@ const ChatViewer: React.ForwardRefRenderFunction<
             })
           }
         </Flex>}
-        <Flex className='h-14 justify-end items-end flex-row gap-3' style={{ height: 24, flex: 0 }}>
-          <span className='cursor-pointer' title='复制'><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
-          <span className='cursor-pointer' title='删除'><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
+        <Flex className='h-14 justify-end items-end flex-row gap-3' style={{ height: 24, flex: 0, marginTop: 8 }}>
+          <span className='cursor-pointer' title='复制' onClick={() => { console.log(messageId) }} ><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
+          <span className='cursor-pointer' title='删除' onClick={() => { console.log(messageId) }}><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
         </Flex>
       </Flex>
     )
@@ -250,6 +250,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
         type: 'answer',
         id: 'loading',
         content: '',
+        messageId: '',
         conversationId: '',
       });
 
@@ -271,7 +272,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
       if (ret instanceof Error) {
         onError(ret);
       } else {
-        let tmpChatInfo: ChatInfo | null = null;
+        let tmpMessageInfo: ChatInfo & { messageId: string } | null = null;
         const contents: string[] = [];
         let ctxInfo: MessageData['ctx'] = undefined;
         for await (const chunk of XStream({ readableStream: ret })) {
@@ -283,23 +284,25 @@ const ChatViewer: React.ForwardRefRenderFunction<
             } else if (parsedMessage.event === 'partial_message') {
               // 实时更新消息
               contents.push(parsedMessage.content);
-              if (!tmpChatInfo)
-                tmpChatInfo = {
+              if (!tmpMessageInfo)
+                tmpMessageInfo = {
                   user: chatInfo.user,
                   conversationId: parsedMessage.conversationId,
+                  messageId: parsedMessage.messageId,
                 };
               parsedMessage.content = contents.join('');
               onUpdate(parsedMessage);
             }
           }
         }
-        if (tmpChatInfo) setChatInfo(() => tmpChatInfo);
+        if (tmpMessageInfo) setChatInfo(() => tmpMessageInfo);
         onSuccess({
           type: 'fullAnswer',
-          id: tmpChatInfo?.conversationId || '',
-          conversationId: tmpChatInfo?.conversationId || '',
+          id: tmpMessageInfo?.conversationId || '',
+          conversationId: tmpMessageInfo?.conversationId || '',
+          messageId: tmpMessageInfo?.messageId || '',
           content: JSON.stringify({
-            messageId: tmpChatInfo?.conversationId || '',
+            messageId: tmpMessageInfo?.messageId || '',
             answer: contents.join(''),
             ctx: ctxInfo
           }),
@@ -322,6 +325,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           type: 'files',
           content: JSON.stringify(withDocFiles),
           conversationId: chatInfo.conversationId,
+          messageId: `files-with-route`,
           id: `files-with-route`,
         },
         id: `files-with-route`,
@@ -355,6 +359,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
                   })),
                 ),
                 conversationId: chatInfo.conversationId,
+                messageId: item.id,
                 id: `files-${item.id}`,
               },
               id: `files-${item.id}`,
@@ -366,6 +371,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
               type: 'query',
               content: item.query,
               conversationId: conversationId,
+              messageId: item.id,
               id: `query-${item.id}`,
             },
             id: `query-${item.id}`,
@@ -383,6 +389,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
                 },
               }),
               conversationId: chatInfo.conversationId,
+              messageId: item.id,
               id: `answer-${item.id}`,
             },
             id: `answer-${item.id}`,
@@ -421,6 +428,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
                 // ...docFiles.current,
               ]),
               conversationId: chatInfo.conversationId,
+              messageId: `files-${newQueryCount}`,
               id: `files-${newQueryCount}`,
             },
             status: 'local',
@@ -430,6 +438,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     }
     onRequest({
       id: `newQuery-${newQueryCount}`,
+      messageId: `newQuery-${newQueryCount}`,
       content: nextContent,
       conversationId: chatInfo.conversationId,
       type: 'query',
@@ -500,6 +509,9 @@ const ChatViewer: React.ForwardRefRenderFunction<
             <div><span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={(v) => { setModel(v) }}></ModelSelect></div>
             <div><span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={(v) => { setKnowledgeBases(v) }} ></KnowledgeSelect></div>
           </div>}
+        {
+          chatMode === 'chatWithAssistant' && <span>助手：{chatAssistantId}</span>
+        }
         {/* 🌟 输入框 */}
         <Sender
           value={content}

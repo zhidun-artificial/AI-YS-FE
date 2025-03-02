@@ -1,11 +1,12 @@
 import ChatViewer, { ChatViewerRef } from '@/components/ChatViewer';
 // import PDFViewer, { PDFViewerProps } from '@/components/PdfViewer';
 import { DocFileInfo } from '@/services/chat/chatConversation';
-import React, { useState } from 'react';
+import React from 'react';
 
 export interface ReadViewerProps {
   userId: number;
   conversationId?: string;
+  assistantId?: string;
   temFiles?: DocFileInfo[];
   docFiles?: DocFileInfo[];
 }
@@ -13,10 +14,11 @@ export interface ReadViewerProps {
 const ReadViewer: React.FC<ReadViewerProps> = ({
   userId,
   conversationId,
+  assistantId,
   docFiles = [],
 }) => {
-  const [referenceFiles, setReferenceFiles] = useState<DocFileInfo[]>([]);
-  const [mode, setMode] = useState<'translate' | 'original'>('original');
+  // const [referenceFiles, setReferenceFiles] = useState<DocFileInfo[]>([]);
+  // const [mode, setMode] = useState<'translate' | 'original'>('original');
   const chatViewerRef = React.useRef<ChatViewerRef>(null);
 
   // const onPdfAction: PDFViewerProps['onAction'] = (action, content) => {
@@ -32,17 +34,15 @@ const ReadViewer: React.FC<ReadViewerProps> = ({
     <div className="w-full h-full overflow-hidden flex gap-2">
       <div
         className="flex-1 h-full"
-        style={{ flexBasis: mode === 'translate' ? '33.33%' : '40%' }}
+      // style={{ flexBasis: mode === 'translate' ? '33.33%' : '40%' }}
       >
         <ChatViewer
           ref={chatViewerRef}
           user={userId}
           conversationId={conversationId || ''}
           withDocFiles={docFiles}
-          onSelectPdfReader={(files) => {
-            setReferenceFiles(files);
-            setMode('original');
-          }}
+          assistantId={assistantId}
+          chatMode={assistantId ? 'chatWithAssistant' : 'chat'}
         ></ChatViewer>
       </div>
       {/* {referenceFiles.length > 0 && (

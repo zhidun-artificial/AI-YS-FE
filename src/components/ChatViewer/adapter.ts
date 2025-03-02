@@ -10,10 +10,12 @@ export interface ResourceInfo {
 export type SSEReceiveData = {
   event: 'partial_message';
   conversationId: string;
+  messageId: string;
   text: string;
 } | {
   event: 'rag';
   conversationId: string;
+  messageId: string;
   ctx: {
     resources: Array<ResourceInfo>;
     files: Array<TmpFileInfo>;
@@ -21,12 +23,14 @@ export type SSEReceiveData = {
 } | {
   event: 'finished';
   conversationId: string;
+  messageId: string;
   metadata: Record<string, unknown>;
 }
 
 export interface MessageData {
   id: string;
   conversationId: string;
+  messageId: string;
   content: string;
   ctx?: {
     resources?: Array<ResourceInfo>;
@@ -47,6 +51,7 @@ export const convertMessage = (data?: string): MessageData | false => {
         event: message.event,
         id: uuid(),
         conversationId: message.conversationId,
+        messageId: message.messageId,
         content: message.text,
         ctx: {
           resources: [],
@@ -58,6 +63,7 @@ export const convertMessage = (data?: string): MessageData | false => {
       event: message.event,
       id: uuid(),
       conversationId: message.conversationId,
+      messageId: message.messageId,
       content: '',
       ctx: message.ctx
     };
