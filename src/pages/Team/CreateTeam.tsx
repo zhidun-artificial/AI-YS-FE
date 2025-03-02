@@ -1,5 +1,4 @@
 import ColorPicker from '@/components/ColorPikcer';
-import IconPicker from '@/components/IconPicker';
 import { addTeam, updateTeam } from '@/services/team';
 import {
   ModalForm,
@@ -10,6 +9,7 @@ import {
 } from '@ant-design/pro-components';
 import { message, TreeSelect } from 'antd';
 import { useState } from 'react';
+import { Icon } from 'umi';
 import { IInitFormData, TreeDataType } from '.';
 
 const CreateTeam = ({
@@ -26,7 +26,7 @@ const CreateTeam = ({
   update: () => void;
 }) => {
   const [selectedColor, setSelectedColor] = useState<string>('#3B82F6');
-  const [selectedIcon, setSelectedIcon] = useState<string>('local:knowledge');
+  const [selectedIcon, setSelectedIcon] = useState<string>('local:BUTTON1');
 
   return (
     <>
@@ -115,11 +115,33 @@ const CreateTeam = ({
           valuePropName="value"
           trigger="onChange"
         >
-          <IconPicker
-            value={selectedIcon}
-            onChange={setSelectedIcon}
-            iconOptions={['local:knowledge', 'local:team']}
-          />
+          <div className="flex flex-row gap-2">
+            <Icon
+              icon="local:BUTTON1"
+              onClick={() => setSelectedIcon('local:BUTTON1')}
+              className={`${selectedIcon === 'local:BUTTON1' ? 'border-blue-500 rounded-xl' : 'border-transparent'} border-2 cursor-pointer`}
+            />
+            <Icon
+              icon="local:BUTTON3"
+              onClick={() => setSelectedIcon('local:BUTTON3')}
+              className={`${selectedIcon === 'local:BUTTON3' ? 'border-blue-500 rounded-xl' : 'border-transparent'} border-2 cursor-pointer`}
+            />
+            <Icon
+              icon="local:BUTTON4"
+              onClick={() => setSelectedIcon('local:BUTTON4')}
+              className={`${selectedIcon === 'local:BUTTON4' ? 'border-blue-500 rounded-xl' : 'border-transparent'} border-2 cursor-pointer`}
+            />
+            <Icon
+              icon="local:BUTTON5"
+              onClick={() => setSelectedIcon('local:BUTTON5')}
+              className={`${selectedIcon === 'local:BUTTON5' ? 'border-blue-500 rounded-xl' : 'border-transparent'} border-2 cursor-pointer`}
+            />
+            <Icon
+              icon="local:BUTTON6"
+              onClick={() => setSelectedIcon('local:BUTTON6')}
+              className={`${selectedIcon === 'local:BUTTON6' ? 'border-blue-500 rounded-xl' : 'border-transparent'} border-2 cursor-pointer`}
+            />
+          </div>
         </ProFormItem>
       </ModalForm>
     </>
