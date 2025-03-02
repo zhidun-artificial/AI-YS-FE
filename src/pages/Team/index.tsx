@@ -119,17 +119,23 @@ export default function Search() {
             <Button
               icon={<PlusOutlined />}
               className="ml-3"
-              onClick={() => setVisible(true)}
+              onClick={() => {
+                setVisible(true);
+                setInitialValues({});
+              }}
             >
               新建团队
             </Button>
-            <CreateTeam
-              update={() => searchTeams()}
-              treeData={treeData}
-              visible={visible}
-              initialValues={initialValues}
-              setVisible={setVisible}
-            />
+            {visible && (
+              <CreateTeam
+                key={`${visible}`}
+                update={() => searchTeams()}
+                treeData={treeData}
+                visible={visible}
+                initialValues={initialValues}
+                setVisible={setVisible}
+              />
+            )}
           </div>
         </div>
         <TreeSelect
