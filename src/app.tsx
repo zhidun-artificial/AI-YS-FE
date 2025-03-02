@@ -7,7 +7,6 @@ import './app.css';
 import { ApiResponse } from './services/http';
 import { RoleDetail } from './services/user/role';
 import { STORE_KEY_TOKEN, STORE_KEY_USER_ROLE } from './constants';
-import { parse } from 'querystring';
 
 const isAxiosError = (error: any): error is AxiosError => {
   return error.isAxiosError;
@@ -147,17 +146,25 @@ export const onRouteChange: RuntimeConfig['onRouteChange'] = ({
   clientRoutes,
   location,
 }) => {
-  const route = matchRoutes(clientRoutes, location.pathname)?.pop()?.route;
-  if (route?.path === '/') {
-    const query = parse(document.location.search.slice(1));
-    const ticket = decodeURIComponent(query.ticket as string || '');
-    if (ticket) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      history.push('/redirect?ticket=' + ticket);
-    }
+  const pathname = decodeURIComponent(location.pathname);
+  const route = matchRoutes(clientRoutes, pathname)?.pop()?.route;
+  // if (route?.path === '/') 
+  //   const query = parse(document.location.search.slice(1));
+  //   const ticket = decodeURIComponent(query.ticket as string || '');
+  //   if (ticket) {
+  //     window.history.replaceState({}, document.title, window.location.pathname);
+  //     history.push('/redirect?ticket=' + ticket);
+  //   }
+  // }
+  console.log('route', route?.path, decodeURIComponent(route?.path || ''));
+
+  if ((route?.path || '') === '/redirect') {
+    history.push('/redirect');
+    return;
   }
-  if (route?.path === '/login') return;
+  if ((route?.path || '') === '/login') return;
   const token = localStorage.getItem(STORE_KEY_TOKEN);
+  console.log('token', token);
   if (!token) {
     if (route?.path === '/') {
       history.push('/login');

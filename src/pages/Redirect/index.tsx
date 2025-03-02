@@ -1,27 +1,28 @@
 // import { useLocation } from "@umijs/max";
 import React, { useEffect } from "react";
-import { useLocation, useModel, useNavigate } from "umi";
+import { useModel, useNavigate } from "umi";
 import { parse } from "query-string";
 import { Alert, message } from "antd";
 import { getToken } from "@/services/auth/token";
-import { STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from "@/constants";
+import { CAS_REDIRECT_URL, STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NAME, STORE_KEY_USER_ROLE } from "@/constants";
 
 
 const DocxPreview: React.FC = () => {
   const [authSuccess, setAuthSuccess] = React.useState(false);
   const { setUser } = useModel('user');
-  const location = useLocation();
   const navigation = useNavigate();
+  const [hasTicket, setHasTicket] = React.useState(false);
   const query = parse(location.search);
   const ticket = decodeURIComponent(query.ticket as string || '');
-
 
   useEffect(() => {
 
     if (!ticket) return
 
+    setHasTicket(true)
+
     const validate = async () => {
-      const res = await getToken({ ticket, service: `${window.location.origin}${window.location.pathname}` });
+      const res = await getToken({ ticket, service: `${CAS_REDIRECT_URL}` });
       if (res instanceof Error) {
         message.error(res.message)
         return
@@ -59,7 +60,7 @@ const DocxPreview: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
-      {ticket ?
+      {hasTicket ?
         authSuccess ?
           <Alert message={'校验成功，跳转中...'} type="success"></Alert>
           :

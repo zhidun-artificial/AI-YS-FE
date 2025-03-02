@@ -1,5 +1,7 @@
 export const APP_NAME = 'AI知识服务系统';
-export const CAS_URL = `http://113.108.105.54:56800/cas/login?service=${document.location.origin}${document.location.pathname}`;
+
+export const CAS_REDIRECT_URL = `${document.location.origin}${document.location.pathname}#/redirect`;
+export const CAS_URL = `http://113.108.105.54:56800/cas/login?service=${CAS_REDIRECT_URL}`;
 export const CAS_URL_EXIT = `http://113.108.105.54:56800/cas/logout`;
 export const API_URL =
   process.env.NODE_ENV === 'development'
