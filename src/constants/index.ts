@@ -1,5 +1,6 @@
 export const APP_NAME = 'AI知识服务系统';
 export const CAS_URL = `http://113.108.105.54:56800/cas/login?service=${document.location.origin}`;
+export const CAS_URL_EXIT = `http://113.108.105.54:56800/cas/logout`;
 export const API_URL =
   process.env.NODE_ENV === 'development'
     ? `http://113.108.105.54:56800/aihub`
