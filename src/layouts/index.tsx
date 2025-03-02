@@ -22,8 +22,8 @@ import './Layout.css';
 import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
 import titleImg from '@/assets/images/title.png';
-import { CAS_URL_EXIT } from '@/constants';
 import { getAgentes, AgenteItem } from '@/services/agent';
+import Logout from './Logout';
 
 const { Header } = Layout;
 
@@ -328,7 +328,7 @@ const AppLayout = () => {
           </div>
           <div className="flex items-center">
             <UserInfo avatar={url} name={user.name} title={'超级管理员'} />
-            <Button type='link'><a href={CAS_URL_EXIT}>退出</a></Button>
+            <Logout></Logout>
           </div>
         </Header>
         <div
