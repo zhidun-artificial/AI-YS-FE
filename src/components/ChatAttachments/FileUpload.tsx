@@ -21,6 +21,7 @@ export interface FileUploadProps extends DropzoneOptions {
   disabled?: boolean;
   onFileChange?: (change: 'add' | 'remove', files: TmpFileInfo[]) => void;
   uploadFn: (file: File) => Promise<TmpFileInfo | Error>;
+  canCardRemove?: boolean;
 }
 
 
@@ -30,7 +31,7 @@ interface UploadFile extends TmpFileInfo {
 }
 
 
-const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxFiles = 10, onFileChange, ...props }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxFiles = 10, onFileChange, canCardRemove = true, ...props }) => {
   const [uploadFiles, setUploadFiles] = useState<Array<UploadFile>>([]);
 
   const { colorPrimaryBg, colorPrimaryBorder } = useTheme()
@@ -161,7 +162,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ style, uploadFn, disabled, maxF
               info={item}
               status={item.status}
               actions={{
-                onClose: () => onDeleteFile(item)
+                onClose: canCardRemove ? () => onDeleteFile(item) : undefined
               }}
             >
             </AttachmentCard>
