@@ -252,12 +252,13 @@ const ChatViewer: React.ForwardRefRenderFunction<
         content: '',
         conversationId: '',
       });
+
       const ret = chatMode === 'chat' ?
         await chatWithAgent({
           conversationId: message.conversationId,
           query: message.content,
-          llmModel: undefined,
-          baseIds: knowledgeBases,
+          llmModel: message?.meta?.llm as string || '',
+          baseIds: message?.meta?.baseIds as string[] || [],
           files: message?.ctx?.files || []
         }) :
         await chatWithAssistant({
@@ -434,6 +435,10 @@ const ChatViewer: React.ForwardRefRenderFunction<
       type: 'query',
       ctx: {
         files: tempFiles.current,
+      },
+      meta: {
+        llm: model,
+        baseIds: knowledgeBases
       }
       // docFiles: docFiles.current,
     });
@@ -492,8 +497,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
         {/* 参数选择 */}
         {chatMode === 'chat' &&
           <div className='flex flex-row gap-4 items-center'>
-            <div><span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={v => setModel(v)}></ModelSelect></div>
-            <div><span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={v => setKnowledgeBases(v)} ></KnowledgeSelect></div>
+            <div><span>模型：</span> <ModelSelect style={{ width: 200 }} onUpdate={(v) => { setModel(v) }}></ModelSelect></div>
+            <div><span>知识库：</span> <KnowledgeSelect style={{ width: 200 }} onUpdate={(v) => { setKnowledgeBases(v) }} ></KnowledgeSelect></div>
           </div>}
         {/* 🌟 输入框 */}
         <Sender

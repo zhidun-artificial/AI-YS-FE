@@ -1,3 +1,4 @@
+import { getModels } from "@/services/models/getModels"
 import { PropsWithStyle } from "@/utils/types"
 import { Select } from "antd"
 import React, { useEffect, useState } from "react"
@@ -11,14 +12,23 @@ const ModelSelect: React.FC<PropsWithStyle<ModelSelectProps>> = ({ style, onUpda
   const [selectModel, setSelectModel] = useState<string>("")
 
   useEffect(() => {
-    const data = ([
-      { name: "DeepSeek-R1:70B", value: "DeepSeek-R1:70B" },
-      { name: "GPT-2", value: "gpt-2" },
-      { name: "GPT-1", value: "gpt-1" },
-    ])
-    setModelList(data)
-    setSelectModel(data[0].value)
-    if (onUpdate) onUpdate(data[0].value)
+
+    const updateModels = async () => {
+      const res = await getModels();
+      if (res instanceof Error) {
+        console.error(res.message)
+        return
+      }
+      const data = res.data.llm.map((model) => {
+        return { name: model, value: model }
+      })
+      setModelList(data)
+      setSelectModel(data[0].value)
+      if (onUpdate) onUpdate(data[0].value)
+    }
+
+    updateModels()
+
   }, [])
 
   const onSelectChange = (value: string) => {
