@@ -126,7 +126,7 @@ export default function Search() {
       </section>
       <div className="grid grid-cols-2 gap-4">
         {teams.map((team) => {
-          return <TeamCard key={team.id} team={team} />;
+          return <TeamCard key={team.id} team={team} reload={searchTeams} />;
         })}
       </div>
     </div>

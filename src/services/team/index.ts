@@ -31,7 +31,15 @@ export interface IGroupItem {
   createTime: number;
   updateTime: number;
   userCount: number;
-  users: any[];
+  users: {
+    id: string;
+    avatar: string; // 头像
+    title: string; // 头衔
+    name: string;
+    permit: 1 | 0;
+    createTime: number;
+    updateTime: number;
+  }[];
 }
 
 export interface ITreeData {
@@ -76,8 +84,11 @@ export const getTeams = async (params: ISearchParams) => {
   );
 };
 
-export const deleteTeam = async (params: { id: number }) => {
-  return httpDelete(`/api/v1/user_groups/${params.id}`, params);
+export const deleteTeam = async (params: {
+  groupId: number;
+  userId: string;
+}) => {
+  return httpDelete(`/api/v1/user_groups/delete_user`, params);
 };
 
 export const addUser = async (params: { userId: string; groupId: string }) => {
