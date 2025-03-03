@@ -1,9 +1,14 @@
 import { searchKnowledgeBase } from '@/services/knowledge-base/searchKnowledge';
+import {
+  SemanticParams,
+  semanticSearch,
+} from '@/services/knowledge/management';
 import { CalendarOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   Button,
   DatePicker,
   Input,
+  message,
   Pagination,
   Segmented,
   Select,
@@ -40,7 +45,11 @@ const tagRender = (props: any) => {
 };
 
 export default function Search() {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [state, setState] = useState({
+    type: '0',
+    selectedItems: [] as string[],
+    searchValue: '',
+  });
   const [isSearching, setIsSearching] = useState(false);
   const [fileType, setFileType] = useState<string>('全部');
   const [uploader, setUploader] = useState<string>('所有人');
@@ -80,38 +89,6 @@ export default function Search() {
         '本文深入分析人工智能技术在公安实战中的具体应用，包括人脸识别、视频分析、智能预警等关键技术，并探讨其在实际案件中的效果...',
       uploadDate: '2024-01-15',
       uploader: '陈明宇',
-    },
-    {
-      key: '2',
-      name: '《基于深度学习的警务大数据分析系统设计与实现》',
-      description:
-        '该研究提出一种基于深度学习的警务大数据分析框架，通过多维数据融合和智能算法，实现犯罪预测和警力部署优化...',
-      uploadDate: '2024-01-14',
-      uploader: '林晓华',
-    },
-    {
-      key: '3',
-      name: '《智慧公安建设中的人工智能关键技术研究》',
-      description:
-        '文章系统总结了智慧公安建设中的AI关键技术，包括机器视觉、语音识别、自然语言处理等，并分析其在实战中的应用价值...',
-      uploadDate: '2024-01-13',
-      uploader: '王建军',
-    },
-    {
-      key: '4',
-      name: '《公安机关人工智能技术应用现状与展望》',
-      description:
-        '对当前公安机关在人工智能领域的应用现状进行调研，分析存在的问题和挑战，并对未来发展趋势进行展望...',
-      uploadDate: '2024-01-12',
-      uploader: '赵明阳',
-    },
-    {
-      key: '5',
-      name: '《AI 驱动的警务信息化建设研究报告》',
-      description:
-        '研究报告详细分析了AI技术在警务信息化建设中的应用场景，并提出了具体的实施策略和建设路径...',
-      uploadDate: '2024-01-11',
-      uploader: '杨文博',
     },
   ];
 
@@ -172,8 +149,26 @@ export default function Search() {
   };
 
   const handleSelectChange = (value: string[]) => {
-    setSelectedItems(value);
+    setState((prevState) => ({ ...prevState, selectedItems: value }));
     handleChange(value);
+  };
+
+  const handleSearch = async () => {
+    if (state.searchValue === '' || state.selectedItems.length === 0) {
+      message.error('请选择知识库，并输入搜索内容');
+      return;
+    }
+    setIsSearching(true);
+    const res = await semanticSearch({
+      query: state.searchValue,
+      type: state.type,
+      baseIds: state.selectedItems,
+      minScore: 0.5,
+      top: 100,
+    } as SemanticParams);
+    if (!(res instanceof Error)) {
+      console.log(res.data);
+    }
   };
 
   return (
@@ -189,11 +184,15 @@ export default function Search() {
       )}
       <section className="mt-8 mx-auto">
         <Segmented<string>
-          options={['语意检索', '关键词检索']}
+          options={[
+            { label: '语意检索', value: '0' },
+            { label: '关键词检索', value: '1' },
+          ]}
           size="large"
-          onChange={(value) => {
-            console.log(value); // string
-          }}
+          value={state.type}
+          onChange={(value) =>
+            setState((prevState) => ({ ...prevState, type: value }))
+          }
         />
       </section>
       <section className="mt-8 mx-auto flex flex-row">
@@ -203,19 +202,28 @@ export default function Search() {
           allowClear
           style={{ width: '270px' }}
           placeholder="请选择"
-          value={selectedItems}
+          value={state.selectedItems}
           onChange={handleSelectChange}
           options={knowledgeList}
           maxTagCount={0}
-          maxTagPlaceholder={() => `已选择 ${selectedItems.length} 个知识库`}
+          maxTagPlaceholder={() =>
+            `已选择 ${state.selectedItems.length} 个知识库`
+          }
           tagRender={tagRender}
         />
         <Input
           className="w-[500px] ml-4"
           size="large"
           placeholder="请输入"
+          value={state.searchValue}
+          onChange={(e) =>
+            setState((prevState) => ({
+              ...prevState,
+              searchValue: e.target.value,
+            }))
+          }
           prefix={<SearchOutlined />}
-          onPressEnter={() => setIsSearching(true)}
+          onPressEnter={handleSearch}
         />
       </section>
       {isSearching && (
@@ -231,7 +239,7 @@ export default function Search() {
               <span>文件类型:</span>
               <Select
                 value={fileType}
-                style={{ width: 150 }}
+                style={{ width: 150, marginLeft: '10px' }}
                 onChange={setFileType}
                 suffixIcon={<SearchOutlined />}
               >
@@ -246,7 +254,7 @@ export default function Search() {
               <span>上传人:</span>
               <Select
                 value={uploader}
-                style={{ width: 150 }}
+                style={{ width: 150, marginLeft: '10px' }}
                 onChange={setUploader}
                 suffixIcon={<SearchOutlined />}
               >
@@ -260,6 +268,7 @@ export default function Search() {
             <div>
               <span>上传时间:</span>
               <RangePicker
+                style={{ marginLeft: '10px' }}
                 value={dateRange}
                 onChange={(dates) =>
                   dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
@@ -267,9 +276,11 @@ export default function Search() {
               />
             </div>
 
-            <Button type="primary" onClick={handleFilter}>
-              筛选
-            </Button>
+            <div style={{ marginLeft: 'auto' }}>
+              <Button type="primary" onClick={handleFilter}>
+                筛选
+              </Button>
+            </div>
           </div>
 
           <Table

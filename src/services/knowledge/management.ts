@@ -7,16 +7,24 @@ export interface DocumentRequest {
 }
 
 export type DocumentItem = {
-  "id": string,
-  "baseId": string,
-  "title": string,
-  "fileName": string,
-  "url": string,
-  "creator": string,
-  "creatorName": string,
-  "blockedReason": string,
-  "createTime": number,
-  "updateTime": number
+  id: string;
+  baseId: string;
+  title: string;
+  fileName: string;
+  url: string;
+  creator: string;
+  creatorName: string;
+  blockedReason: string;
+  createTime: number;
+  updateTime: number;
+};
+
+export type SemanticParams = {
+  query: string;
+  type: string;
+  baseIds: string[];
+  minScore: number;
+  top: number;
 };
 
 interface DocumentResponse {
@@ -28,8 +36,6 @@ interface DocumentUpload {
   baseId: string;
   files: File[];
 }
-
-
 
 export const getDocuments = async (params: DocumentRequest) => {
   return httpPost<DocumentRequest, DocumentResponse>(
@@ -48,14 +54,23 @@ interface updateRequest {
 }
 
 export const updateDocument = async (params: updateRequest) => {
-  return httpPut(`/api/v1/documents/${params.id}/rename?name=${params.name}`, {});
+  return httpPut(
+    `/api/v1/documents/${params.id}/rename?name=${params.name}`,
+    {},
+  );
 };
 
 export const deleteDocument = async (id: string) => {
   return httpDelete(`/api/v1/documents/${id}`, {});
 };
 
-
 export const batchDeleteDocument = async (ids: string[]) => {
   return httpPost(`/api/v1/documents/batch_delete`, { ids });
-};  
+};
+
+export const semanticSearch = async (params: SemanticParams) => {
+  return httpPost<SemanticParams, any>(
+    '/api/v1/documents/semantic_search',
+    params,
+  );
+};
