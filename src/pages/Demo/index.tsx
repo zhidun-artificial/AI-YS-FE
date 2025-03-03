@@ -1,4 +1,5 @@
 import FileUpload, { FileUploadProps } from "@/components/ChatAttachments/FileUpload";
+import { downloadFile } from "@/utils/download";
 import { previewDocx, previewPdf } from "@/utils/preview";
 import { history } from "@umijs/max";
 import { Button } from "antd";
@@ -25,8 +26,9 @@ const Demo: React.FC = () => {
       <h1>Demo</h1>
       <FileUpload uploadFn={uploadFn} onFileChange={(files) => { console.log(files) }}>
       </FileUpload>
-      <Button onClick={() => previewDocx({ name: '测试文档', url: `${location.origin}${location.pathname}test.docx` })}>预览 docx 文件</Button>
-      <Button onClick={() => previewPdf({ name: '测试文档', url: `${location.origin}${location.pathname}test.pdf` })}>预览 pdf 文件</Button>
+      <Button onClick={() => previewDocx({ fileName: '测试文档', url: `${location.origin}${location.pathname}test.docx` })}>预览 docx 文件</Button>
+      <Button onClick={() => previewPdf({ fileName: '测试文档', url: `${location.origin}${location.pathname}test.pdf` })}>预览 pdf 文件</Button>
+      <Button onClick={() => downloadFile({ fileName: '测试文档', url: `${location.origin}${location.pathname}test.docx` })}>下载文件</Button>
       <Button onClick={() => history.push(`/new/${Date.now()}`, { assistantId: '019557345d4a76c193aeabf4633a2ab4' })}>助理开启聊天</Button>
     </>
   )

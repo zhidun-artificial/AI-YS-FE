@@ -10,6 +10,7 @@ import { CAS_REDIRECT_URL, STORE_KEY_TOKEN, STORE_KEY_USER_ID, STORE_KEY_USER_NA
 const DocxPreview: React.FC = () => {
   const [authSuccess, setAuthSuccess] = React.useState(false);
   const { setUser } = useModel('user');
+  const [messageApi, messageCtxHolder] = message.useMessage();
   const navigation = useNavigate();
   const [hasTicket, setHasTicket] = React.useState(false);
   const query = parse(location.search);
@@ -24,12 +25,12 @@ const DocxPreview: React.FC = () => {
     const validate = async () => {
       const res = await getToken({ ticket, service: `${CAS_REDIRECT_URL}` });
       if (res instanceof Error) {
-        message.error(res.message)
+        messageApi.error(res.message)
         return
       }
 
       if (res.code !== 0) {
-        message.error(res.msg)
+        messageApi.error(res.msg)
         return
       }
       const { detail, token } = res.data;
@@ -47,7 +48,7 @@ const DocxPreview: React.FC = () => {
 
       setAuthSuccess(true)
       window.history.replaceState({}, document.title, window.location.pathname);
-      message.success(`${res.data.detail.userName}，欢迎回来！`)
+      messageApi.success(`${res.data.detail.userName}，欢迎回来！`)
       setTimeout(() => {
         navigation('/home')
       }, 1500)
@@ -60,6 +61,7 @@ const DocxPreview: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
+      {messageCtxHolder}
       {hasTicket ?
         authSuccess ?
           <Alert message={'校验成功，跳转中...'} type="success"></Alert>
