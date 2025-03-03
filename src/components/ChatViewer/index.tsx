@@ -13,7 +13,7 @@ import React, {
   useState,
 } from 'react';
 
-import { Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
+import { App, Avatar, Badge, Button, Flex, Typography, type GetProp } from 'antd';
 import { convertMessage, MessageData } from './adapter';
 import { chatWithAgent, DocFileInfo } from '@/services/chat/chatConversation';
 import { chatWithAssistant } from '@/services/chat/chatWithAssistant';
@@ -33,6 +33,10 @@ import AttachmentCard from '../ChatAttachments/AttachmentCard';
 import useXChat from '../antdx/use-x-chat';
 import useXAgent from '../antdx/use-x-agent';
 import MarkdownContent from './MarkdownContent';
+import { previewFile } from '@/utils/preview';
+import { copyTextToClipboard } from '@/utils/clipboard';
+import { cancelMessage } from '@/services/chat/cancelMessage';
+import { downloadFile } from '@/utils/download';
 
 interface ChatInfo {
   user: number;
@@ -86,6 +90,119 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const { theme } = useContext(ConfigContext);
   const [isTyping, setIsTyping] = useState(false);
   const cancelStream = useRef<() => void>(() => { });
+  const renderingMessage = useRef<[string, string]>(['', '']);
+  const { message } = App.useApp();
+
+
+  // ==================== Runtime ====================
+  const [agent] = useXAgent<MessageData>({
+    request: async ({ message }, { onRequest, onUpdate, onSuccess, onError }) => {
+      if (!message) {
+        onError(new Error('Please input message'));
+        return;
+      }
+      onRequest({
+        type: 'answer',
+        id: 'loading',
+        content: '',
+        messageId: '',
+        conversationId: '',
+      });
+
+      const ret = chatMode === 'chat' ?
+        await chatWithAgent({
+          conversationId: message.conversationId,
+          query: message.content,
+          llmModel: message?.meta?.llm as string || '',
+          baseIds: message?.meta?.baseIds as string[] || [],
+          files: message?.ctx?.files || []
+        }) :
+        await chatWithAssistant({
+          conversationId: message.conversationId,
+          query: message.content,
+          assistantId: chatAssistantId || '',
+          files: message?.ctx?.files || []
+        })
+
+      if (ret instanceof Error) {
+        onError(ret);
+      } else {
+        let tmpMessageInfo: ChatInfo & { messageId: string } | null = null;
+        const contents: string[] = [];
+        let ctxInfo: MessageData['ctx'] = undefined;
+
+        // 获取并保存读取器的引用
+        const reader = ret.getReader();
+        cancelStream.current = () => { reader.cancel() };
+        setIsTyping(true);
+
+        // 使用自定义 XStream 处理流数据
+        for await (const chunk of XStream({
+          readableStream: new ReadableStream({
+            start(controller) {
+              function push() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  push();
+                }).catch(err => {
+                  controller.error(err);
+                });
+              }
+              push();
+            }
+          })
+        })) {
+          const parsedMessage = convertMessage(chunk.data);
+          if (parsedMessage !== false) {
+            if (parsedMessage.event === 'rag') {
+              // 上下文消息
+              ctxInfo = parsedMessage.ctx;
+            } else if (parsedMessage.event === 'partial_message') {
+              // 实时更新消息
+              contents.push(parsedMessage.content);
+              if (!tmpMessageInfo)
+                tmpMessageInfo = {
+                  user: chatInfo.user,
+                  conversationId: parsedMessage.conversationId,
+                  messageId: parsedMessage.messageId,
+                };
+              parsedMessage.content = contents.join('');
+              renderingMessage.current = [parsedMessage.messageId, parsedMessage.content];
+              onUpdate(parsedMessage);
+            }
+          }
+        }
+        if (tmpMessageInfo) setChatInfo(() => tmpMessageInfo);
+        setIsTyping(false);
+        renderingMessage.current = ['', ''];
+        onSuccess({
+          type: 'fullAnswer',
+          id: tmpMessageInfo?.conversationId || '',
+          conversationId: tmpMessageInfo?.conversationId || '',
+          messageId: tmpMessageInfo?.messageId || '',
+          content: JSON.stringify({
+            messageId: tmpMessageInfo?.messageId || '',
+            answer: contents.join(''),
+            ctx: ctxInfo
+          }),
+        });
+      }
+    },
+  });
+
+  const { onRequest, messages, setMessages } = useXChat({
+    agent,
+  });
+
+  // 删除消息
+  const removeMessage = (type: 'answer' | 'query', messageId: string) => {
+    const targetId = `${type}-${messageId}`;
+    setMessages(messages.filter((m) => m.id !== targetId));
+  }
 
   //  =================== Roles ====================
 
@@ -116,8 +233,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
                     url: file.url,
                   }}
                   actions={{
-                    onView: (info) => { console.log(info) },
-                    onDownload: (info) => { console.log(info) }
+                    onView: (info) => { previewFile(info) },
+                    onDownload: (info) => { downloadFile(info) }
                   }}
                 ></AttachmentCard>
               );
@@ -125,8 +242,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
           }
         </Flex>}
         <Flex className='h-14 justify-end items-end flex-row gap-3' style={{ height: 24, flex: 0, marginTop: 8 }}>
-          <span className='cursor-pointer' title='复制' onClick={() => { console.log(messageId) }} ><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
-          <span className='cursor-pointer' title='删除' onClick={() => { console.log(messageId) }}><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>
+          {answer && <span className='cursor-pointer' title='复制' onClick={() => { copyTextToClipboard(answer); message.success('复制完成') }} ><CopyFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>}
+          {messageId && <span className='cursor-pointer' title='删除' onClick={() => { removeMessage('answer', messageId) }}><DeleteFilled style={{ color: '#6B7280', fontSize: 16 }} /></span>}
         </Flex>
       </Flex>
     )
@@ -149,7 +266,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
                   url: file.url,
                 }}
                 actions={{
-                  onView: (info) => { console.log(info) }
+                  onView: (info) => { previewFile(info) }
                 }}
               ></AttachmentCard>
             );
@@ -164,7 +281,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
     <Flex vertical className='min-w-24 group'>
       <Typography.Paragraph style={{ color: 'white', flex: 1 }}>{content}</Typography.Paragraph>
       <Flex className='h-14 justify-end items-end flex-row gap-3 invisible group-hover:visible' style={{ height: 28, flex: 0, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
-        <span className='cursor-pointer' title='复制'><CopyFilled style={{ fontSize: 16 }} /></span>
+        <span className='cursor-pointer' title='复制' onClick={() => { copyTextToClipboard(content); message.success('复制完成') }}><CopyFilled style={{ fontSize: 16 }} /></span>
         <span className='cursor-pointer' title='删除'><DeleteFilled style={{ fontSize: 16 }} /></span>
       </Flex>
     </Flex>
@@ -240,85 +357,6 @@ const ChatViewer: React.ForwardRefRenderFunction<
       }
     },
   };
-
-  // ==================== Runtime ====================
-  const [agent] = useXAgent<MessageData>({
-    request: async ({ message }, { onRequest, onUpdate, onSuccess, onError }) => {
-      if (!message) {
-        onError(new Error('Please input message'));
-        return;
-      }
-      onRequest({
-        type: 'answer',
-        id: 'loading',
-        content: '',
-        messageId: '',
-        conversationId: '',
-      });
-
-      const ret = chatMode === 'chat' ?
-        await chatWithAgent({
-          conversationId: message.conversationId,
-          query: message.content,
-          llmModel: message?.meta?.llm as string || '',
-          baseIds: message?.meta?.baseIds as string[] || [],
-          files: message?.ctx?.files || []
-        }) :
-        await chatWithAssistant({
-          conversationId: message.conversationId,
-          query: message.content,
-          assistantId: chatAssistantId || '',
-          files: message?.ctx?.files || []
-        })
-
-      if (ret instanceof Error) {
-        onError(ret);
-      } else {
-        let tmpMessageInfo: ChatInfo & { messageId: string } | null = null;
-        const contents: string[] = [];
-        let ctxInfo: MessageData['ctx'] = undefined;
-        cancelStream.current = () => { ret.getReader().cancel() };
-        setIsTyping(true);
-        for await (const chunk of XStream({ readableStream: ret })) {
-          const parsedMessage = convertMessage(chunk.data);
-          if (parsedMessage !== false) {
-            if (parsedMessage.event === 'rag') {
-              // 上下文消息
-              ctxInfo = parsedMessage.ctx;
-            } else if (parsedMessage.event === 'partial_message') {
-              // 实时更新消息
-              contents.push(parsedMessage.content);
-              if (!tmpMessageInfo)
-                tmpMessageInfo = {
-                  user: chatInfo.user,
-                  conversationId: parsedMessage.conversationId,
-                  messageId: parsedMessage.messageId,
-                };
-              parsedMessage.content = contents.join('');
-              onUpdate(parsedMessage);
-            }
-          }
-        }
-        if (tmpMessageInfo) setChatInfo(() => tmpMessageInfo);
-        setIsTyping(false);
-        onSuccess({
-          type: 'fullAnswer',
-          id: tmpMessageInfo?.conversationId || '',
-          conversationId: tmpMessageInfo?.conversationId || '',
-          messageId: tmpMessageInfo?.messageId || '',
-          content: JSON.stringify({
-            messageId: tmpMessageInfo?.messageId || '',
-            answer: contents.join(''),
-            ctx: ctxInfo
-          }),
-        });
-      }
-    },
-  });
-
-  const { onRequest, messages, setMessages } = useXChat({
-    agent,
-  });
 
   // 对于带有文档的会话创建，优先初始消息
   useEffect(() => {
@@ -415,6 +453,11 @@ const ChatViewer: React.ForwardRefRenderFunction<
 
   const onCancelStream = () => {
     if (cancelStream.current) cancelStream.current();
+    const [messageId, content] = renderingMessage.current;
+    if (messageId && content) {
+      cancelMessage({ messageId, answer: `${content}\n(用户中断)` });
+    }
+    renderingMessage.current = ['', ''];
   }
 
   // ==================== Event ====================
@@ -526,7 +569,6 @@ const ChatViewer: React.ForwardRefRenderFunction<
           value={content}
           onSubmit={onSubmit}
           onChange={setContent}
-          onCancel={() => { if (cancelStream.current) cancelStream.current() }}
           placeholder='请输入您的问题，让我来协助您...'
           // 开始对话之后，则无法进行附件上传
           prefix={messages.length > 0 ? null : attachmentsNode}
