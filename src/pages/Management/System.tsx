@@ -1,3 +1,4 @@
+import { getSystemConfig, ISystem, setSystemConfig } from '@/services/system';
 import {
   PageContainer,
   ProForm,
@@ -28,9 +29,18 @@ const getBase64 = (file: File): Promise<string> =>
 
 const SystemPage: React.FC = () => {
   const [logo, setLogo] = useState<string | undefined>(undefined);
+  const [initialValues, setInitialValues] = useState<{
+    systemName: string;
+    logo: string;
+    defaultPrompt: string;
+  }>({
+    systemName: '',
+    logo: '',
+    defaultPrompt: '',
+  });
 
   const handleBeforeUpload = (file: File) => {
-    const isLt500KB = file.size / 1024 < 100;
+    const isLt500KB = file.size / 1024 < 500;
     if (!isLt500KB) {
       message.error('图片大小不能超过 500KB!');
     }
@@ -58,10 +68,9 @@ const SystemPage: React.FC = () => {
       }}
     >
       <ProForm<{
-        name: string;
-        company?: string;
-        useMode?: string;
-        logo?: string;
+        systemName: string;
+        logo: string;
+        defaultPrompt: string;
       }>
         layout={'vertical'}
         submitter={{
@@ -74,27 +83,35 @@ const SystemPage: React.FC = () => {
           },
         }}
         onFinish={async (values) => {
-          await waitTime(2000);
-          console.log({ ...values, logo });
-          message.success('提交成功');
+          const res = await setSystemConfig({ ...values, logo } as ISystem);
+          if (res instanceof Error) {
+            message.error('保存失败');
+          } else {
+            message.success('保存成功');
+          }
+        }}
+        onReset={() => {
+          setLogo(initialValues.logo);
         }}
         params={{}}
-        request={async (values) => {
-          console.log(values);
-          await waitTime(100);
+        request={async () => {
+          const res = await getSystemConfig();
+          // 设置默认图标
           const logoBase64 =
-            'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBmaWxsPSJub25lIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE0IDE2Ij48ZGVmcz48Y2xpcFBhdGggaWQ9Im1hc3Rlcl9zdmcwXzQxXzAzNTQzIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTQiIGhlaWdodD0iMTYiIHJ4PSIwIi8+PC9jbGlwUGF0aD48L2RlZnM+PGcgY2xpcC1wYXRoPSJ1cmwoI21hc3Rlcl9zdmcwXzQxXzAzNTQzKSI+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsLTEsMCwyMC4xODc1MTkwNzM0ODYzMjgpIj48Zz48cGF0aCBkPSJNLTAuMTI2OTUzMDA1NzkwNzEwNDUsMTEuODQzNzU5NTM2NzQzMTY0US0wLjA5NTEzNDgwNTc5MDcxMDQ2LDEyLjg0Mzc1OTUzNjc0MzE2NCwwLjc2Mzk1NTk5NDIwOTI4OTUsMTMuMzQzNzU5NTM2NzQzMTY0UTEuNjU0ODY2OTk0MjA5Mjg5NSwxMy44NDM3NTk1MzY3NDMxNjQsMi41NDU3NzY5OTQyMDkyODk2LDEzLjM0Mzc1OTUzNjc0MzE2NFEzLjQwNDg2Njk5NDIwOTI4OTcsMTIuODQzNzU5NTM2NzQzMTY0LDMuNDM2Njg2OTk0MjA5Mjg5NSwxMS44NDM3NTk1MzY3NDMxNjRRMy40MDQ4NjY5OTQyMDkyODk3LDEwLjg0Mzc1OTUzNjc0MzE2NCwyLjU0NTc3Njk5NDIwOTI4OTYsMTAuMzQzNzU5NTM2NzQzMTY0UTEuNjU0ODY2OTk0MjA5Mjg5NSw5Ljg0Mzc1OTUzNjc0MzE2NCwwLjc2Mzk1NTk5NDIwOTI4OTUsMTAuMzQzNzU5NTM2NzQzMTY0US0wLjA5NTEzNDgwNTc5MDcxMDQ2LDEwLjg0Mzc1OTUzNjc0MzE2NCwtMC4xMjY5NTMwMDU3OTA3MTA0NSwxMS44NDM3NTk1MzY3NDMxNjRaTTQuOTYzOTU2OTk0MjA5MjksMTEuODQzNzU5NTM2NzQzMTY0UTQuOTk1Nzc2OTk0MjA5Mjg5LDEyLjg0Mzc1OTUzNjc0MzE2NCw1Ljg1NDg2Njk5NDIwOTI4OTUsMTMuMzQzNzU5NTM2NzQzMTY0UTYuNzQ1Nzc2OTk0MjA5Mjg5LDEzLjg0Mzc1OTUzNjc0MzE2NCw3LjYzNjY4Njk5NDIwOTI4OSwxMy4zNDM3NTk1MzY3NDMxNjRROC40OTU3NzY5OTQyMDkyOSwxMi44NDM3NTk1MzY3NDMxNjQsOC41Mjc1ODY5OTQyMDkyOSwxMS44NDM3NTk1MzY3NDMxNjRROC40OTU3NzY5OTQyMDkyOSwxMC44NDM3NTk1MzY3NDMxNjQsNy42MzY2ODY5OTQyMDkyODksMTAuMzQzNzU5NTM2NzQzMTY0UTYuNzQ1Nzc2OTk0MjA5Mjg5LDkuODQzNzU5NTM2NzQzMTY0LDUuODU0ODY2OTk0MjA5Mjg5NSwxMC4zNDM3NTk1MzY3NDMxNjRRNC45OTU3NzY5OTQyMDkyODksMTAuODQzNzU5NTM2NzQzMTY0LDQuOTYzOTU2OTk0MjA5MjksMTEuODQzNzU5NTM2NzQzMTY0Wk0xMS44MzY2NDY5OTQyMDkyOSwxMy41OTM3NTk1MzY3NDMxNjRRMTIuODU0ODQ2OTk0MjA5MjksMTMuNTYyNTA5NTM2NzQzMTY0LDEzLjM2Mzk0Njk5NDIwOTI5LDEyLjcxODc1OTUzNjc0MzE2NFExMy44NzMwNDY5OTQyMDkyOSwxMS44NDM3NTk1MzY3NDMxNjQsMTMuMzYzOTQ2OTk0MjA5MjksMTAuOTY4NzU5NTM2NzQzMTY0UTEyLjg1NDg0Njk5NDIwOTI5LDEwLjEyNTAwOTUzNjc0MzE2NCwxMS44MzY2NDY5OTQyMDkyOSwxMC4wOTM3NTk1MzY3NDMxNjRRMTAuODE4NTQ2OTk0MjA5Mjg5LDEwLjEyNTAwOTUzNjc0MzE2NCwxMC4zMDk0NDY5OTQyMDkyOSwxMC45Njg3NTk1MzY3NDMxNjRROS44MDAzMTY5OTQyMDkyOSwxMS44NDM3NTk1MzY3NDMxNjQsMTAuMzA5NDQ2OTk0MjA5MjksMTIuNzE4NzU5NTM2NzQzMTY0UTEwLjgxODU0Njk5NDIwOTI4OSwxMy41NjI1MDk1MzY3NDMxNjQsMTEuODM2NjQ2OTk0MjA5MjksMTMuNTkzNzU5NTM2NzQzMTY0WiIgZmlsbD0iIzlDQTNBRiIgZmlsbC1vcGFjaXR5PSIxIiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6cGFzc3Rocm91Z2giLz48L2c+PC9nPjwvZz48L3N2Zz4=';
-          setLogo(logoBase64);
+            'data:image/png;base64,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';
+          const { systemName, logo = logoBase64, defaultPrompt } = res.data;
+          console.log(systemName, logo, defaultPrompt);
+          setLogo(logo);
+          setInitialValues({ systemName, logo, defaultPrompt });
           return {
-            name: '智慧助手系统',
-            prompt: '你是一个卓越的 AI 助手，名叫：小智，善于帮助用户解决问题',
-            // logo: logoBase64, // 这么返回报错
+            systemName,
+            defaultPrompt,
           };
         }}
       >
         <ProFormText
           width="md"
-          name="name"
+          name="systemName"
           label="系统名称"
           tooltip="最长为 24 位"
           placeholder="请输入名称"
@@ -109,6 +126,7 @@ const SystemPage: React.FC = () => {
             maxCount: 1,
             showUploadList: false,
           }}
+          rules={[{ required: true, message: 'logo 必填' }]}
         />
         {logo && (
           <img
@@ -119,7 +137,7 @@ const SystemPage: React.FC = () => {
         )}
         <ProFormTextArea
           colProps={{ span: 24 }}
-          name="prompt"
+          name="defaultPrompt"
           label="新对话默认提示词"
         />
       </ProForm>
