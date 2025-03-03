@@ -7,7 +7,9 @@ import routes, {
   systemName,
   systemPath,
 } from '@/routes';
+import { AgenteItem, getAgentes } from '@/services/agent';
 import { ConversationInfo } from '@/services/chat/getConversations';
+import { getSystemConfig } from '@/services/system';
 import {
   DownOutlined,
   PlusCircleOutlined,
@@ -19,11 +21,9 @@ import { useEffect, useState } from 'react';
 import { Icon, Link, useModel, useRouteProps } from 'umi';
 import AddAgent from './AddAgent';
 import './Layout.css';
+import Logout from './Logout';
 import SubMenu from './SubMenu';
 import withThemeVars from './withThemeVars';
-import titleImg from '@/assets/images/title.png';
-import { getAgentes, AgenteItem } from '@/services/agent';
-import Logout from './Logout';
 
 const { Header } = Layout;
 
@@ -116,6 +116,7 @@ const AppLayout = () => {
   );
   const [showConversations, setShowConversations] = useState(false);
   const [searchTime, setSearchTime] = useState(Date.now());
+  const [systemInfo, setSystemInfo] = useState<any>({});
 
   const [modalVisit, setModalVisit] = useState(false);
   // 点击助理或者历史会话
@@ -129,7 +130,6 @@ const AppLayout = () => {
     }
   };
 
-
   const fetchAgents = async () => {
     const res = {
       history: [
@@ -137,24 +137,32 @@ const AppLayout = () => {
         { name: 'History 2', icon: 'local:historyChat' },
         { name: '展示更多', icon: 'local:add', function: 'showMore' },
       ],
-      agents: [] as any[]
+      agents: [] as any[],
     };
-    const Response = await getAgentes({ key: '', sort: "CREATED_AT_ASC", forEdit: false, pageNo: 1, pageSize: 9999 });
+    const Response = await getAgentes({
+      key: '',
+      sort: 'CREATED_AT_ASC',
+      forEdit: false,
+      pageNo: 1,
+      pageSize: 9999,
+    });
     if (Response instanceof Error) {
-
-      message.error('查询助理列表失败')
+      message.error('查询助理列表失败');
     } else if (Response.code === 0) {
       const data = Response.data?.records;
       setAgents(data);
       res.agents = [
         { name: '添加助理', icon: 'local:add', function: 'addAgent' },
         ...data.slice(0, 5),
-      ]
-      if (data.length > 5) res.agents.push({ name: '展示更多', icon: 'local:add', function: 'showMore' })
-      console.log(agents)
+      ];
+      if (data.length > 5)
+        res.agents.push({
+          name: '展示更多',
+          icon: 'local:add',
+          function: 'showMore',
+        });
+      console.log(agents);
     }
-
-
 
     if (res) {
       setRouteObject((routeObject) => {
@@ -165,15 +173,22 @@ const AppLayout = () => {
         newRouteObject['function'].items[2].customChildren = (
           <SubMenu items={res.history} onClick={onClickSubMenu} />
         );
-        console.log(newRouteObject)
+        console.log(newRouteObject);
         return newRouteObject;
       });
     }
   };
   useEffect(() => {
-
+    const fetchSystemConfig = async () => {
+      const res = await getSystemConfig();
+      if (!(res instanceof Error)) {
+        const { logo, systemName } = res.data as any;
+        setSystemInfo({ logo, systemName });
+      }
+    };
 
     fetchAgents();
+    fetchSystemConfig();
   }, []);
 
   const onCreateNewConversation = () => {
@@ -235,8 +250,13 @@ const AppLayout = () => {
           <Icon icon="local:add" />
         </div>
         <div className="flex flex-col items-center"></div>
-        <div className='h-16 w-full flex justify-center items-center'>
-          <Link to='/home'><img className='w-[172px]' src={titleImg} alt="logo" /></Link>
+        <div className="h-16 w-full flex justify-center items-center">
+          <Link to="/home" className="flex flex-row items-center">
+            <img className="flex-grow" src={systemInfo?.logo} alt="logo" />
+            <span className="text-[#374151] font-normal text-lg">
+              {systemInfo?.systemName}
+            </span>
+          </Link>
         </div>
         <Button
           icon={<PlusCircleOutlined />}
@@ -272,10 +292,11 @@ const AppLayout = () => {
                           className="mr-[12px]"
                         />
                         <span
-                          className={`${matched
-                            ? 'text-[#374151] font-medium'
-                            : 'text-[#4B5563] font-normal'
-                            } text-lg flex-grow`}
+                          className={`${
+                            matched
+                              ? 'text-[#374151] font-medium'
+                              : 'text-[#4B5563] font-normal'
+                          } text-lg flex-grow`}
                         >
                           {item.name}
                         </span>
@@ -295,8 +316,10 @@ const AppLayout = () => {
             </div>
           );
         })}
-        <div className=' absolute bottom-0 w-full flex justify-start items-center'>
-          <span className=' text-sm italic text-gray-500'>构建时间：{globalInfo.buildTime}</span>
+        <div className=" absolute bottom-0 w-full flex justify-start items-center">
+          <span className=" text-sm italic text-gray-500">
+            构建时间：{globalInfo.buildTime}
+          </span>
         </div>
       </div>
       <div className="flex-1 h-screen overflow-hidden flex flex-col">

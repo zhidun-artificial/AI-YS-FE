@@ -7,10 +7,7 @@ export interface ISystem {
 }
 
 export const getSystemConfig = async () => {
-  return httpGet<Record<string, never>, { data: ISystem }>(
-    '/api/v1/sys_config/base',
-    {},
-  );
+  return httpGet('/api/v1/sys_config/base', {});
 };
 
 export const setSystemConfig = async (params: ISystem) => {
