@@ -10,17 +10,17 @@ export interface KnowledgeRequest {
 export type KnowledgeItem = {
   id?: string;
   name: string;
-  creator: string;
-  creatorName: string;
+  creator?: string;
+  creatorName?: string;
   docCount?: number;
-  embedModel: string;
+  embedModel?: string;
   description: string;
   tags: string[];
   permit?: 1 | 0;
-  groupId: string,
+  groupId?: string,
   ext: Record<string, unknown>;
-  createTime: number;
-  updateTime: number;
+  createTime?: number;
+  updateTime?: number;
 };
 
 interface KnowledgeResponse {

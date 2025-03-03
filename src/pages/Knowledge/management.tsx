@@ -12,13 +12,15 @@ import ColorPicker from '@/components/ColorPikcer';
 import {
   KnowledgeItem,
   getKnowledgeBases,
+  updateKnowledgeBase,
   getTags
 } from '@/services/knowledge';
-import { Input, Modal, Form, Radio, Tabs, Popconfirm, message, Dropdown, Empty } from 'antd';
+import { Input, Modal, Radio, Tabs, Form, Popconfirm, message, Dropdown, Empty } from 'antd';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import type { TabsProps, MenuProps } from 'antd';
 import './management.css';
 import './index.css';
+
 import {
   DownOutlined
 } from '@ant-design/icons';
@@ -33,6 +35,7 @@ import type {
 import {
   ProTable,
   PageContainer,
+  ProForm,
   ProFormText, ProFormTextArea, ProFormRadio, ProFormSelect
 } from '@ant-design/pro-components';
 
@@ -60,7 +63,7 @@ const KnowledgeManagement: React.FC = () => {
   };
 
   const [currentId, setCurrentId] = useState('');
-  const [form] = Form.useForm();
+
   const searchKnowledge = async (keyword: string) => {
     const params = {
       key: keyword,
@@ -222,7 +225,6 @@ const KnowledgeManagement: React.FC = () => {
   useEffect(() => {
     if (tabType === '2') {
       const item = knowledgeList.find((item: KnowledgeItem) => item.id === currentId);
-      form.setFieldsValue(item);
       setSelectedIcon(item?.ext?.icon as string || 'local:folder');
 
     }
@@ -266,10 +268,12 @@ const KnowledgeManagement: React.FC = () => {
   const knowledgeSelect = (item: KnowledgeItem) => {
     setCurrentId(item.id || '');
     actionRef.current?.reload();
-
-    form.setFieldsValue(item)
     setSelectedIcon(item?.ext?.icon as string || 'local:folder');
   }
+  const getFormInitialValues = async () => {
+    const item = knowledgeList.find((item: KnowledgeItem) => item.id === currentId);
+    return item as KnowledgeItem;
+  };
   const handleButtonClick = () => {
     getBatchDeleteDocument();
   }
@@ -376,12 +380,27 @@ const KnowledgeManagement: React.FC = () => {
           />
         </div>}
         {tabType === '2' &&
-          <Form form={form} layout="vertical">
+          <ProForm
+            onFinish={async (values: KnowledgeItem) => {
+              const res = await updateKnowledgeBase({
+                id: currentId,
+                ...values,
+                ext: { iconColor: selectedColor, icon: selectedIcon }
+              });
+              if (res instanceof Error) {
+                return false;
+              }
+              if (res.code === 0) {
+                message.success('重命名成功');
+                searchKnowledge('');
+                return true;
+              }
+            }}
+            key={currentId} request={getFormInitialValues} layout="vertical">
             <ProFormText
               width="md"
               name="name"
               required
-              initialValue={''}
               rules={[{ required: true, message: '请输入知识库名称' }]}
               label="知识库名称"
               tooltip="最长为 24 位"
@@ -390,12 +409,11 @@ const KnowledgeManagement: React.FC = () => {
             <ProFormTextArea
               label="知识库描述"
               name="description"
-              initialValue={''}
               width="md"
               placeholder="请输入知识库描述"
             />
             <ProFormRadio.Group
-              initialValue={1} disabled label="可见权限" name="permit" options={options} />
+              disabled label="可见权限" name="permit" options={options} />
             <ProFormSelect
               name="tags"
               mode='multiple'
@@ -474,7 +492,7 @@ const KnowledgeManagement: React.FC = () => {
                 </Radio>
               </Radio.Group>
             </Form.Item>
-          </Form>
+          </ProForm>
         }
 
       </div>

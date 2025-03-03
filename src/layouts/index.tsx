@@ -20,7 +20,7 @@ import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { App, Button, Drawer, Layout, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { Icon, Link, useModel, useRouteProps, history } from 'umi';
-import AddAgent from './AddAgent';
+import AddAgent from '@/components/AgentList/AddAgent';
 import './Layout.css';
 import Logout from './Logout';
 import SubMenu from './SubMenu';
@@ -128,10 +128,10 @@ const AppLayout = () => {
       setShowConversations(!showConversations);
     } else if (e.function === 'addAgent') {
       setModalVisit(true);
-    } else if (e.function === 'showAnagentList') {
+    } else if (e.function === 'showAgentList') {
       setShowAngets(true);
     } else if (e.type === 'agent') {
-
+      console.log(e.id)
       history.push(`/new/${Date.now()}`, { assistantId: e.id })
     }
   };
@@ -163,7 +163,7 @@ const AppLayout = () => {
           ...item, type: 'agent'
         }))
       ]
-      if (data.length > 5) res.agents.push({ name: '展示更多', icon: 'local:add', function: 'showAnagentList' })
+      if (data.length > 5) res.agents.push({ name: '展示更多', icon: 'local:add', function: 'showAgentList' })
     }
 
     if (res) {
@@ -380,7 +380,7 @@ const AppLayout = () => {
                 onSelectConversation={onSelectConversation}
               ></ConversationHistory>
             </Drawer>
-            <AgentList agents={agents} showAngets={showAngets} setShowAngets={setShowAngets}></AgentList>
+            <AgentList onClick={onClickSubMenu} agents={agents} showAngets={showAngets} setShowAngets={setShowAngets}></AgentList>
             <Outlet></Outlet>
           </div>
 
