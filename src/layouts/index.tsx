@@ -17,7 +17,7 @@ import {
   RightOutlined,
 } from '@ant-design/icons';
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
-import { Button, Drawer, Layout, message } from 'antd';
+import { App, Button, Drawer, Layout, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { Icon, Link, useModel, useRouteProps, history } from 'umi';
 import AddAgent from './AddAgent';
@@ -233,158 +233,160 @@ const AppLayout = () => {
     fetchAgents();
   };
   return (
-    <div className="flex">
-      <div
-        id="sideMenu"
-        className="w-[255px] p-4 pt-0 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
-      >
-        <AddAgent onClose={onClose} modalVisible={modalVisit} />
-        {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
-        <div style={{ display: 'none' }}>
-          <Icon icon="local:chat" />
-          <Icon icon="local:knowledge" />
-          <Icon icon="local:search" />
-          <Icon icon="local:setting" />
-          <Icon icon="local:team" />
-          <Icon icon="local:agent" />
-          <Icon icon="local:history" />
-          <Icon icon="local:historyChat" />
-          <Icon icon="local:add" />
-        </div>
-        <div className="flex flex-col items-center"></div>
-        <div className="h-16 w-full flex justify-center items-center">
-          <Link to="/home" className="flex flex-row items-center">
-            <img className="flex-grow" src={systemInfo?.logo} alt="logo" />
-            <span className="text-[#374151] font-normal text-lg">
-              {systemInfo?.systemName}
-            </span>
-          </Link>
-        </div>
-        <Button
-          icon={<PlusCircleOutlined />}
-          type="primary"
-          className={` mt-6 !w-full h-[40px]`}
-          onClick={onCreateNewConversation}
+    <App>
+      <div className="flex">
+        <div
+          id="sideMenu"
+          className="w-[255px] p-4 pt-0 side h-[100vh] bg-[#ffffff] shadow-md  flex-shrink-0 relative z-50 select-none"
         >
-          {'创建新对话'}
-        </Button>
+          <AddAgent onClose={onClose} modalVisible={modalVisit} />
+          {/* 这里不知道为何必须这么才能显示下方菜单图标 */}
+          <div style={{ display: 'none' }}>
+            <Icon icon="local:chat" />
+            <Icon icon="local:knowledge" />
+            <Icon icon="local:search" />
+            <Icon icon="local:setting" />
+            <Icon icon="local:team" />
+            <Icon icon="local:agent" />
+            <Icon icon="local:history" />
+            <Icon icon="local:historyChat" />
+            <Icon icon="local:add" />
+          </div>
+          <div className="flex flex-col items-center"></div>
+          <div className="h-16 w-full flex justify-center items-center">
+            <Link to="/home" className="flex flex-row items-center">
+              <img className="flex-grow" src={systemInfo?.logo} alt="logo" />
+              <span className="text-[#374151] font-normal text-lg">
+                {systemInfo?.systemName}
+              </span>
+            </Link>
+          </div>
+          <Button
+            icon={<PlusCircleOutlined />}
+            type="primary"
+            className={` mt-6 !w-full h-[40px]`}
+            onClick={onCreateNewConversation}
+          >
+            {'创建新对话'}
+          </Button>
 
-        {Object.values(routeObject).map((menu: any, index: number) => {
-          const categoryName = menu.categoryName;
-          return (
-            <div key={index}>
-              <div className="text-[#6B7280] text-xs leading-4 font-medium mb-2 mt-6 pl-4">
-                {categoryName}
-              </div>
-              <div className="flex flex-col items-center">
-                {menu.items.map((item: RouteItem) => {
-                  // 判断是否匹配效果并不好
-                  const matched =
-                    matchPath({ path: item.path || '/' }, pathname) ||
-                    (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
-                    (isSystemRouteActive && item.path === systemPath);
-                  return (
-                    <div key={item.path || item.name} className="w-full">
-                      <div
-                        className={`${matched ? 'bg-[#F3F4F6]' : 'hover:bg-[#F3F4F6]'} ${'flex-row leading-[40px] pl-4 h-[40px]'} hover:cursor-pointer w-full rounded flex items-center `}
-                        onClick={() => onClickMenuItem(item)}
-                      >
-                        <Icon
-                          icon={(item.icon || 'local:knowledge') as any}
-                          className="mr-[12px]"
-                        />
-                        <span
-                          className={`${
-                            matched
+          {Object.values(routeObject).map((menu: any, index: number) => {
+            const categoryName = menu.categoryName;
+            return (
+              <div key={index}>
+                <div className="text-[#6B7280] text-xs leading-4 font-medium mb-2 mt-6 pl-4">
+                  {categoryName}
+                </div>
+                <div className="flex flex-col items-center">
+                  {menu.items.map((item: RouteItem) => {
+                    // 判断是否匹配效果并不好
+                    const matched =
+                      matchPath({ path: item.path || '/' }, pathname) ||
+                      (isManagementRouteActive && item.path === managementPath) || // 如果是管理页面，需要额外判断
+                      (isSystemRouteActive && item.path === systemPath);
+                    return (
+                      <div key={item.path || item.name} className="w-full">
+                        <div
+                          className={`${matched ? 'bg-[#F3F4F6]' : 'hover:bg-[#F3F4F6]'} ${'flex-row leading-[40px] pl-4 h-[40px]'} hover:cursor-pointer w-full rounded flex items-center `}
+                          onClick={() => onClickMenuItem(item)}
+                        >
+                          <Icon
+                            icon={(item.icon || 'local:knowledge') as any}
+                            className="mr-[12px]"
+                          />
+                          <span
+                            className={`${matched
                               ? 'text-[#374151] font-medium'
                               : 'text-[#4B5563] font-normal'
-                          } text-lg flex-grow`}
-                        >
-                          {item.name}
-                        </span>
-                        {item.customChildren &&
-                          (item.showChildren ? (
-                            <DownOutlined className="mr-[18px]" />
-                          ) : (
-                            <RightOutlined className="mr-[18px]" />
-                          ))}
+                              } text-lg flex-grow`}
+                          >
+                            {item.name}
+                          </span>
+                          {item.customChildren &&
+                            (item.showChildren ? (
+                              <DownOutlined className="mr-[18px]" />
+                            ) : (
+                              <RightOutlined className="mr-[18px]" />
+                            ))}
+                        </div>
+                        {/* 下拉菜单 */}
+                        {item.showChildren && item.customChildren}
                       </div>
-                      {/* 下拉菜单 */}
-                      {item.showChildren && item.customChildren}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+            );
+          })}
+          <div className=" absolute bottom-0 w-full flex justify-start items-center">
+            <span className=" text-sm italic text-gray-500">
+              构建时间：{globalInfo.buildTime}
+            </span>
+          </div>
+        </div>
+        <div className="flex-1 h-screen overflow-hidden flex flex-col">
+          <Header className="p-0 !bg-white shadow flex items-center justify-between px-6">
+            <div className="flex items-center">
+              <h1 className="text-[#1F2937] text-lg font-medium">
+                {`${isManagementRouteActive ? managementName : isSystemRouteActive ? systemName : routeProps.name}`}
+              </h1>
+              {(isManagementRouteActive || isSystemRouteActive) && (
+                <ul className="flex h-[42px] gap-4 ml-8">
+                  {routeChildren[0]?.routes?.map((item: any) => {
+                    const matched = matchPath(
+                      { path: item.path || '/' },
+                      pathname,
+                    );
+                    return (
+                      <li
+                        key={item.path}
+                        className={`${matched ? 'text-[#4F46E5] font-medium border-b-2 border-[#4F46E5] pb-1' : 'text-[#4B5563] font-normal'} leading-[42px] rounded`}
+                      >
+                        <Link to={item.path} className="mx-4">
+                          {item.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-          );
-        })}
-        <div className=" absolute bottom-0 w-full flex justify-start items-center">
-          <span className=" text-sm italic text-gray-500">
-            构建时间：{globalInfo.buildTime}
-          </span>
-        </div>
-      </div>
-      <div className="flex-1 h-screen overflow-hidden flex flex-col">
-        <Header className="p-0 !bg-white shadow flex items-center justify-between px-6">
-          <div className="flex items-center">
-            <h1 className="text-[#1F2937] text-lg font-medium">
-              {`${isManagementRouteActive ? managementName : isSystemRouteActive ? systemName : routeProps.name}`}
-            </h1>
-            {(isManagementRouteActive || isSystemRouteActive) && (
-              <ul className="flex h-[42px] gap-4 ml-8">
-                {routeChildren[0]?.routes?.map((item: any) => {
-                  const matched = matchPath(
-                    { path: item.path || '/' },
-                    pathname,
-                  );
-                  return (
-                    <li
-                      key={item.path}
-                      className={`${matched ? 'text-[#4F46E5] font-medium border-b-2 border-[#4F46E5] pb-1' : 'text-[#4B5563] font-normal'} leading-[42px] rounded`}
-                    >
-                      <Link to={item.path} className="mx-4">
-                        {item.name}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-          <div className="flex items-center">
-            <UserInfo avatar={url} name={user.name} title={'超级管理员'} />
-            <Logout></Logout>
-          </div>
-        </Header>
-        <div
-          id="appContent"
-          style={{ height: 'calc(100% - 64px)' }}
-          className="flex-1 bg-gray-100 p-6 relative"
-        >
-          <Drawer
-            placement="left"
-            mask={true}
-            title="历史会话"
-            getContainer={'#appContent'}
-            rootStyle={{ position: 'absolute', zIndex: 40 }}
-            styles={{
-              content: { background: '#FFF' },
-              mask: { background: 'rgba(0, 0, 0, 0.1)' },
-            }}
-            open={showConversations}
-            onClose={() => setShowConversations(false)}
-          >
-            <ConversationHistory
-              searchTime={searchTime}
-              onSelectConversation={onSelectConversation}
-            ></ConversationHistory>
-          </Drawer>
+            <div className="flex items-center">
+              <UserInfo avatar={url} name={user.name} title={'超级管理员'} />
+              <Logout></Logout>
+            </div>
+          </Header>
 
-          <AgentList agents={agents} showAngets={showAngets} setShowAngets={setShowAngets}></AgentList>
-          <Outlet></Outlet>
-        </div>
-      </div>
-    </div>
+          <div
+            id="appContent"
+            style={{ height: 'calc(100% - 64px)' }}
+            className="flex-1 bg-gray-100 p-6 relative"
+          >
+            <Drawer
+              placement="left"
+              mask={true}
+              title="历史会话"
+              getContainer={'#appContent'}
+              rootStyle={{ position: 'absolute', zIndex: 40 }}
+              styles={{
+                content: { background: '#FFF' },
+                mask: { background: 'rgba(0, 0, 0, 0.1)' },
+              }}
+              open={showConversations}
+              onClose={() => setShowConversations(false)}
+            >
+              <ConversationHistory
+                searchTime={searchTime}
+                onSelectConversation={onSelectConversation}
+              ></ConversationHistory>
+            </Drawer>
+            <AgentList agents={agents} showAngets={showAngets} setShowAngets={setShowAngets}></AgentList>
+            <Outlet></Outlet>
+          </div>
+
+        </div >
+      </div >
+    </App >
   );
 };
 
