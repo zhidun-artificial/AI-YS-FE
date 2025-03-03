@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { stringify } from 'querystring'
 
 /**
@@ -25,13 +26,13 @@ export const isDocx = (url: string) => url.endsWith('.docx') || url.endsWith('.d
  * 然后打开一个新的浏览器标签页指向文档预览路由。
  * 如果窗口成功打开，它将文档标题设置为文件名。
  */
-export const previewDocx = (file: { name: string, url: string }) => {
-  const query = stringify({ name: file.name, file: file.url });
+export const previewDocx = (file: { fileName: string, url: string }) => {
+  const query = stringify({ name: file.fileName, file: file.url });
   const url = `${window.location.origin}${window.location.pathname}#/preview/docx?${query}`;
   const win = window.open('', '_blank');
   if (win) {
     win.location.href = url;
-    if (win.document) win.document.title = file.name;
+    if (win.document) win.document.title = file.fileName;
   }
 }
 
@@ -41,7 +42,14 @@ export const previewDocx = (file: { name: string, url: string }) => {
  * @param file.name 文档的名称（将用作浏览器标签页的标题）
  * @param file.url 需要预览的PDF文件的URL
  */
-export const previewPdf = (file: { name: string, url: string }) => {
+export const previewPdf = (file: { fileName: string, url: string }) => {
   const win = window.open(file.url, '_blank');
-  if (win?.document) win.document.title = file.name;
+  if (win?.document) win.document.title = file.fileName;
+}
+
+
+export const previewFile = (file: { fileName: string, url: string }) => {
+  if (isPDF(file.fileName)) return previewPdf(file);
+  if (isDocx(file.fileName)) return previewDocx(file);
+  message.error('文件类型不支持预览');
 }
