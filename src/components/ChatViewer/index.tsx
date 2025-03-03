@@ -84,6 +84,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
   const [hasAttachment, setHasAttachment] = useState(withDocFiles.length > 0);
   const attachmentRef = useRef<ChatAttachmentsRef>(null);
   const { theme } = useContext(ConfigContext);
+  const [isTyping, setIsTyping] = useState(false);
+  const cancelStream = useRef<() => void>(() => { });
 
   //  =================== Roles ====================
 
@@ -275,6 +277,8 @@ const ChatViewer: React.ForwardRefRenderFunction<
         let tmpMessageInfo: ChatInfo & { messageId: string } | null = null;
         const contents: string[] = [];
         let ctxInfo: MessageData['ctx'] = undefined;
+        cancelStream.current = () => { ret.getReader().cancel() };
+        setIsTyping(true);
         for await (const chunk of XStream({ readableStream: ret })) {
           const parsedMessage = convertMessage(chunk.data);
           if (parsedMessage !== false) {
@@ -296,6 +300,7 @@ const ChatViewer: React.ForwardRefRenderFunction<
           }
         }
         if (tmpMessageInfo) setChatInfo(() => tmpMessageInfo);
+        setIsTyping(false);
         onSuccess({
           type: 'fullAnswer',
           id: tmpMessageInfo?.conversationId || '',
@@ -408,6 +413,10 @@ const ChatViewer: React.ForwardRefRenderFunction<
     setHasAttachment(tempFiles.current.length > 0);
   };
 
+  const onCancelStream = () => {
+    if (cancelStream.current) cancelStream.current();
+  }
+
   // ==================== Event ====================
 
   // 发送消息
@@ -517,18 +526,23 @@ const ChatViewer: React.ForwardRefRenderFunction<
           value={content}
           onSubmit={onSubmit}
           onChange={setContent}
+          onCancel={() => { if (cancelStream.current) cancelStream.current() }}
           placeholder='请输入您的问题，让我来协助您...'
           // 开始对话之后，则无法进行附件上传
           prefix={messages.length > 0 ? null : attachmentsNode}
-          loading={agent.isRequesting()}
+          loading={agent.isRequesting() && !isTyping}
           className="bg-[#F9FAFB] rounded"
-          actions={() => {
+          actions={(_, info) => {
+            const { LoadingButton } = info.components;
             return (
-              <Button type="primary"
-                icon={<SendSvg style={{ width: 14, height: 14, color: '#FFF', marginRight: 8 }} />}
-                disabled={agent.isRequesting()}
-                loading={agent.isRequesting()}
-                onClick={() => onSubmit(content)}>发送</Button>
+              isTyping ?
+                <LoadingButton type="primary" disabled={false} onClick={() => onCancelStream()} ></LoadingButton>
+                :
+                <Button type="primary"
+                  icon={<SendSvg style={{ width: 14, height: 14, color: '#FFF', marginRight: 8 }} />}
+                  // disabled={agent.isRequesting()}
+                  loading={agent.isRequesting() || isTyping}
+                  onClick={() => { onSubmit(content) }}>{'发送'}</Button>
             )
           }}
         />
