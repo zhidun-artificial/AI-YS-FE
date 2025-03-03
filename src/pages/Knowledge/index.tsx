@@ -113,7 +113,8 @@ const KnowledgePage: React.FC = () => {
                 className="text-[#6B7280] cursor-pointer"
               >
                 <Icon
-                  icon={(`local:${item.ext.tag}` || 'local:knowledge') as any}
+                  icon={(item.ext.icon || 'local:knowledge') as any}
+                  color={item.ext.iconColor as string || '#3B82F6'}
                   className="absolute top-6 right-6 w-auto h-6"
                 />
                 <p className="text-[#111827] font-medium text-lg mb-1">

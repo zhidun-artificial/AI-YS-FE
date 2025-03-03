@@ -1,6 +1,7 @@
 // import { useAccessMarkedRoutes } from '@@/plugin-access';
 import ConversationHistory from '@/components/ConversationHistory';
 import UserInfo from '@/components/User/UserInfo';
+import AgentList from '@/components/AgentList';
 import routes, {
   managementName,
   managementPath,
@@ -18,7 +19,7 @@ import {
 import { matchPath, Outlet, useLocation, useNavigate } from '@umijs/max';
 import { Button, Drawer, Layout, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { Icon, Link, useModel, useRouteProps } from 'umi';
+import { Icon, Link, useModel, useRouteProps, history } from 'umi';
 import AddAgent from './AddAgent';
 import './Layout.css';
 import Logout from './Logout';
@@ -102,7 +103,6 @@ menus['function'].items.sort(
 const AppLayout = () => {
   const navigate = useNavigate();
 
-  // 模拟网络延迟
   const [agents, setAgents] = useState<AgenteItem[]>([]);
   const { pathname } = useLocation();
   const routeProps = useRouteProps();
@@ -115,6 +115,7 @@ const AppLayout = () => {
     'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   );
   const [showConversations, setShowConversations] = useState(false);
+  const [showAngets, setShowAngets] = useState(false);
   const [searchTime, setSearchTime] = useState(Date.now());
   const [systemInfo, setSystemInfo] = useState<any>({});
 
@@ -127,6 +128,11 @@ const AppLayout = () => {
       setShowConversations(!showConversations);
     } else if (e.function === 'addAgent') {
       setModalVisit(true);
+    } else if (e.function === 'showAnagentList') {
+      setShowAngets(true);
+    } else if (e.type === 'agent') {
+
+      history.push(`/new/${Date.now()}`, { assistantId: e.id })
     }
   };
 
@@ -153,15 +159,11 @@ const AppLayout = () => {
       setAgents(data);
       res.agents = [
         { name: '添加助理', icon: 'local:add', function: 'addAgent' },
-        ...data.slice(0, 5),
-      ];
-      if (data.length > 5)
-        res.agents.push({
-          name: '展示更多',
-          icon: 'local:add',
-          function: 'showMore',
-        });
-      console.log(agents);
+        ...data.slice(0, 5).map((item: any) => ({
+          ...item, type: 'agent'
+        }))
+      ]
+      if (data.length > 5) res.agents.push({ name: '展示更多', icon: 'local:add', function: 'showAnagentList' })
     }
 
     if (res) {
@@ -377,6 +379,8 @@ const AppLayout = () => {
               onSelectConversation={onSelectConversation}
             ></ConversationHistory>
           </Drawer>
+
+          <AgentList agents={agents} showAngets={showAngets} setShowAngets={setShowAngets}></AgentList>
           <Outlet></Outlet>
         </div>
       </div>

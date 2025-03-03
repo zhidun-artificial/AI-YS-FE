@@ -16,7 +16,7 @@ export default function SubMenu({
           onClick={() => onClick(item)}
         >
           <Icon
-            icon={(item.icon || 'local:knowledge') as any}
+            icon={(item.icon || item.ext.icon || 'local:knowledge') as any}
             className="mr-[12px]"
           />
           <span className="text-[#4B5563] font-normal text-sm">
